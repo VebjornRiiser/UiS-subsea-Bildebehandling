@@ -32,18 +32,28 @@
 
 #endif
 
-uint8_t serial_melding[1] = {0};
-uint8_t serialBuffer[11] = {0};
-uint8_t serialBufferTeller = 0;
-int test = 0;
+char serialBuffer[16] = {0};
+int serialBufferTeller = 0;
+struct termios tty;
 
-/**
- * @brief test
- * 
- * @param serial_com 
- */
-void read_serial_port(int serial_com) {
-  read(serial_com, serial_melding, 1);
+#define BLEN    48
+unsigned char rbuf[BLEN];
+unsigned char *rp = &rbuf[BLEN];
+int bufcnt = 0;
+
+/* get a byte from intermediate buffer of serial terminal */
+static unsigned char getbyte(int serial_com)
+{
+    if ((rp - rbuf) >= bufcnt) {
+        /* buffer needs refill */
+        bufcnt = read(serial_com, rbuf, BLEN);
+        if (bufcnt <= 0) {
+            /* report error, then abort */
+            printf("OBS, ingen data!\n");
+        }
+        rp = rbuf;
+    }
+    return *rp++;
 }
 
 /**
@@ -56,44 +66,50 @@ int main( void ) {
     std::cout << "Connecting to USB...\n";
     int serial_com = open("/dev/ttyACM0", O_RDWR);
   #endif
+  if(tcgetattr(serial_com, &tty) != 0) {
+    printf("Error %i from tcgetattr: %s\n", errno, strerror(errno));
+  }
+  tty.c_lflag &= ~ICANON;
+  tty.c_lflag &= ~ECHO; // Disable echo
+  tty.c_lflag &= ~ECHOE; // Disable erasure
+  tty.c_lflag &= ~ECHONL; // Disable new-line echo
+  tty.c_lflag &= ~ISIG; // Disable interpretation of INTR, QUIT and SUSP
+  tty.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL); // Disable any special handling of received bytes
+  tty.c_oflag &= ~OPOST; // Prevent special interpretation of output bytes (e.g. newline chars)
+  tty.c_oflag &= ~ONLCR; // Prevent conversion of newline to carriage return/line feed
+
+  // Save tty settings, also checking for error
+  if (tcsetattr(serial_com, TCSANOW, &tty) != 0) {
+      printf("Error %i from tcsetattr: %s\n", errno, strerror(errno));
+  }
+
+
   std::cout << serial_com;
   while (1) {
 
-    //std::cout << serial_com;
-    //std::cout << "start av loop";
-    if (test = read(serial_com, serial_melding, 1)) {
+    // Ny startbyte?
+    while (getbyte(serial_com) != 0x02) {
 
-      std::cout << test;
-      // Start byte
-      if (serial_melding[0] == 0x03) {
-        std::cout << "ok\n";
-        // tøm buffer
-        memset(serialBuffer, 0, 11);
-        serialBufferTeller = 0;
-
-      // Slutt byte
-      } else if (serial_melding[0] == 0x06) {
-        serialBuffer[serialBufferTeller] = serial_melding[0];
-        serialBufferTeller = 0;
-
-        // sett flagg data
-        //std::cout << serialBuffer;
-
-      // Data lenger enn forventa
-      } else if (serialBufferTeller >= 12) {
-        memset(serialBuffer, 0, 11);
-        serialBufferTeller = 0;
-
-      // Behandle data
-      } else {
-        //std::cout << serial_melding[0] << "Writing to buffer \n";
-        serialBuffer[serialBufferTeller] = serial_melding[0];
-        serialBufferTeller++;
-      }
-    } else {
-      std::cout << "Test3";
     }
-    //std::cout << serial_melding;
+
+    // Restart teller
+    serialBufferTeller = 0;
+    memset(serialBuffer, 0, 12);
+
+    // Les data til sluttbyte er funnet, avbryt etter 12 byte
+    while ( (serialBuffer[serialBufferTeller] = getbyte(serial_com)) != 0x03 ) {
+        
+        /* accumulate data until end found */ 
+        serialBufferTeller++;
+        if (serialBufferTeller >= 12) {
+          memset(serialBuffer, 0, 12);
+
+          std::cout << serialBuffer;
+          break;
+        }
+    }
+    // Print funnet data
+    //std::cout << serialBuffer;
   }
-  std::cout << "test\n";
+  std::cout << "test4\n";
 }
