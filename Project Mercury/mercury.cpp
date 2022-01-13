@@ -67,7 +67,7 @@ int main( void ) {
     int serial_com = open("/dev/ttyACM0", O_RDWR);
   #endif
   if(tcgetattr(serial_com, &tty) != 0) {
-    printf("Error %i from tcgetattr: %s\n", errno, strerror(errno));
+    printf("Error %i from tcgetattr: %s\n", errno,  strerror(errno));
   }
   tty.c_lflag &= ~ICANON;
   tty.c_lflag &= ~ECHO; // Disable echo
