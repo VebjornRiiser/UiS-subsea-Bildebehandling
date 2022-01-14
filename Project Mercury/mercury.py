@@ -16,15 +16,17 @@ import serial
 def mercury():
     #init
     context = zmq.Context()
-    network_socket = context.socket(zmq.REQ)
+    network_socket = context.socket(zmq.PAIR)
     network_socket.connect("tcp://127.0.0.1:6892")
+    print("STARTING SENDING\n")
     while True:
         network_socket.send(b'TEST')
-        break
+        time.sleep(1)
 
 # Reads data from network port
 def network_thread(network_socket, network_callback, flag):
     network_socket.bind("tcp://127.0.0.1:6892")
+    print("Server started\n")
     while flag[0]:
         melding = network_socket.recv()
         network_callback(melding)
@@ -32,8 +34,6 @@ def network_thread(network_socket, network_callback, flag):
 
 # Reads serial data
 def USB_thread(h_serial, USB_callback, flag):
-    #h_serial.write(b"ds")
-    
     while flag[1]:
         melding = h_serial.readline().decode("utf8").strip("\n")
         USB_callback(melding)
@@ -50,7 +50,7 @@ class Callbacks:
 
         # Network socket recive
         context = zmq.Context()
-        self.network_rcv_socket = context.socket(zmq.REP)
+        self.network_rcv_socket = context.socket(zmq.PAIR)
 
         # Network socket send
         #context2 = zmq.Context()
@@ -61,24 +61,26 @@ class Callbacks:
         # USB socket
         self.serial_port = "/dev/ttyACM0"
         self.serial_baud = 9600
-        self.toggle_USB()
+        #self.toggle_USB()
         #self.network_snd_socket.send_string(f'USB connection started')
 
     def network_callback(self, message):
         self.serial.write(message)
-        
+        pass
+
     def toggle_network(self):
         if self.network_status:
             self.status_flag_list = 0
             self.network_status = False
         else:
+            print("Starting thread")
             self.network_trad = threading.Thread(name="Network_thread",target=network_thread, daemon=True, args=(self.network_rcv_socket, self.network_callback, self.status_flag_list))
             self.network_trad.start()
             self.network_status = True
 
     def USB_callback(self, melding):
-        #self.network_snd_socket(melding)
-        print(melding)
+        self.network_snd_socket(melding)
+
 
     def toggle_USB(self):
         if self.USB_status:
@@ -97,7 +99,7 @@ class Callbacks:
 if __name__ == "__main__":
     a = Callbacks()
     a.toggle_network()
-    time.sleep(10)
+    time.sleep(3)
     mercury()
     while True:
         time.sleep(1)
