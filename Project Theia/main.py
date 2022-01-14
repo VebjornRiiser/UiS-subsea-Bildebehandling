@@ -8,7 +8,7 @@ import multiprocessing
 import time
 import math
 import zmq
-import queu
+
 
 
 #TODO click funksjon, Show image for debug/test 
@@ -47,7 +47,12 @@ def camera(camera_id):
     cv2.destroyAllWindows()
 
 
-def waitfunk(sleep):
+def waitfunk(sleep:int=100) -> None: 
+    """Wait function that prints a value before it sleeps for a given time
+
+    Args:
+        sleep (int, optional): Time given in sekunds, waits sleep*100. Defaults to 100.
+    """
     print("test")
     a = 0
     while a < 100:
@@ -57,7 +62,10 @@ def waitfunk(sleep):
 
 
 #TODO cli_runtime
-#Funksjon som håndterer en commandline interface for hovedtråen (slik at man kan styre ting når man tester)
+#Funksjon som håndterer en commandline interface for prossesser (slik at man kan styre ting når man tester)
+# Denne skulle kanskje vært en toggle funksjon som man kan enable fra click når man kjører programmet
+
+
 def cli_runtime():
     
     pass
@@ -69,6 +77,10 @@ if __name__ == "__main__":
     camera_prossess = multiprocessing.Process(target=camera, args=(0,))
     camera_prossess2 = multiprocessing.Process(target=camera, args=(1,))
     wait_prossess = multiprocessing.Process(target=waitfunk, args=(1,))
-    camera_prossess.start()
-    camera_prossess2.start()
+    
+    wait_prossess2 = multiprocessing.Process(target=waitfunk, args=(1,))
+    #camera_prossess.start()
+    #camera_prossess2.start()
     wait_prossess.start()
+    wait_prossess2.start()
+
