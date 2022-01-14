@@ -39,20 +39,23 @@ void *Testfunk_recv(void *threadid) {
 }
 
 void *USB_Communication(void *threadid){
+    sleep(2);
     long thread_id;
     thread_id = (long) threadid;
     zmq::context_t ctx1;
     zmq::socket_t socket_USB(ctx1, zmq::socket_type::pair);
-    const std::string address_socket_HUB = "tcp://127.0.0.1:5679";
+    //const std::string address_socket_HUB = "tcp://127.0.0.1:6892";
     sleep(1);
-    socket_USB.connect(address_socket_HUB);
-    std::cout << "Sockets made\n";
+    zmq_connect(socket_USB, "tcp://127.0.0.1:6892");
+    //socket_USB.connect(address_socket_HUB);
+    std::cout << "Sockets connected\n";
     zmq_msg_t melding;
-    zmq_msg_init_size (&melding, 32);
-    std::memset(zmq_msg_data (&melding), 'i', 32);
+    zmq_msg_init_size (&melding, 16);
+    std::memset(zmq_msg_data (&melding), 'i', 16);
     //std::memcpy(zmq_msg_data (&melding), &"Test", 4);
     sleep(1);
     int rc = zmq_sendmsg(socket_USB, &melding, 0);
+    //int rc = zmq_send(socket_USB, &melding, 16, 0);
     std::cout << "Message sendt: " << rc << "\n";
     pthread_exit(NULL);
 
@@ -74,52 +77,43 @@ void *USB_Communication(void *threadid){
      */
 }
 
+void *Ethernet_Communication(void *threadid){
+    long thread_id;
+    thread_id = (long) threadid;
+    zmq::context_t ctx1;
+    zmq::socket_t socket_ethernet(ctx1, zmq::socket_type::pair);
+    const std::string address_socket_HUB = "tcp://127.0.0.1:6892";
+    pthread_exit(NULL);
+}
+
+
 int main(int argc, char const *argv[])
 {
+    // INIT
     zmq_msg_t mottak;
     zmq_msg_init (&mottak);
     zmq::context_t ctx1;
-    zmq::socket_t socket_HUB(ctx1, zmq::socket_type::pair);
-    const std::string address_socket_HUB = "tcp://127.0.0.1:5679";
+    zmq::context_t ctx2;
+    zmq::socket_t socket_USB(ctx1, zmq::socket_type::pair);
+    zmq::socket_t socket_ethernet(ctx2, zmq::socket_type::pair);
+    //const std::string address_socket_USB = "tcp://127.0.0.1:6892";
     int tall = 2;
-
+    int rc;
     //USB THREAD TEST 2
     int thread2_started;
     pthread_t thread_USB;
     thread2_started = pthread_create(&thread_USB, NULL, USB_Communication, (void*)&tall);
-    socket_HUB.bind(address_socket_HUB);
-    std::cout << "Start sleep\n";
-    sleep(1);
-    zmq_recvmsg(socket_HUB, &mottak, 0);
+    //socket_USB.bind(address_socket_USB);
+    rc = zmq_bind(socket_USB, "tcp://127.0.0.1:6892");
+    std::cout << rc <<":Start sleep\n";
+    zmq_recvmsg(socket_USB, &mottak, 0);
+    //zmq_recv(socket_USB, &mottak, 16, 0);
     uint8_t buff[32] = {0};
     printf((char*) zmq_msg_data(&mottak));
     std::cout << "Data recived:" << zmq_msg_data(&mottak) << "\n";
-    std::memcpy(buff, zmq_msg_data (&mottak), 6);
+    std::memcpy(buff, zmq_msg_data (&mottak), 16);
     zmq_msg_close (&mottak);
     //printf("0x%X-%X-%X-%X\n",buff[0],buff[1], buff[2], buff[4]);
     std::cout << buff <<"\n";
-
-    // USB THREAD TEST FIFO
-/*     tall = 3;
-    int thread2_started;
-    pthread_t thread_USB;
-    std::cout << "Starting USB Thread\n";
-    thread2_started = pthread_create(&thread_USB, NULL, USB_Communication, (void*)&tall);
-    if (thread2_started){
-        std::cout << "Thread failed to start\n";
-    }
-    std::cout << "Test4\n";
-    char *fifo1;
-    strcpy(fifo1, "/tmp/FIFO_USB");
-    //fifo1 = "/tmp/FIFO_USB"; 
-    mkfifo(fifo1, 066zmq_msg_data (&melding)6); //Creates FIFO named FIFO_USB
-    int result = 0;
-    char teststring[80];
-    std::cout << "While started\n";
-    result = open(fifo1, O_RDONLY);
-    read(result, teststring, 80);
-    //std::cout << "Data from USB:\n" << teststring << "\n###\n";
-    //std::cout << "Result from reading: \n" << result;
-    close(result); */
     return 0;
 }
