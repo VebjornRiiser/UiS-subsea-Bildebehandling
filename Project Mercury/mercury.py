@@ -8,7 +8,7 @@ from multiprocessing import context
 from unicodedata import name
 from xml.etree.ElementInclude import include
 import threading
-import cv2
+#import cv2
 import zmq
 import time
 import serial
@@ -32,8 +32,10 @@ def network_thread(network_socket, network_callback, flag):
 
 # Reads serial data
 def USB_thread(h_serial, USB_callback, flag):
+    #h_serial.write(b"ds")
+    
     while flag[1]:
-        melding = h_serial.readline().decode("utf8").strip("\r\n")
+        melding = h_serial.readline().decode("utf8").strip("\n")
         USB_callback(melding)
     print("USB thread stopped")
 
@@ -52,7 +54,7 @@ class Callbacks:
         context2 = zmq.Context()
         self.network_snd_socket = context.socket(zmq.REQ)
         # Waiting for TOPSIDE
-        self.network_snd_socket.connect("tcp://10.0.0.1:6899")
+        #self.network_snd_socket.connect("tcp://10.0.0.1:6899")
 
         # USB socket
         self.serial_port = "/dev/ttyACM0"
@@ -73,7 +75,8 @@ class Callbacks:
             self.network_status = True
 
     def USB_callback(self, melding):
-        self.network_snd_socket(melding)
+        #self.network_snd_socket(melding)
+        print(melding)
 
     def toggle_USB(self):
         if self.USB_status:
@@ -82,20 +85,16 @@ class Callbacks:
             self.serial.close()
             self.USB_status = False
         else:
-            with serial.Serial(self.serial_port, self.serial_baud, timeout=1) as self.serial:
-                self.serial.open()
-                self.serial_thread = threading.Thread(name = "Serial_thread", target=USB_thread, daemon=True, args=(self.USB_callback, self.serial, self.status_flag_list))
-                self.network_trad.start()
-                self.USB_status = True
+            self.serial = serial.Serial(self.serial_port, self.serial_baud, timeout=1)
+            self.serial.write(b"t")
+            self.serial_thread = threading.Thread(name = "Serial_thread", target=USB_thread, daemon=True, args=(self.serial, self.USB_callback, self.status_flag_list))
+            self.serial_thread.start()
+            self.USB_status = True
 
 
 if __name__ == "__main__":
     a = Callbacks()
-    a.toggle_network()
-    mercury()
-    a = 1
+    #a.toggle_network()
+    #mercury()
     while True:
         time.sleep(1)
-        a += 1
-        if a > 10:
-            break
