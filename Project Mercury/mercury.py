@@ -65,7 +65,7 @@ class Callbacks:
         #self.network_snd_socket.send_string(f'USB connection started')
 
     def network_callback(self, message):
-        self.serial.write(message)
+        #self.serial.write(message)
         pass
 
     def toggle_network(self):
