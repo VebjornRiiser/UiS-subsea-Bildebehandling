@@ -45,22 +45,24 @@ class Callbacks:
         self.network_status = False
         self.USB_status = False
         self.status_flag_list = [1,1,1,1,1] # Index 0 = Network, Index 1 = USB, Index 3 = ?, index 4 = ?
+        self.connect_ip = "192.168.137.2"
+        self.connect_port = "6899"
 
         # Network socket recive
         context = zmq.Context()
         self.network_rcv_socket = context.socket(zmq.REP)
 
         # Network socket send
-        context2 = zmq.Context()
-        self.network_snd_socket = context.socket(zmq.REQ)
+        #context2 = zmq.Context()
+        #self.network_snd_socket = context.socket(zmq.REQ)
         # Waiting for TOPSIDE
-        #self.network_snd_socket.connect("tcp://10.0.0.1:6899")
+        #self.network_snd_socket.connect(f'tcp://{self.connect_ip}:{self.connect_port}')
 
         # USB socket
         self.serial_port = "/dev/ttyACM0"
         self.serial_baud = 9600
         self.toggle_USB()
-        self.network_snd_socket.send_string(f'USB connection started')
+        #self.network_snd_socket.send_string(f'USB connection started')
 
     def network_callback(self, message):
         self.serial.write(message)
@@ -70,7 +72,7 @@ class Callbacks:
             self.status_flag_list = 0
             self.network_status = False
         else:
-            self.network_trad = threading.Thread(name="Network_thread",target=network_thread, daemon=True, args=(self.network_socket, self.network_callback, self.status_flag_list))
+            self.network_trad = threading.Thread(name="Network_thread",target=network_thread, daemon=True, args=(self.network_rcv_socket, self.network_callback, self.status_flag_list))
             self.network_trad.start()
             self.network_status = True
 
@@ -94,7 +96,8 @@ class Callbacks:
 
 if __name__ == "__main__":
     a = Callbacks()
-    #a.toggle_network()
-    #mercury()
+    a.toggle_network()
+    time.sleep(10)
+    mercury()
     while True:
         time.sleep(1)
