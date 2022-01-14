@@ -56,6 +56,7 @@ def waitfunk(sleep):
         time.sleep(sleep)
 
 
+#TODO cli_runtime
 #Funksjon som håndterer en commandline interface for hovedtråen (slik at man kan styre ting når man tester)
 def cli_runtime():
     
