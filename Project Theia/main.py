@@ -1,5 +1,6 @@
 from ctypes import sizeof
 from json.tool import main
+from re import U
 from unicodedata import name
 import numpy as np
 import cv2
@@ -7,6 +8,7 @@ import multiprocessing
 import time
 import math
 import zmq
+import queu
 
 
 #TODO click funksjon, Show image for debug/test 
@@ -25,6 +27,7 @@ def camera_loop(feed, flag = [1], show_img= True):
                 pass
         feed.release()
         cv2.destroyAllWindows()
+
 
 
 
@@ -53,10 +56,18 @@ def waitfunk(sleep):
         time.sleep(sleep)
 
 
+#Funksjon som håndterer en commandline interface for hovedtråen (slik at man kan styre ting når man tester)
+def cli_runtime():
+    
+    pass
+ 
+
 if __name__ == "__main__":
     context = zmq.Context()
     video_source = context.socket(zmq.PAIR)
     camera_prossess = multiprocessing.Process(target=camera, args=(0,))
+    camera_prossess2 = multiprocessing.Process(target=camera, args=(1,))
     wait_prossess = multiprocessing.Process(target=waitfunk, args=(1,))
     camera_prossess.start()
+    camera_prossess2.start()
     wait_prossess.start()
