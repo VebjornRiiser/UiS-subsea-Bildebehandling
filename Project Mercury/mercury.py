@@ -96,6 +96,9 @@ class Callbacks:
             self.USB_status = True
 
 
+
+
+
 if __name__ == "__main__":
     a = Callbacks()
     a.toggle_network()

@@ -70,6 +70,11 @@ def cli_runtime():
     
     pass
  
+ 
+#INFO https://docs.opencv.org/4.x/d8/dfe/classcv_1_1VideoCapture.html
+# Bruke grap og retrive når man bruker flere kameraer (Er vist den riktige måten å gjøre det på)
+
+
 
 if __name__ == "__main__":
     context = zmq.Context()
