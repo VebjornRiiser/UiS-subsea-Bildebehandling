@@ -93,7 +93,6 @@ class Mercury:
 
 
     def network_callback(self, message):
-        #self.serial.write(message)
         melding = json.loads(message.decode())
         for key in melding:
             if key.lower() == "can":
@@ -103,6 +102,7 @@ class Mercury:
                 print("camera")
             else:
                 print("Failed")
+
 
     def toggle_network(self):
         if self.network_status:
@@ -138,13 +138,12 @@ class Mercury:
         pass
 
 
+
 if __name__ == "__main__":
     dictionary = {"CAN":1, "camera": 1}
     meld = json.dumps(dictionary)
-    #meld = b'test'
-    #print(meld)
     ip = "127.0.0.1"
-    port = 6899
+    port = 6900
     venus_trad = threading.Thread(name="venus", target=venus, args=(ip, port, meld))
     venus_trad.start()
     a = Mercury()
