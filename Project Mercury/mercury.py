@@ -15,43 +15,35 @@ import time
 import socket
 import json
 
-dictionary = {"key":[2], "key2": [1]}
-jason_string = json.dumps(dictionary)
-
-#def mercury():
-    # #init
-    # context = zmq.Context()
-    # network_socket = context.socket(zmq.PAIR)
-    # network_socket.connect("tcp://127.0.0.1:6892")
-    # print("STARTING SENDING\n")
-    # while True:
-    #     network_socket.send(b'TEST')
-    #     time.sleep(1)
 
 # Test function for socket connection
-def venus(ip, port):
+def venus(ip, port, meld):
     network_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    network_socket.settimeout(1)
+    network_socket.settimeout(3)
     network_socket.connect((ip, port))
     for __ in range(10):
-        time.sleep(0.001)
+        time.sleep(0.2)
         try:
-            network_socket.sendall(b"test")
-        except:
+            network_socket.sendall(str.encode(meld))
+        except Exception as e:
+            print(e)
             print("Connection lost")
             break
     time.sleep(5)
     print("test")
     network_socket.close()
 
+#!TODO packaged builder for sending of serial data
+def serial_package_builder(package):
+    return package
+
 # Reads data from network port
 def network_thread(network_socket, network_callback, flag):
-    #network_socket.bind("tcp://127.0.0.1:6892")
     print("Server started\n")
     while flag[0]:
         try:
             melding = network_socket.recv(1024)
-            if melding == b"END":
+            if melding == b"":
                 break
             else:
                 network_callback(melding)
@@ -71,26 +63,19 @@ def USB_thread(h_serial, USB_callback, flag):
             pass
     print("USB thread stopped")
 
-class Callbacks:
+def handle_can(message):
+    print("Handling message")
+    print(message)
+
+class Mercury:
     def __init__(self) -> None:
         # Flags
         self.network_status = False
         self.USB_status = False
         self.status_flag_list = [1,1,1,1,1] # Index 0 = Network, Index 1 = USB, Index 3 = ?, index 4 = ?
-        self.connect_ip = "127.0.0.1"
-        self.connect_port = 6899
+        self.connect_ip = "0.0.0.0"
+        self.connect_port = 6900
         self.net_init()
-        
-
-        # Network socket recive
-        #context = zmq.Context()
-        #self.network_rcv_socket = context.socket(zmq.PAIR)
-
-        # Network socket send
-        #context2 = zmq.Context()
-        #self.network_snd_socket = context.socket(zmq.REQ)
-        # Waiting for TOPSIDE
-        #self.network_snd_socket.connect(f'tcp://{self.connect_ip}:{self.connect_port}')
 
         # USB socket
         self.serial_port = "/dev/ttyACM0"
@@ -102,14 +87,22 @@ class Callbacks:
     def net_init(self):
         self.network_rcv_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.network_rcv_socket.bind((self.connect_ip, self.connect_port))
-        self.network_rcv_socket.settimeout(1)
+        #self.network_rcv_socket.settimeout(20)
         self.network_rcv_socket.listen()
         self.network_connection, self.network_address = self.network_rcv_socket.accept()
 
 
     def network_callback(self, message):
         #self.serial.write(message)
-        print(message)
+        melding = json.loads(message.decode())
+        for key in melding:
+            if key.lower() == "can":
+                #self.serial.write(serial_package_builder(message[key]))
+                print("CAN")
+            elif key.lower() == "camera":
+                print("camera")
+            else:
+                print("Failed")
 
     def toggle_network(self):
         if self.network_status:
@@ -138,15 +131,25 @@ class Callbacks:
             self.serial_thread.start()
             self.USB_status = True
 
+    def intern_com_callback(self):
+        pass
+
+    def intern_com_init(self):
+        pass
+
 
 if __name__ == "__main__":
+    dictionary = {"CAN":1, "camera": 1}
+    meld = json.dumps(dictionary)
+    #meld = b'test'
+    #print(meld)
     ip = "127.0.0.1"
     port = 6899
-    venus_trad = threading.Thread(name="venus", target=venus, args=(ip, port))
+    venus_trad = threading.Thread(name="venus", target=venus, args=(ip, port, meld))
     venus_trad.start()
-    a = Callbacks()
+    a = Mercury()
     a.toggle_network()
     print("For loop started")
-    for __ in range(10):
-        time.sleep(1)
+    for __ in range(20):
+        time.sleep(5)
     print("For loop stopped")
