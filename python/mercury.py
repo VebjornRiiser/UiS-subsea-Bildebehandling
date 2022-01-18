@@ -30,7 +30,6 @@ def venus(ip, port, meld):
             print("Connection lost")
             break
     time.sleep(5)
-    print("test")
     network_socket.close()
 
 #!TODO packaged builder for sending of serial data
@@ -74,7 +73,7 @@ class Mercury:
         self.network_status = False
         self.USB_status = False
         self.status_flag_list = [1,1,1,1,1] # Index 0 = Network, Index 1 = USB, Index 3 = Intern com, index 4 = ?
-        self.connect_ip = "0.0.0.0"
+        self.connect_ip = "127.0.0.1"
         self.connect_port = 6900
         self.net_init()
 
@@ -135,6 +134,7 @@ class Mercury:
             
 
 if __name__ == "__main__":
+    pass
     #dictionary = {"CAN":1, "camera": 1}
     #meld = json.dumps(dictionary)
     #ip = "127.0.0.1"
@@ -146,4 +146,3 @@ if __name__ == "__main__":
     #print("For loop started")
     #for __ in range(20):
     #    time.sleep(5)
-    #print("For loop stopped")
