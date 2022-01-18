@@ -3,6 +3,7 @@
 
 
 from ast import arg
+from contextvars import Context
 from json.tool import main
 from mimetypes import init
 from multiprocessing import context
@@ -14,7 +15,6 @@ import time
 #import serial
 import socket
 import json
-
 
 # Test function for socket connection
 def venus(ip, port, meld):
@@ -63,16 +63,17 @@ def USB_thread(h_serial, USB_callback, flag):
             pass
     print("USB thread stopped")
 
-def handle_can(message):
-    print("Handling message")
-    print(message)
-
+def intern_com_thread(intern_com, intern_com_callback, flag):
+    print("Starting internal communication")
+    while (flag[2]):
+        data = intern_com.recv()
+        intern_com_callback(data)
 class Mercury:
     def __init__(self) -> None:
         # Flags
         self.network_status = False
         self.USB_status = False
-        self.status_flag_list = [1,1,1,1,1] # Index 0 = Network, Index 1 = USB, Index 3 = ?, index 4 = ?
+        self.status_flag_list = [1,1,1,1,1] # Index 0 = Network, Index 1 = USB, Index 3 = Intern com, index 4 = ?
         self.connect_ip = "0.0.0.0"
         self.connect_port = 6900
         self.net_init()
@@ -131,24 +132,18 @@ class Mercury:
             self.serial_thread.start()
             self.USB_status = True
 
-    def intern_com_callback(self):
-        pass
-
-    def intern_com_init(self):
-        pass
-
-
+            
 
 if __name__ == "__main__":
-    dictionary = {"CAN":1, "camera": 1}
-    meld = json.dumps(dictionary)
-    ip = "127.0.0.1"
-    port = 6900
-    venus_trad = threading.Thread(name="venus", target=venus, args=(ip, port, meld))
-    venus_trad.start()
-    a = Mercury()
-    a.toggle_network()
-    print("For loop started")
-    for __ in range(20):
-        time.sleep(5)
-    print("For loop stopped")
+    #dictionary = {"CAN":1, "camera": 1}
+    #meld = json.dumps(dictionary)
+    #ip = "127.0.0.1"
+    #port = 6900
+    #venus_trad = threading.Thread(name="venus", target=venus, args=(ip, port, meld))
+    #venus_trad.start()
+    #a = Mercury()
+    #a.toggle_network()
+    #print("For loop started")
+    #for __ in range(20):
+    #    time.sleep(5)
+    #print("For loop stopped")
