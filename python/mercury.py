@@ -7,6 +7,7 @@ from contextvars import Context
 from json.tool import main
 from mimetypes import init
 from multiprocessing import context
+import struct
 from unicodedata import name
 from xml.etree.ElementInclude import include
 import threading
@@ -34,8 +35,20 @@ def venus(ip, port, meld):
     network_socket.close()
 
 #!TODO packaged builder for sending of serial data
-def serial_package_builder(package):
-    return package
+def serial_package_builder(data, can):
+    package = []
+    param_bin = 0b00000000
+    
+    package.append(0x02)
+    package.append(0x05) if can else package.append(0x06)
+    package.append(param_bin)
+
+    #TODO Lage til alle typer data som skal mottas: https://docs.python.org/3/library/struct.html
+    [package.append(i) for i in struct.pack('<q', 345)]
+
+    package.append(0x03)
+
+    return bytearray(package)
 
 # Reads data from network port
 def network_thread(network_socket, network_callback, flag):
@@ -94,10 +107,10 @@ class Mercury:
 
 
     def network_callback(self, message):
-        melding = json.loads(message.decode())
-        for key in melding:
-            if key.lower() == "can":
-                #self.serial.write(serial_package_builder(message[key]))
+        message = json.loads(message.decode())
+        for key in message:
+            if key.lower() == "can" or key.lower() == "tilt":
+                self.serial.write(serial_package_builder(message[key], True if key.lower() == "can" else False))
                 print("CAN")
             elif key.lower() == "camera":
                 print("camera")
