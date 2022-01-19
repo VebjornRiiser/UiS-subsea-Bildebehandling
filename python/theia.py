@@ -2,6 +2,7 @@ from ast import While, arg
 from ctypes import sizeof
 from json.tool import main
 from re import U
+from socket import AF_INET, SOCK_DGRAM, socket
 from sqlite3 import connect
 import threading
 from unicodedata import name
@@ -12,7 +13,12 @@ import time
 import math
 from sys import platform
 
-
+def contour_img(image):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    ret, threash, = cv2.threshold(gray, 127, 255, 0)
+    cont, hie = cv2.findContours(threash, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    cv2.drawContours(image, cont, -1, (0, 0, 0), 3 )
+    return image
 
 #TODO click funksjon, Show image for debug/test 
 def camera(camera_id, connection):
@@ -27,18 +33,28 @@ def camera(camera_id, connection):
     feed.set(3, 640)
     feed.set(4, 480)
     run = True
+    f_video_feed = True
+
     if not (feed.isOpened()):
         print("Could not open video device")
         run = False
+    video_stream_socket = socket(AF_INET, SOCK_DGRAM)
     while run:
         if not shared_list[0]:
             print("Message recived")
             print(shared_list[1])
+            if shared_list[1] == "start_fedd":
+                f_video_feed = True
             shared_list[0] = 1
         ref, frame = feed.read()
+        #frame = contour_img(frame)
         cv2.imshow("feed", frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+        if f_video_feed:
+            package = frame.flatten().tobytes()
+            for x in range(15):
+                video_stream_socket.sendto(package[(x*61440):(x+1)*61440], ("127.0.0.1", 6888))
     connection.send("Quit")
     feed.release()
     cv2.destroyAllWindows()
@@ -103,6 +119,12 @@ class Theia():
         elif name == self.cam_back_name:
             print("Message revived back camera: "+ msg)
             self.camera_status[1] = 0
+
+    def send_camera_func(self, camera_id, msg):
+        if camera_id == 1: # MSG TO FRONT CAMERA
+            self.host_cam1.send(msg)
+        elif camera_id == 2: # MSG TO BACK CAMERA
+            self.host_cam2.send(msg)
 
 
 
