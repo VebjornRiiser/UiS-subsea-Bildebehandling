@@ -23,7 +23,7 @@ if __name__ == "__main__":
     print("Main=client")
     dictionary = {"CAN":1, "camera": 1}
     meld = json.dumps(dictionary)
-    ip = "10.0.0.2"
+    ip = "127.0.0.1"
     port = 6900
     for __ in range(9999):
         venus(ip, port, meld)

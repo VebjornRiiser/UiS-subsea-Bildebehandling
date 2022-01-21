@@ -15,6 +15,7 @@ def contour_img(image):
     cv2.drawContours(image, cont, -1, (0, 0, 0), 3 )
     return image
 
+
 def udp_picture_transfer(pipe_recive, port):
     print("UDP thread started")
     video_stream_socket = socket(AF_INET, SOCK_DGRAM)
@@ -80,6 +81,7 @@ def camera(camera_id, connection, picture_send_pipe):
     connection.send("Quit")
     feed.release()
     cv2.destroyAllWindows()
+
 
 def pipe_com(connection, callback=None, name=None, list=None):
     if callback is not None:

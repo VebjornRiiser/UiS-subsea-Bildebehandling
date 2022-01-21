@@ -66,6 +66,7 @@ def USB_thread(h_serial, USB_callback, flag):
             pass
     print("USB thread stopped")
 
+
 def intern_com_thread(intern_com, intern_com_callback, flag):
     print("Starting internal communication")
     while (flag[2]):
@@ -73,13 +74,13 @@ def intern_com_thread(intern_com, intern_com_callback, flag):
         intern_com_callback(data)
         
 class Mercury:
-    def __init__(self) -> None:
+    def __init__(self, ip:str="127.0.0.1", port:int=6900) -> None:
         # Flags
         self.network_status = False
         self.USB_status = False
         self.status_flag_list = [1,1,1,1,1] # Index 0 = Network, Index 1 = USB, Index 3 = Intern com, index 4 = ?
-        self.connect_ip = "127.0.0.1"
-        self.connect_port = 6900
+        self.connect_ip = ip
+        self.connect_port = port
         self.net_init()
 
         # USB socket
