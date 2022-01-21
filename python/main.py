@@ -10,10 +10,10 @@ import json
 # Our main loop for both programs
 def main_loop():
     ip = "127.0.0.1"
-    m = Mercury(ip)
+    m = Mercury()
     #t = Theia()
     m.toggle_network()
-    m.toggle_USB
+    #m.toggle_USB
     #t.toggle_back()
     #t.toggle_front()
 

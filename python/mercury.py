@@ -27,15 +27,21 @@ def venus(ip, port, meld):
 #!TODO packaged builder for sending of serial data
 def serial_package_builder(data, can):
     package = []
-    param_bin = 0b00000000
-    
+    #param_bin = 0b00000000
+    # data[0] = id
+    # data[1] = data
     package.append(0x02)
     package.append(0x05) if can else package.append(0x06)
-    package.append(param_bin)
-
+    package.append(data[0])
+    if data[0] == 59:
+        for char in data[1]:
+            package.append(ord(char))
+        #[package.append(i) for i in struct.pack('<B',ord(data[1]))]
+    elif data[0] == 70:
+        pass
+        #[package.append(i) for i in struct.pack('<B', data[1])]
     #TODO Lage til alle typer data som skal mottas: https://docs.python.org/3/library/struct.html
-    [package.append(i) for i in struct.pack('<q', 345)]
-
+    #[package.append(i) for i in struct.pack('<q', 345)]
     package.append(0x03)
 
     return bytearray(package)
@@ -50,11 +56,12 @@ def network_thread(network_socket, network_callback, flag):
                 break
             else:
                 network_callback(melding)
-        except:
+        except Exception as e:
+            print(e)
             print("Exception")
             break
     network_socket.close()
-    print(f'Thread stopped')
+    print(f'Network thread stopped')
 
 # Reads serial data
 def USB_thread(h_serial, USB_callback, flag):
@@ -79,8 +86,8 @@ class Mercury:
         self.network_status = False
         self.USB_status = False
         self.status_flag_list = [1,1,1,1,1] # Index 0 = Network, Index 1 = USB, Index 3 = Intern com, index 4 = ?
-        self.connect_ip = ip
-        self.connect_port = port
+        self.connect_ip = "127.0.0.1"
+        self.connect_port = 6900
         self.net_init()
 
         # USB socket
@@ -93,7 +100,6 @@ class Mercury:
     def net_init(self):
         self.network_rcv_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.network_rcv_socket.bind((self.connect_ip, self.connect_port))
-        #self.network_rcv_socket.settimeout(20)
         self.network_rcv_socket.listen()
         self.network_connection, self.network_address = self.network_rcv_socket.accept()
 
@@ -101,11 +107,15 @@ class Mercury:
     def network_callback(self, message):
         message = json.loads(message.decode())
         for key in message:
-            if key.lower() == "can" or key.lower() == "tilt":
-                self.serial.write(serial_package_builder(message[key], True if key.lower() == "can" else False))
-                print("CAN")
+            if key.lower() == "can":
+                for item in message[key]:
+                    print(serial_package_builder(item, True))
+            elif key.lower() == "tilt":
+                pass
+                #self.serial.write(serial_package_builder(message[key], True if key.lower() == "can" else False))
+                print("TILT")
             elif key.lower() == "camera":
-                print("camera")
+                pass
             else:
                 print("Failed")
 
@@ -121,7 +131,8 @@ class Mercury:
             self.network_status = True
 
     def USB_callback(self, melding):
-        self.network_snd_socket(melding)
+        print(melding)
+        #self.network_snd_socket(melding)
 
 
     def toggle_USB(self):
