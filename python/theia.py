@@ -25,20 +25,21 @@ def contour_img(image):
 def udp_picture_transfer(pipe_recive, port):
     print("UDP thread started")
     video_stream_socket = socket(AF_INET, SOCK_DGRAM)
+    ip = "10.0.0.1"
     packlen = 65000
     while True:
         bilde = pipe_recive.recv()
         start = time.time()
         _, pack = cv2.imencode('.jpg',bilde)
         pack = pack.tobytes()
-        video_stream_socket.sendto(b'start', ("127.0.0.1", port))
+        video_stream_socket.sendto(b'start', (ip, port))
         time.sleep(0.001)
         pack_len = len(pack)
         for x in range(5):
             if x*packlen < pack_len:
-                video_stream_socket.sendto(pack[(x*packlen):(x+1)*packlen],("127.0.0.1", port))
+                video_stream_socket.sendto(pack[(x*packlen):(x+1)*packlen],(ip, port))
             else:
-                video_stream_socket.sendto(pack[(x*packlen):-1],("127.0.0.1", port))
+                video_stream_socket.sendto(pack[(x*packlen):-1],(ip, port))
                 break
             #video_stream_socket.sendto(package[(x*61440):(x+1)*61440], ("127.0.0.1", 6888))
             #video_stream_socket.sendto(package[(x*61440):(x+1)*61440], ("127.0.0.1", 6888))
