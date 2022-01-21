@@ -1,18 +1,9 @@
-from ast import While, arg
-from ctypes import sizeof
-from json.tool import main
-from re import U
 from socket import AF_INET, SOCK_DGRAM, socket
-from sqlite3 import connect
-from statistics import mean
 import threading
-from unicodedata import name
-from xml.etree.ElementTree import PI
 import numpy as np
 import cv2
 from multiprocessing import Pipe, Process
 import time
-import math
 from sys import platform
 
 def contour_img(image):
