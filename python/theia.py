@@ -39,7 +39,7 @@ def udp_picture_transfer(pipe_recive, port):
                 break
             #video_stream_socket.sendto(package[(x*61440):(x+1)*61440], ("127.0.0.1", 6888))
             #video_stream_socket.sendto(package[(x*61440):(x+1)*61440], ("127.0.0.1", 6888))
-            time.sleep(0.0004)
+            time.sleep(0.001)
 
 
 #TODO click funksjon, Show image for debug/test 
@@ -117,26 +117,26 @@ class Theia():
     def check_hw_id_cam(self):
         pass
 
-    def toggle_front(self):
+    def toggle_front(self, cam_id: int=0):
         if self.camera_status[0]:
             self.front_camera_prosess.kill()
             self.camera_status[0] = 0
         else:
             self.host_cam1, self.client_cam1 = Pipe()
             send_front_pic, recive_front_pic = Pipe()
-            self.front_camera_prosess = Process(target=camera, daemon=True, args=(0, self.client_cam1, send_front_pic)).start()
+            self.front_camera_prosess = Process(target=camera, daemon=True, args=(cam_id, self.client_cam1, send_front_pic)).start()
             self.front_cam_com_thread = threading.Thread(name="COM_cam_1",target=pipe_com, daemon=True, args=(self.host_cam1, self.camera_com_callback, self.cam_front_name)).start()
             self.steam_video_prosess = Process(target=udp_picture_transfer, daemon=True, args=(recive_front_pic, self.port_camfront_feed)).start()
             self.camera_status[0] = 1
 
-    def toggle_back(self):
+    def toggle_back(self, cam_id: int=2):
         if self.camera_status[1]:
             self.back_camera_prosess.kill()
             self.camera_status[0] = 0
         else:
             self.host_cam2, self.client_cam2 = Pipe()
             send_back_pic, recive_back_pic = Pipe()
-            self.back_camera_prosess = Process(target=camera, daemon=True, args=(1, self.client_cam2, send_back_pic)).start()
+            self.back_camera_prosess = Process(target=camera, daemon=True, args=(cam_id, self.client_cam2, send_back_pic)).start()
             self.front_cam_com_thread = threading.Thread(name="COM_cam_2",target=pipe_com, daemon=True, args=(self.host_cam2, self.camera_com_callback, self.cam_front_name)).start()
             self.steam_video_prosess = Process(target=udp_picture_transfer, daemon=True, args=(recive_back_pic, self.port_camback_feed)).start()
             self.camera_status[1] = 1
@@ -167,5 +167,6 @@ if __name__ == "__main__":
     print("Main=Theia")
     s = Theia()
     s.toggle_front()
+    s.toggle_back()
     for __ in range(9999999):
         time.sleep(1)
