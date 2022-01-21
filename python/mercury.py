@@ -80,6 +80,7 @@ def intern_com_thread(intern_com, intern_com_callback, flag):
     while (flag[2]):
         data = intern_com.recv()
         intern_com_callback(data)
+        
 class Mercury:
     def __init__(self) -> None:
         # Flags
