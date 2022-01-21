@@ -150,7 +150,6 @@ class Mercury:
 if __name__ == "__main__":
     pass
     #dictionary = {"CAN":1, "camera": 1}
-    #meld = json.dumps(dictionary)
     #ip = "127.0.0.1"
     #port = 6900
     #venus_trad = threading.Thread(name="venus", target=venus, args=(ip, port, meld))

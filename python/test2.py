@@ -4,8 +4,8 @@ import numpy
 import time
 import cv2
 
-UDP_IP="127.0.0.1"
-UDP_PORT = 6888
+UDP_IP="10.0.0.2"
+UDP_PORT = 6889
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((UDP_IP, UDP_PORT))
 
@@ -14,11 +14,11 @@ empty_frame = numpy
 max = 0
 frames = 0
 start = time.time()
+print("TEST")
 while True:
-    #data, addr = sock.recvfrom(61440)
     pic = b''
-    for __ in range(6):
-        data, addr = sock.recvfrom(61440)
+    for __ in range(5):
+        data, addr = sock.recvfrom(65000)
         if data == b'start':
             break
         pic += data
