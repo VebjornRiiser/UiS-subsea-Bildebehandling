@@ -24,13 +24,13 @@ while True:
     data, addr = sock.recvfrom(60000)
 
     for __ in range(counter):
-        data, addr = sock.recvfrom(60000)
+        data, addr = sock.recvfrom(62000)
         
         try:
             liste = p.loads(data)
             if liste[0] == 'start':
-                new_pack_len = data[1]
-                counter = data[2]
+                new_pack_len = liste[1]
+                counter = liste[2]
                 break
         except:
             pass

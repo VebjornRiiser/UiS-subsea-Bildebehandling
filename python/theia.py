@@ -30,7 +30,7 @@ def udp_picture_transfer(pipe_recive, port):
         list = ['start', pack_len, counter]
         video_stream_socket.sendto(p.dumps(list), (ip, port))
         time.sleep(0.001)
-        for x in range(5):
+        for x in range(counter):
             if x*max_pack_len < pack_len:
                 video_stream_socket.sendto(pack[(x*max_pack_len):(x+1)*max_pack_len],(ip, port))
             else:
