@@ -3,8 +3,9 @@ import socket
 import numpy
 import time
 import cv2
+import pickle as p
 
-UDP_IP="10.0.0.2"
+UDP_IP="10.0.0.1"
 UDP_PORT = 6889
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((UDP_IP, UDP_PORT))
@@ -15,14 +16,28 @@ max = 0
 frames = 0
 start = time.time()
 print("TEST")
+pack_len = 30000
+new_pack_len = 30000
+counter = 6
 while True:
     pic = b''
-    for __ in range(5):
-        data, addr = sock.recvfrom(65000)
-        if data == b'start':
-            break
+    data, addr = sock.recvfrom(60000)
+
+    for __ in range(counter):
+        data, addr = sock.recvfrom(60000)
+        
+        try:
+            liste = p.loads(data)
+            if liste[0] == 'start':
+                new_pack_len = data[1]
+                counter = data[2]
+                break
+        except:
+            pass
+
         pic += data
-    if len(pic) > 30000:
+    if len(pic) >= pack_len:
+        pack_len = new_pack_len
     #pic = (1,pic)
         frame = numpy.frombuffer(pic, dtype=numpy.uint8)
     #if len(frame) == 921600: # Old package size 3686400

@@ -14,7 +14,8 @@ def venus(ip, port, meld):
             print(e)
             print("Connection lost")
             break
-    time.sleep(5)
+        recmeld = network_socket.recv()
+    time.sleep(1)
     network_socket.close()
 
 

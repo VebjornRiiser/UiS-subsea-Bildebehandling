@@ -5,6 +5,8 @@ import cv2
 from multiprocessing import Pipe, Process
 import time
 from sys import platform
+import math
+import pickle as p
 
 def contour_img(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -17,20 +19,22 @@ def udp_picture_transfer(pipe_recive, port):
     print("UDP thread started")
     video_stream_socket = socket(AF_INET, SOCK_DGRAM)
     ip = "10.0.0.1"
-    packlen = 65000
+    max_pack_len = 60000
     while True:
         bilde = pipe_recive.recv()
         start = time.time()
         _, pack = cv2.imencode('.jpg',bilde)
         pack = pack.tobytes()
-        video_stream_socket.sendto(b'start', (ip, port))
-        time.sleep(0.001)
         pack_len = len(pack)
+        counter = math.ceil(pack_len/max_pack_len)
+        list = ['start', pack_len, counter]
+        video_stream_socket.sendto(p.dumps(list), (ip, port))
+        time.sleep(0.001)
         for x in range(5):
-            if x*packlen < pack_len:
-                video_stream_socket.sendto(pack[(x*packlen):(x+1)*packlen],(ip, port))
+            if x*max_pack_len < pack_len:
+                video_stream_socket.sendto(pack[(x*max_pack_len):(x+1)*max_pack_len],(ip, port))
             else:
-                video_stream_socket.sendto(pack[(x*packlen):-1],(ip, port))
+                video_stream_socket.sendto(pack[(x*max_pack_len):-1],(ip, port))
                 break
             #video_stream_socket.sendto(package[(x*61440):(x+1)*61440], ("127.0.0.1", 6888))
             #video_stream_socket.sendto(package[(x*61440):(x+1)*61440], ("127.0.0.1", 6888))
