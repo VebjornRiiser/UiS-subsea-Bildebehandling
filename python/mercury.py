@@ -1,19 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-
-from ast import arg
-from contextvars import Context
-from json.tool import main
-from mimetypes import init
-from multiprocessing import context
 import struct
-from unicodedata import name
-from xml.etree.ElementInclude import include
 import threading
-#import cv2
 import time
-#import serial
+import serial
 import socket
 import json
 
