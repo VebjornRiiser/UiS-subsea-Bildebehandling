@@ -27,12 +27,16 @@ def venus(ip, port, meld):
 #!TODO packaged builder for sending of serial data
 def serial_package_builder(data, can):
     package = []
-    #param_bin = 0b00000000
-    # data[0] = id
-    # data[1] = data
+    # Start byte
     package.append(0x02)
+
+    # CAN eller kamera tilt
     package.append(0x05) if can else package.append(0x06)
-    package.append(data[0])
+
+    # ID
+    [package.append(i) for i in struct.pack('<B', data[0])]
+
+    # 8 Byte CAN Data
     if data[0] == 59:
         for char in data[1]:
             package.append(ord(char))
@@ -40,8 +44,12 @@ def serial_package_builder(data, can):
     elif data[0] == 70:
         pass
         #[package.append(i) for i in struct.pack('<B', data[1])]
+
+
     #TODO Lage til alle typer data som skal mottas: https://docs.python.org/3/library/struct.html
     #[package.append(i) for i in struct.pack('<q', 345)]
+
+    # Slutt byte
     package.append(0x03)
 
     return bytearray(package)
