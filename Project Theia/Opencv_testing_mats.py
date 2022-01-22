@@ -13,8 +13,8 @@ from sys import platform
 def main(cam_id,fps,hw):
     #Bruk av hardware decoding
     HW = hw
-    HW_device = 1 #0 = iGPU ++
-    HW_type = 1 # 0 = none, 1 = any, 2 = D311, 3 = VAAPI, 4 = MFX
+    HW_device = 0 #0 = iGPU ++
+    HW_type = 3 # 0 = none, 1 = any, 2 = D311, 3 = VAAPI, 4 = MFX
 
     CAM_ID = cam_id
     FPS = fps
