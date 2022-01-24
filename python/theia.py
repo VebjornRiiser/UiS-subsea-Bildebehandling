@@ -58,7 +58,7 @@ def camera(camera_id, connection, picture_send_pipe):
     feed.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_height)
     frame_height = (feed.get(cv2.CAP_PROP_FRAME_HEIGHT))
     frame_width = (feed.get(cv2.CAP_PROP_FRAME_WIDTH))
-    crop_widt = frame_width/2
+    crop_width = frame_width/2
     feed.set(cv2.CAP_PROP_FPS, 30)
     feed.set(cv2.CAP_PROP_AUTOFOCUS, 1)
     run = True
@@ -75,7 +75,7 @@ def camera(camera_id, connection, picture_send_pipe):
                 f_video_feed = True
             shared_list[0] = 1
         ref, frame = feed.read()
-        crop_frame = frame[0:frame_height, 0:crop_widt]
+        crop_frame = frame[0:frame_height, 0:crop_width]
         crop_frame = contour_img(crop_frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
