@@ -73,6 +73,7 @@ def camera(camera_id, connection, picture_send_pipe):
             shared_list[0] = 1
         ref, frame = feed.read()
         crop_frame = frame[0:720, 0:1280]
+        crop_frame = contour_img(crop_frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
         if f_video_feed:
