@@ -77,17 +77,24 @@ def USB_thread(h_serial, USB_callback, flag):
         try:
             melding = h_serial.readline().decode("utf8").strip("\n")
             USB_callback(melding)
-        except:
+        except Exception as e:
+            print(e)
             pass
     print("USB thread stopped")
 
+# Only handles CAN messages, expecting messages to be tuples with length 2, where index 0 is can ID, and index 1 is the datapackage.
+def create_jason(message):
+    dict = {"can":message}
+    return json.dumps(dict)
+        
 
 def intern_com_thread(intern_com, intern_com_callback, flag):
     print("Starting internal communication")
     while (flag[2]):
         data = intern_com.recv()
         intern_com_callback(data)
-        
+
+
 class Mercury:
     def __init__(self, ip:str="0.0.0.0", port:int=6900) -> None:
         # Flags
@@ -101,7 +108,7 @@ class Mercury:
         # USB socket
         self.serial_port = "/dev/ttyACM0"
         self.serial_baud = 9600
-        #self.toggle_USB()
+        self.toggle_USB()
         #self.network_snd_socket.send_string(f'USB connection started')
 
 
@@ -117,7 +124,8 @@ class Mercury:
         for key in message:
             if key.lower() == "can":
                 for item in message[key]:
-                    print(serial_package_builder(item, True))
+                    #print(serial_package_builder(item, True))
+                    self.serial.write(serial_package_builder(item, True))
             elif key.lower() == "tilt":
                 pass
                 #self.serial.write(serial_package_builder(message[key], True if key.lower() == "can" else False))
@@ -139,8 +147,8 @@ class Mercury:
             self.network_status = True
 
     def USB_callback(self, melding):
-        print(melding)
-        #self.network_snd_socket(melding)
+        #print(melding)
+        self.network_connection.sendall(bytes(melding, 'utf-8'))
 
 
     def toggle_USB(self):
