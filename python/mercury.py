@@ -81,13 +81,19 @@ def USB_thread(h_serial, USB_callback, flag):
             pass
     print("USB thread stopped")
 
+# Only handles CAN messages, expecting messages to be tuples with length 2, where index 0 is can ID, and index 1 is the datapackage.
+def create_jason(message):
+    dict = {"can":message}
+    return json.dumps(dict)
+        
 
 def intern_com_thread(intern_com, intern_com_callback, flag):
     print("Starting internal communication")
     while (flag[2]):
         data = intern_com.recv()
         intern_com_callback(data)
-        
+
+
 class Mercury:
     def __init__(self, ip:str="0.0.0.0", port:int=6900) -> None:
         # Flags
@@ -140,7 +146,7 @@ class Mercury:
 
     def USB_callback(self, melding):
         print(melding)
-        #self.network_snd_socket(melding)
+        self.network_connection.sendall(melding)
 
 
     def toggle_USB(self):
