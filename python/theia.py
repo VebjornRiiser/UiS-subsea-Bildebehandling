@@ -61,6 +61,9 @@ def camera(camera_id, connection, picture_send_pipe):
     crop_width = frame_width/2
     feed.set(cv2.CAP_PROP_FPS, 30)
     feed.set(cv2.CAP_PROP_AUTOFOCUS, 1)
+    print(crop_width)
+    print(frame_width)
+    print(frame_height)
     run = True
     f_video_feed = True
     if not (feed.isOpened()):
