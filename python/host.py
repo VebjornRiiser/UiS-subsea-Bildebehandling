@@ -167,14 +167,19 @@ class Mercury:
             
 
 if __name__ == "__main__":
-    pass
-    #dictionary = {"CAN":1, "camera": 1}
-    #ip = "127.0.0.1"
-    #port = 6900
-    #venus_trad = threading.Thread(name="venus", target=venus, args=(ip, port, meld))
-    #venus_trad.start()
-    #a = Mercury()
-    #a.toggle_network()
-    #print("For loop started")
-    #for __ in range(20):
-    #    time.sleep(5)
+    ip = "127.0.0.1"
+    m = Mercury()
+    #t = Theia()
+    m.toggle_network()
+    #m.toggle_USB
+    #t.toggle_back()
+    #t.toggle_front()
+
+    while(1):
+        #if not t.camera_status[0]:
+        #    print("Camera top stopped")
+        #elif not t.camera_status[1]:
+        #    print("Camera back stopped")
+        time.sleep(2)
+        print("Still running")
+
