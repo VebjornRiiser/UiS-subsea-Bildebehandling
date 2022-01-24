@@ -77,7 +77,8 @@ def USB_thread(h_serial, USB_callback, flag):
         try:
             melding = h_serial.readline().decode("utf8").strip("\n")
             USB_callback(melding)
-        except:
+        except Exception as e:
+            print(e)
             pass
     print("USB thread stopped")
 
@@ -107,7 +108,7 @@ class Mercury:
         # USB socket
         self.serial_port = "/dev/ttyACM0"
         self.serial_baud = 9600
-        #self.toggle_USB()
+        self.toggle_USB()
         #self.network_snd_socket.send_string(f'USB connection started')
 
 
@@ -123,7 +124,8 @@ class Mercury:
         for key in message:
             if key.lower() == "can":
                 for item in message[key]:
-                    print(serial_package_builder(item, True))
+                    #print(serial_package_builder(item, True))
+                    self.serial.write(serial_package_builder(item, True))
             elif key.lower() == "tilt":
                 pass
                 #self.serial.write(serial_package_builder(message[key], True if key.lower() == "can" else False))
@@ -145,8 +147,8 @@ class Mercury:
             self.network_status = True
 
     def USB_callback(self, melding):
-        print(melding)
-        self.network_connection.sendall(melding)
+        #print(melding)
+        self.network_connection.sendall(bytes(melding, 'utf-8'))
 
 
     def toggle_USB(self):
