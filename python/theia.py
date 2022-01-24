@@ -1,5 +1,4 @@
 import threading, mjpeg_stream, cv2, time, math
-from turtle import width
 from socket import AF_INET, SOCK_DGRAM, socket
 import numpy as np
 from multiprocessing import Pipe, Process
