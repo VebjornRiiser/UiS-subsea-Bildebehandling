@@ -11,11 +11,11 @@ import json
 def main_loop():
     ip = "127.0.0.1"
     m = Mercury()
-    #t = Theia()
-    m.toggle_network()
+    t = Theia()
+    #m.toggle_network()
     #m.toggle_USB
-    #t.toggle_back()
-    #t.toggle_front()
+    t.toggle_back()
+    t.toggle_front()
 
     while(1):
         #if not t.camera_status[0]:
