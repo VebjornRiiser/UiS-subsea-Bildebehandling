@@ -1,4 +1,5 @@
 import threading, mjpeg_stream, cv2, time, math
+from turtle import width
 from socket import AF_INET, SOCK_DGRAM, socket
 import numpy as np
 from multiprocessing import Pipe, Process
@@ -52,10 +53,13 @@ def camera(camera_id, connection, picture_send_pipe):
     else:
         feed = cv2.VideoCapture(camera_id, cv2.CAP_SHOW)
     feed.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
-    feed.set(cv2.CAP_PROP_FRAME_WIDTH, 2560)
-    feed.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-    print(feed.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    print(feed.get(cv2.CAP_PROP_FRAME_WIDTH))
+    frame_width = 1280
+    frame_height = 360
+    feed.set(cv2.CAP_PROP_FRAME_WIDTH, frame_width)
+    feed.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_height)
+    frame_height = (feed.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    frame_width = (feed.get(cv2.CAP_PROP_FRAME_WIDTH))
+    crop_widt = frame_width/2
     feed.set(cv2.CAP_PROP_FPS, 30)
     feed.set(cv2.CAP_PROP_AUTOFOCUS, 1)
     run = True
@@ -72,7 +76,7 @@ def camera(camera_id, connection, picture_send_pipe):
                 f_video_feed = True
             shared_list[0] = 1
         ref, frame = feed.read()
-        crop_frame = frame[0:720, 0:1280]
+        crop_frame = frame[0:frame_height, 0:crop_widt]
         crop_frame = contour_img(crop_frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
