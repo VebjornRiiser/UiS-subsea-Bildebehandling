@@ -1,7 +1,7 @@
 import socket
 import time
 import json
-from math import mean, max
+#from math import mean, max
 
 def venus(ip, port, meld):
     network_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -19,14 +19,15 @@ def venus(ip, port, meld):
             start = time.time_ns()
             network_socket.sendall(str.encode(meld))
             recmeld = network_socket.recv(1024)
-            print(time_list.append(time.time_ns()))
+            print(recmeld)
+            print(time.time_ns()-start)
         except Exception as e:
             print(e)
             print("Connection lost")
             break
     time.sleep(1)
     network_socket.close()
-    print(f'Mean time per package:{mean(time_list)}\nMax time for one package:{max(time_list)}')
+    #print(f'Mean time per package:{mean(time_list)}\nMax time for one package:{max(time_list)}')
     return "ok"
 
 if __name__ == "__main__":

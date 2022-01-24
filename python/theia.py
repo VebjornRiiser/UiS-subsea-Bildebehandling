@@ -1,12 +1,11 @@
+import threading, mjpeg_stream, cv2, time, math
 from socket import AF_INET, SOCK_DGRAM, socket
-import threading
 import numpy as np
-import cv2
 from multiprocessing import Pipe, Process
-import time
 from sys import platform
-import math
 import pickle as p
+
+
 
 def contour_img(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -126,7 +125,8 @@ class Theia():
             send_front_pic, recive_front_pic = Pipe()
             self.front_camera_prosess = Process(target=camera, daemon=True, args=(cam_id, self.client_cam1, send_front_pic)).start()
             self.front_cam_com_thread = threading.Thread(name="COM_cam_1",target=pipe_com, daemon=True, args=(self.host_cam1, self.camera_com_callback, self.cam_front_name)).start()
-            self.steam_video_prosess = Process(target=udp_picture_transfer, daemon=True, args=(recive_front_pic, self.port_camfront_feed)).start()
+            self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_front_pic, self.port_camfront_feed)).start()
+            #self.steam_video_prosess = Process(target=udp_picture_transfer, daemon=True, args=(recive_front_pic, self.port_camfront_feed)).start()
             self.camera_status[0] = 1
 
     def toggle_back(self, cam_id: int=2):
@@ -138,7 +138,8 @@ class Theia():
             send_back_pic, recive_back_pic = Pipe()
             self.back_camera_prosess = Process(target=camera, daemon=True, args=(cam_id, self.client_cam2, send_back_pic)).start()
             self.front_cam_com_thread = threading.Thread(name="COM_cam_2",target=pipe_com, daemon=True, args=(self.host_cam2, self.camera_com_callback, self.cam_front_name)).start()
-            self.steam_video_prosess = Process(target=udp_picture_transfer, daemon=True, args=(recive_back_pic, self.port_camback_feed)).start()
+            self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_back_pic, self.port_camback_feed)).start()
+            #self.steam_video_prosess = Process(target=udp_picture_transfer, daemon=True, args=(recive_back_pic, self.port_camback_feed)).start()
             self.camera_status[1] = 1
 
     def camera_com_callback(self, msg, name):
