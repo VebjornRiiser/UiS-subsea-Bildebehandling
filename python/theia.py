@@ -3,6 +3,7 @@ import threading
 import numpy as np
 import cv2
 from multiprocessing import Pipe, Process
+from subprocess import Popen, PIPE
 import time
 from sys import platform
 import math
@@ -111,11 +112,20 @@ class Theia():
         self.cam_back_name = "mats"
         self.port_camback_feed = 6888
         self.port_camfront_feed = 6889
+        self.check_hw_id_cam()
 
-
-    #!TODO Tage?? Klare du å sjekka hardware id eller noge?
     def check_hw_id_cam(self):
-        pass
+        self.cam_front_id = self.find_cam("3-2") # Finner kamera på usb
+        self.cam_back_id = self.find_cam("4-2")
+
+    def find_cam(self, cam):
+        cmd = ["/usr/bin/v4l2-ctl", "--list-devices"]
+        out, err = Popen(cmd, stdout=PIPE, stderr=PIPE).communicate()
+        out, err = out.strip(), err.strip()
+        for l in [i.split("\n\t") for i in out.decode("utf-8").split("\n\n")]:
+            if cam in l[0]:
+                return l[1]
+        return False
 
     def toggle_front(self, cam_id: int=0):
         if self.camera_status[0]:
