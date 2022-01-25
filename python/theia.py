@@ -50,7 +50,7 @@ def camera(camera_id, connection, picture_send_pipe):
     picture = np.array
     conn_thread = threading.Thread(name="Camera_con", target=pipe_com, daemon=True, args=(connection, None, None, shared_list)).start()
     if platform == "linux" or platform == "linux2":
-        feed = cv2.VideoCapture(camera_id,cv2.CAP_V4L2)
+        feed = cv2.VideoCapture(camera_id, cv2.CAP_V4L2)
     else:
         feed = cv2.VideoCapture(camera_id, cv2.CAP_SHOW)
     feed.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
@@ -58,8 +58,8 @@ def camera(camera_id, connection, picture_send_pipe):
     frame_height = 360
     feed.set(cv2.CAP_PROP_FRAME_WIDTH, frame_width)
     feed.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_height)
-    frame_height = int((feed.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-    frame_width = (feed.get(cv2.CAP_PROP_FRAME_WIDTH))
+    frame_height = int(feed.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    frame_width = int(feed.get(cv2.CAP_PROP_FRAME_WIDTH))
     crop_width = int(frame_width/2)
     feed.set(cv2.CAP_PROP_FPS, 30)
     feed.set(cv2.CAP_PROP_AUTOFOCUS, 1)
