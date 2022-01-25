@@ -1,13 +1,13 @@
+import threading, mjpeg_stream, cv2, time, math
 from socket import AF_INET, SOCK_DGRAM, socket
-import threading
 import numpy as np
-import cv2
 from multiprocessing import Pipe, Process
 from subprocess import Popen, PIPE
 import time
 from sys import platform
-import math
 import pickle as p
+
+
 
 def contour_img(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -54,12 +54,18 @@ def camera(camera_id, connection, picture_send_pipe):
     else:
         feed = cv2.VideoCapture(camera_id, cv2.CAP_SHOW)
     feed.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
-    feed.set(cv2.CAP_PROP_FRAME_WIDTH, 2560)
-    feed.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-    print(feed.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    print(feed.get(cv2.CAP_PROP_FRAME_WIDTH))
+    frame_width = 1280
+    frame_height = 360
+    feed.set(cv2.CAP_PROP_FRAME_WIDTH, frame_width)
+    feed.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_height)
+    frame_height = int((feed.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+    frame_width = (feed.get(cv2.CAP_PROP_FRAME_WIDTH))
+    crop_width = int(frame_width/2)
     feed.set(cv2.CAP_PROP_FPS, 30)
     feed.set(cv2.CAP_PROP_AUTOFOCUS, 1)
+    print(crop_width)
+    print(frame_width)
+    print(frame_height)
     run = True
     f_video_feed = True
     if not (feed.isOpened()):
@@ -74,7 +80,8 @@ def camera(camera_id, connection, picture_send_pipe):
                 f_video_feed = True
             shared_list[0] = 1
         ref, frame = feed.read()
-        crop_frame = frame[0:720, 0:1280]
+        crop_frame = frame[:frame_height, :crop_width]
+        crop_frame = contour_img(crop_frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
         if f_video_feed:
@@ -136,7 +143,8 @@ class Theia():
             send_front_pic, recive_front_pic = Pipe()
             self.front_camera_prosess = Process(target=camera, daemon=True, args=(cam_id, self.client_cam1, send_front_pic)).start()
             self.front_cam_com_thread = threading.Thread(name="COM_cam_1",target=pipe_com, daemon=True, args=(self.host_cam1, self.camera_com_callback, self.cam_front_name)).start()
-            self.steam_video_prosess = Process(target=udp_picture_transfer, daemon=True, args=(recive_front_pic, self.port_camfront_feed)).start()
+            self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_front_pic, self.port_camfront_feed)).start()
+            #self.steam_video_prosess = Process(target=udp_picture_transfer, daemon=True, args=(recive_front_pic, self.port_camfront_feed)).start()
             self.camera_status[0] = 1
 
     def toggle_back(self, cam_id: int=2):
@@ -148,7 +156,8 @@ class Theia():
             send_back_pic, recive_back_pic = Pipe()
             self.back_camera_prosess = Process(target=camera, daemon=True, args=(cam_id, self.client_cam2, send_back_pic)).start()
             self.front_cam_com_thread = threading.Thread(name="COM_cam_2",target=pipe_com, daemon=True, args=(self.host_cam2, self.camera_com_callback, self.cam_front_name)).start()
-            self.steam_video_prosess = Process(target=udp_picture_transfer, daemon=True, args=(recive_back_pic, self.port_camback_feed)).start()
+            self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_back_pic, self.port_camback_feed)).start()
+            #self.steam_video_prosess = Process(target=udp_picture_transfer, daemon=True, args=(recive_back_pic, self.port_camback_feed)).start()
             self.camera_status[1] = 1
 
     def camera_com_callback(self, msg, name):
