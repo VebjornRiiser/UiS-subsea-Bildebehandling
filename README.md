@@ -11,3 +11,7 @@ Et program som håndterer kommunikasjon internt i ROV-pcen. Denne vil også fung
 
 ## Project Theia
 Et program som håndterer alt som har med kameraer og maskinsyn å gjøre
+
+
+![Elektronikkhus render](./bilder/elektronikkhus_render_1.png)
+![Elektronikkhus render](./bilder/elektronikkhus_render_2.png)
