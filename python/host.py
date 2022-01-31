@@ -70,6 +70,7 @@ def network_thread(network_socket, network_callback, flag):
             break
     network_socket.close()
     print(f'Network thread stopped')
+    network_callback('Failed')
 
 # Reads serial data
 def USB_thread(h_serial, USB_callback, flag):
@@ -120,6 +121,9 @@ class Mercury:
 
 
     def network_callback(self, message):
+        if message == 'failed':
+            self.net_init()
+            self.toggle_network()
         message = json.loads(message.decode())
         for key in message:
             if key.lower() == "can":

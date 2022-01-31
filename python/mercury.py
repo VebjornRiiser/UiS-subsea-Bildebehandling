@@ -147,7 +147,6 @@ class Mercury:
             self.network_status = True
 
     def USB_callback(self, melding):
-        #print(melding)
         self.network_connection.sendall(bytes(melding, 'utf-8'))
 
 
