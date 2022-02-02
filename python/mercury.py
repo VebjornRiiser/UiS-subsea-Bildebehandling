@@ -83,7 +83,7 @@ def USB_thread(h_serial, USB_callback, flag):
     print("USB thread stopped")
 
 # Only handles CAN messages, expecting messages to be tuples with length 2, where index 0 is can ID, and index 1 is the datapackage.
-def create_jason(message):
+def create_json(message):
     dict = {"can":message}
     return json.dumps(dict)
         

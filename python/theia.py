@@ -2,6 +2,8 @@ import threading, mjpeg_stream, cv2, time, math
 from socket import AF_INET, SOCK_DGRAM, socket
 import numpy as np
 from multiprocessing import Pipe, Process
+from subprocess import Popen, PIPE
+import time
 from sys import platform
 import pickle as p
 
@@ -48,7 +50,7 @@ def camera(camera_id, connection, picture_send_pipe):
     picture = np.array
     conn_thread = threading.Thread(name="Camera_con", target=pipe_com, daemon=True, args=(connection, None, None, shared_list)).start()
     if platform == "linux" or platform == "linux2":
-        feed = cv2.VideoCapture(camera_id,cv2.CAP_V4L2)
+        feed = cv2.VideoCapture(camera_id, cv2.CAP_V4L2)
     else:
         feed = cv2.VideoCapture(camera_id, cv2.CAP_SHOW)
     feed.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
@@ -56,8 +58,8 @@ def camera(camera_id, connection, picture_send_pipe):
     frame_height = 360
     feed.set(cv2.CAP_PROP_FRAME_WIDTH, frame_width)
     feed.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_height)
-    frame_height = int((feed.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-    frame_width = (feed.get(cv2.CAP_PROP_FRAME_WIDTH))
+    frame_height = int(feed.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    frame_width = int(feed.get(cv2.CAP_PROP_FRAME_WIDTH))
     crop_width = int(frame_width/2)
     feed.set(cv2.CAP_PROP_FPS, 30)
     feed.set(cv2.CAP_PROP_AUTOFOCUS, 1)
@@ -117,11 +119,20 @@ class Theia():
         self.cam_back_name = "mats"
         self.port_camback_feed = 6888
         self.port_camfront_feed = 6889
+        self.check_hw_id_cam()
 
-
-    #!TODO Tage?? Klare du å sjekka hardware id eller noge?
     def check_hw_id_cam(self):
-        pass
+        self.cam_front_id = self.find_cam("3-2") # Finner kamera på usb
+        self.cam_back_id = self.find_cam("4-2")
+
+    def find_cam(self, cam):
+        cmd = ["/usr/bin/v4l2-ctl", "--list-devices"]
+        out, err = Popen(cmd, stdout=PIPE, stderr=PIPE).communicate()
+        out, err = out.strip(), err.strip()
+        for l in [i.split("\n\t") for i in out.decode("utf-8").split("\n\n")]:
+            if cam in l[0]:
+                return l[1]
+        return False
 
     def toggle_front(self, cam_id: int=0):
         if self.camera_status[0]:

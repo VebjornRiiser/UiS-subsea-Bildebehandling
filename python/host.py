@@ -84,7 +84,7 @@ def USB_thread(h_serial, USB_callback, flag):
     print("USB thread stopped")
 
 # Only handles CAN messages, expecting messages to be tuples with length 2, where index 0 is can ID, and index 1 is the datapackage.
-def create_jason(message):
+def create_json(message):
     dict = {"can":message}
     return json.dumps(dict)
         
@@ -128,7 +128,7 @@ class Mercury:
         for key in message:
             if key.lower() == "can":
                 for item in message[key]:
-                    #print(serial_package_builder(item, True))
+                    print(serial_package_builder(item, True))
                     self.serial.write(serial_package_builder(item, True))
             elif key.lower() == "tilt":
                 pass
@@ -151,7 +151,7 @@ class Mercury:
             self.network_status = True
 
     def USB_callback(self, melding):
-        #print(melding)
+        print(melding)
         self.network_connection.sendall(bytes(melding, 'utf-8'))
 
 
@@ -175,7 +175,7 @@ if __name__ == "__main__":
     m = Mercury()
     #t = Theia()
     m.toggle_network()
-    #m.toggle_USB
+    m.toggle_USB
     #t.toggle_back()
     #t.toggle_front()
 
