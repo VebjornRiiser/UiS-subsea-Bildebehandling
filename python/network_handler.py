@@ -78,8 +78,7 @@ class Network:
             temp_conn, addr = self.socket.accept()
             self.conn = temp_conn
             self.waiting_for_conn = False
-            break
-        print(f"New connection from {addr}. conn: {self.conn}, addr")
+            print(f"New connection from {addr}. conn: {self.conn}, addr")
 
     def send(self, bytes_to_send: bytes) -> None:
         if self.conn is None and not self.waiting_for_conn:
