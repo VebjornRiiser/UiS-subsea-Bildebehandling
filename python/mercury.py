@@ -107,7 +107,6 @@ class Mercury:
     def __init__(self, ip:str="0.0.0.0", port:int=6900) -> None:
         # Flag dictionary
         self.status ={'network':False, 'USB':False, 'intern':False}
-        self.status_flag_list = [1,1,1,1,1] # Index 0 = Network, Index 1 = USB, Index 3 = Intern com, index 4 = ?
         self.connect_ip = ip
         self.connect_port = 6900
         self.net_init()
