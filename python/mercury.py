@@ -124,6 +124,7 @@ class Mercury:
 
     def net_init(self):
         self.network_handler = Network(is_server=True, bind_addr=self.connect_ip, port=self.connect_port)
+        self.toggle_network()
 
         ##### OLD
         #self.network_rcv_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

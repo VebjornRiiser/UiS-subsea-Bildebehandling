@@ -15,11 +15,11 @@ def venus(ip, port, meld):
         print(e)
         print("Could not connect to network")
         exit()
-    for __ in range(500000):
+    for __ in range(5000):
         try:
             start = time.time_ns()
             network_socket.sendall(str.encode(meld))
-            recmeld = network_socket.recv(1024)
+            #recmeld = network_socket.recv(1024)
             #print(recmeld)
             #print(time.time_ns()-start)
         except Exception as e:
@@ -45,7 +45,7 @@ if __name__ == "__main__":
     print("Main=client")
     dictionary = {"can":[(59,"datadata")]}
     meld = json.dumps(dictionary)
-    ip = "10.0.0.12"
-    port = 6900
+    ip = "10.0.0.2"
+    port = 6969
     svar = print(venus(ip, port, meld))
     
