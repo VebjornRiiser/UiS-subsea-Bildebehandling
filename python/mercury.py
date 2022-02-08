@@ -136,7 +136,11 @@ class Mercury:
         #self.network_connection, self.network_address = self.network_rcv_socket.accept()
 
 
-    def network_callback(self, message: Bytes):
+    def network_callback(self, message: Bytes) -> None:
+        print(message)
+        if message == b'heartbeat':
+            return
+        return
         message = json.loads(message)
         for key in message:
             if key.lower() == "can":
