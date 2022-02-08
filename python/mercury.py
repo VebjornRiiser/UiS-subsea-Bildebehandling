@@ -68,7 +68,7 @@ def network_thread(network_handler, network_callback, flag):
             melding = network_handler.receive()
             #melding = network_socket.recv(1024) #  OLD
             if melding == b"" or melding is None:
-                break
+                continue
             else:
                 print(melding)
                 network_callback(melding)
