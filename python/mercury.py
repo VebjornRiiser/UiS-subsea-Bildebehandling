@@ -137,33 +137,28 @@ class Mercury:
 
 
     def network_callback(self, message: Bytes) -> None:
-        print(message)
         if message == b'heartbeat':
             return
-        return
-        message = json.loads(message)
-        for key in message:
-            if key.lower() == "can":
-                if self.status['USB']:
-                    for item in message[key]:
-                        #print(serial_package_builder(item, True))
-                        self.serial.write(serial_package_builder(item, True))
+        else:
+            if isinstance(message, list):
+                return
+            message = json.loads(message)
+            for item in message:
+                if item[0] < 500:
+                    if self.status['USB']:
+                        self.serial.write(serial_package_builder())
                     else:
-                        self.network_handler.send(create_json('error', 15150))
-            elif key.lower() == "tilt":
-                if self.status['USB']:
-                    pass
-                    self.serial.write(serial_package_builder(item, False))
-                    print("TILT")
+                        self.network_handler.send(create_json('error', 15149))
                 else:
-                    self.network_handler.send(create_json('error', 15151))
-                    #self.network_handler.
-            elif key.lower() == "camera":
-                for item in message[key]:
-                    if item == 'toggle_front':
-                        answ = self.thei.toggle_front()
-                        if not answ:
-                            self.network_handler.send(create_json('error', 15152))
+                    if isinstance(item[1], str):
+                        if item[1].lower() == "tilt":
+                            pass
+                        elif item[1].lower() == "toggle_front":
+                            answ = self.thei.toggle_front()
+                            if not answ:
+                                self.network_handler.send(create_json('error', 15152))
+                    else:
+                        print(item[1])
 
 
     def toggle_network(self):
