@@ -1,3 +1,4 @@
+from ast import Return
 import threading, mjpeg_stream, cv2, time, math
 from socket import AF_INET, SOCK_DGRAM, socket
 import numpy as np
@@ -107,11 +108,13 @@ def pipe_com(connection, callback=None, name=None, list=None):
 
 class Theia():
     def __init__(self) -> None:
-        self.camera_status = [0, 0] #Index 0 = Camera front, Index 1 = Camera under/back
+        # Index 0 = id, index 1 = is running
+        self.camera_status = {'front':[0,0], 'back':[0,0]}
+        #self.camera_status = [0, 0] #Index 0 = Camera front, Index 1 = Camera under/back
         self.camera_function = [0,0,0,0] # Inex 0 = Camera 1
         self.autonom = False # If true will send feedback on ROV postion related to red line etc.
-        self.camera_front_id = 9 # Set to 9, so will fail if corret id is not set
-        self_camera_back_id = 9 # Set to 9, so will fail if corret id is not set
+        self.camera_front_id = 99 # Set to 9, so will fail if corret id is not set
+        self_camera_back_id = 99 # Set to 9, so will fail if corret id is not set
         self.hardware_id_front = "asdopasud809123123"
         self.cam_front_name = "tage"
         self.cam_back_name = "mats"
@@ -122,6 +125,16 @@ class Theia():
     def check_hw_id_cam(self):
         self.cam_front_id = self.find_cam("3-2") # Finner kamera på usb
         self.cam_back_id = self.find_cam("4-2")
+        if not self.cam_front_id:
+            self.camera_status['front'] = 0
+        else:
+            self.camera_status['front'] = 1
+        if not self.cam_back_id:
+            self.camera_status['back'] = 0
+        else:
+            self.camera_status['back'] = 1
+        
+            
 
     def find_cam(self, cam):
         cmd = ["/usr/bin/v4l2-ctl", "--list-devices"]
@@ -133,30 +146,39 @@ class Theia():
         return False
 
     def toggle_front(self, cam_id: int=0):
-        if self.camera_status[0]:
+        if self.camera_status['front'][1]:
             self.front_camera_prosess.kill()
-            self.camera_status[0] = 0
+            self.camera_status['front'][1] = 0
         else:
-            self.host_cam1, self.client_cam1 = Pipe()
-            send_front_pic, recive_front_pic = Pipe()
-            self.front_camera_prosess = Process(target=camera, daemon=True, args=(cam_id, self.client_cam1, send_front_pic)).start()
-            self.front_cam_com_thread = threading.Thread(name="COM_cam_1",target=pipe_com, daemon=True, args=(self.host_cam1, self.camera_com_callback, self.cam_front_name)).start()
-            self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_front_pic, self.port_camfront_feed)).start()
-            #self.steam_video_prosess = Process(target=udp_picture_transfer, daemon=True, args=(recive_front_pic, self.port_camfront_feed)).start()
-            self.camera_status[0] = 1
+            if self.camera_status['front'][0]:
+                self.host_cam1, self.client_cam1 = Pipe()
+                send_front_pic, recive_front_pic = Pipe()
+                self.front_camera_prosess = Process(target=camera, daemon=True, args=(self.cam_front_id, self.client_cam1, send_front_pic)).start()
+                self.front_cam_com_thread = threading.Thread(name="COM_cam_1",target=pipe_com, daemon=True, args=(self.host_cam1, self.camera_com_callback, self.cam_front_name)).start()
+                self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_front_pic, self.port_camfront_feed)).start()
+                #self.steam_video_prosess = Process(target=udp_picture_transfer, daemon=True, args=(recive_front_pic, self.port_camfront_feed)).start()
+                self.camera_status['front'][1] = 1
+                return True
+            else:
+                #! TODO Send message to topside, camera could not be found
+                return False
 
     def toggle_back(self, cam_id: int=2):
-        if self.camera_status[1]:
+        if self.camera_status['back'][1]:
             self.back_camera_prosess.kill()
-            self.camera_status[0] = 0
+            self.camera_status['back'][1] = 0
         else:
-            self.host_cam2, self.client_cam2 = Pipe()
-            send_back_pic, recive_back_pic = Pipe()
-            self.back_camera_prosess = Process(target=camera, daemon=True, args=(cam_id, self.client_cam2, send_back_pic)).start()
-            self.front_cam_com_thread = threading.Thread(name="COM_cam_2",target=pipe_com, daemon=True, args=(self.host_cam2, self.camera_com_callback, self.cam_front_name)).start()
-            self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_back_pic, self.port_camback_feed)).start()
-            #self.steam_video_prosess = Process(target=udp_picture_transfer, daemon=True, args=(recive_back_pic, self.port_camback_feed)).start()
-            self.camera_status[1] = 1
+            if self.camera_status['back'][0]:
+                self.host_cam2, self.client_cam2 = Pipe()
+                send_back_pic, recive_back_pic = Pipe()
+                self.back_camera_prosess = Process(target=camera, daemon=True, args=(self.cam_back_id, self.client_cam2, send_back_pic)).start()
+                self.front_cam_com_thread = threading.Thread(name="COM_cam_2",target=pipe_com, daemon=True, args=(self.host_cam2, self.camera_com_callback, self.cam_front_name)).start()
+                self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_back_pic, self.port_camback_feed)).start()
+                #self.steam_video_prosess = Process(target=udp_picture_transfer, daemon=True, args=(recive_back_pic, self.port_camback_feed)).start()
+                self.camera_status['back'][1] = 1
+                return True
+            else:
+                return False
 
     def camera_com_callback(self, msg, name):
         if name == self.cam_front_name:

@@ -45,7 +45,7 @@ if __name__ == "__main__":
     print("Main=client")
     dictionary = {"can":[(59,"datadata")]}
     meld = json.dumps(dictionary)
-    ip = "10.0.0.2"
+    ip = "10.0.0.12"
     port = 6900
     svar = print(venus(ip, port, meld))
     
