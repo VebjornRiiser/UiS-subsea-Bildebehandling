@@ -72,7 +72,7 @@ def network_thread(network_handler, network_callback, flag):
             else:
                 print(melding)
                 network_callback(melding)
-        except Exception as e:
+        except ValueError as e:
             print(e)
             print("Exception")
             break
@@ -137,7 +137,7 @@ class Mercury:
 
 
     def network_callback(self, message: Bytes):
-        message = json.loads(message.decode())
+        message = json.loads(message)
         for key in message:
             if key.lower() == "can":
                 if self.status['USB']:
