@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+1#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 from ast import Bytes
@@ -69,6 +69,7 @@ def network_thread(network_handler, network_callback, flag):
             if melding == b"":
                 break
             else:
+                print(melding)
                 network_callback(melding)
         except Exception as e:
             print(e)
@@ -109,7 +110,7 @@ class Mercury:
         self.status ={'network':False, 'USB':False, 'intern':False}
         self.status_flag_list = [1,1,1,1,1] # Index 0 = Network, Index 1 = USB, Index 3 = Intern com, index 4 = ?
         self.connect_ip = ip
-        self.connect_port = 6900
+        self.connect_port = 6969
         self.net_init()
         self.thei = Theia()
 

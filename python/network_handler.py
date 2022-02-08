@@ -97,9 +97,11 @@ class Network:
         # print(self.conn)
         if self.conn is None:
             if not self.waiting_for_conn:
+                print("No connection found")
                 self.wait_for_conn()
             return
         try:
+            print("Waiting for new message....")
             return self.conn.recv(1024)
         except socket.error as e:
             print(f"line 68 Exception: {e}")
