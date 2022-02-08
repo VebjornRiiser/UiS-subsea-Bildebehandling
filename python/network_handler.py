@@ -152,6 +152,7 @@ if __name__ == "__main__":
         # exit()
         client_conn = Network(is_server=False, bind_addr="0.0.0.0", connect_addr="10.0.0.2", port=6969)
         while True:
+            time.sleep(0.5)
             client_conn.send(b'{["can", 97]}')
 
         # send_thread = threading.Thread(target=lambda: send_forever(client_conn))
