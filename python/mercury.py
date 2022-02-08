@@ -163,8 +163,9 @@ class Mercury:
             # This will stop network thread
             self.status['network'] = False
         else:
-            self.network_trad = threading.Thread(name="Network_thread",target=network_thread, daemon=True, args=(self.network_handler, self.network_callback, self.status)).start()
-
+            self.network_trad = threading.Thread(name="Network_thread",target=network_thread, daemon=True, args=(self.network_handler, self.network_callback, self.status))
+            self.network_trad.start()
+            
     def USB_callback(self, melding):
         if self.status['network']:
             self.network_handler.send(bytes(melding, 'utf-8'))
