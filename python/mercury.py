@@ -71,7 +71,7 @@ def network_thread(network_handler, network_callback, flag):
                 continue
             else:
                 print(melding)
-                network_callback(melding)
+                #network_callback(melding)
         except ValueError as e:
             print(e)
             print("Exception")
