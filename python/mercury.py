@@ -159,7 +159,7 @@ class Mercury:
 
 
     def toggle_network(self):
-        if self.self.status['network']:
+        if self.status['network']:
             # This will stop network thread
             self.status['network'] = False
         else:
