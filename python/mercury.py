@@ -194,5 +194,5 @@ if __name__ == "__main__":
     #a = Mercury()
     #a.toggle_network()
     #print("For loop started")
-    #for __ in range(20):
-    #    time.sleep(5)
+    for __ in range(200):
+        time.sleep(5)
