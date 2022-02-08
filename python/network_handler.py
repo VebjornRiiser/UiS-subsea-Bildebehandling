@@ -4,7 +4,6 @@ import sys
 import time
 import json
 import subprocess
-#from tkinter import W
 
 global local
 local = False
@@ -15,7 +14,7 @@ if len(sys.argv) > 1:
 
 class Network:
     # bind_addr needs to be set if is_server is false and connect_addr needs to be set if is_server is false  
-    def __init__(self, is_server=False, bind_addr="127.0.0.1", port=6900, connect_addr="127.0.0.1"):
+    def __init__(self, is_server=False, bind_addr="127.0.0.1", port=6969, connect_addr="127.0.0.1"):
         self.is_server = is_server
         self.bind_addr = bind_addr
         self.connect_addr = connect_addr
@@ -134,9 +133,12 @@ if __name__ == "__main__":
         # a = subprocess.Popen("ssh rov touch test")
         # print(os.system("ssh rov touch test")) # python3 ~/socket_testing/network_handler.py"))
         # exit()
-        client_conn = Network(connect_addr="10.0.0.12")
+        client_conn = Network(connect_addr="10.0.0.2")
+        dictionary = {"can":[(59,"datadata")]}
+        meld = json.dumps(dictionary)
+        meld = bytes(meld, 'utf_8')
         while(1):
-            print(client_conn.receive())
+            client_conn.send((meld))
         # send_thread = threading.Thread(target=lambda: send_forever(client_conn))
         # send_thread.start()
         # send_thread.join()
