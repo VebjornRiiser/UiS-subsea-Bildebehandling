@@ -33,7 +33,7 @@ class CamHandler(BaseHTTPRequestHandler):
                     self.send_header('Content-length',str(len(jpg)))
                     self.end_headers()
                     self.wfile.write(bytes(jpg))
-                    time.sleep(0.016)
+                    # time.sleep(0.016)
                 except KeyboardInterrupt:
                         break
             return
@@ -42,7 +42,7 @@ class CamHandler(BaseHTTPRequestHandler):
             self.send_header('Content-type','text/html')
             self.end_headers()
             self.wfile.write(b'<html><head></head><body>')
-            self.wfile.write(b'<img src="http://10.0.0.2:' + bytes(str(self.server.port),'utf-8') + b'/cam.mjpg"/>')
+            self.wfile.write(b'<img height=100% src="http://10.0.0.2:' + bytes(str(self.server.port),'utf-8') + b'/cam.mjpg"/>')
             self.wfile.write(b'</body></html>')
             return
 
