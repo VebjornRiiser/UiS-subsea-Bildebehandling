@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from ast import Bytes
 import struct
 import threading
 import time
-import serial
+#import serial
 import socket
 import json
+from network_handler import Network
+
 
 # Test function for socket connection
 def venus(ip, port, meld):
@@ -55,11 +58,12 @@ def serial_package_builder(data, can):
     return bytearray(package)
 
 # Reads data from network port
-def network_thread(network_socket, network_callback, flag):
+def network_thread(network_handler, network_callback, flag):
     print("Server started\n")
     while flag[0]:
         try:
-            melding = network_socket.recv(1024)
+            melding = network_handler.receive()
+            #melding = network_socket.recv(1024) #  OLD
             if melding == b"":
                 break
             else:
@@ -68,7 +72,7 @@ def network_thread(network_socket, network_callback, flag):
             print(e)
             print("Exception")
             break
-    network_socket.close()
+    network_handler.exit()
     print(f'Network thread stopped')
 
 # Reads serial data
@@ -83,8 +87,8 @@ def USB_thread(h_serial, USB_callback, flag):
     print("USB thread stopped")
 
 # Only handles CAN messages, expecting messages to be tuples with length 2, where index 0 is can ID, and index 1 is the datapackage.
-def create_json(message):
-    dict = {"can":message}
+def create_jason(index:str, data):
+    dict = {index:data}
     return json.dumps(dict)
         
 
@@ -100,6 +104,7 @@ class Mercury:
         # Flags
         self.network_status = False
         self.USB_status = False
+        self.status ={'Network':1, 'USB':0, 'Intern':0}
         self.status_flag_list = [1,1,1,1,1] # Index 0 = Network, Index 1 = USB, Index 3 = Intern com, index 4 = ?
         self.connect_ip = ip
         self.connect_port = 6900
@@ -108,32 +113,40 @@ class Mercury:
         # USB socket
         self.serial_port = "/dev/ttyACM0"
         self.serial_baud = 9600
-        self.toggle_USB()
+        if self.status['USB']:
+            self.toggle_USB()
         #self.network_snd_socket.send_string(f'USB connection started')
 
 
     def net_init(self):
-        self.network_rcv_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.network_rcv_socket.bind((self.connect_ip, self.connect_port))
-        self.network_rcv_socket.listen()
-        self.network_connection, self.network_address = self.network_rcv_socket.accept()
+        self.network_handler = Network(is_server=True, bind_addr=self.connect_ip, port=self.connect_port)
+
+        ##### OLD
+        #self.network_rcv_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        #self.network_rcv_socket.bind((self.connect_ip, self.connect_port))
+        #self.network_rcv_socket.listen()
+        #self.network_connection, self.network_address = self.network_rcv_socket.accept()
 
 
-    def network_callback(self, message):
+    def network_callback(self, message: Bytes):
         message = json.loads(message.decode())
-        for key in message:
-            if key.lower() == "can":
-                for item in message[key]:
-                    #print(serial_package_builder(item, True))
-                    self.serial.write(serial_package_builder(item, True))
-            elif key.lower() == "tilt":
-                pass
-                #self.serial.write(serial_package_builder(message[key], True if key.lower() == "can" else False))
-                print("TILT")
-            elif key.lower() == "camera":
-                pass
-            else:
-                print("Failed")
+        if self.status['USB']:
+            for key in message:
+                if key.lower() == "can":
+                    for item in message[key]:
+                        #print(serial_package_builder(item, True))
+                        self.serial.write(serial_package_builder(item, True))
+                elif key.lower() == "tilt":
+                    pass
+                    #self.serial.write(serial_package_builder(message[key], True if key.lower() == "can" else False))
+                    print("TILT")
+                elif key.lower() == "camera":
+                    pass
+                else:
+                    print("Failed")
+        else:
+            self.network_handler.send(f'USB not connected!')
+            print(message)
 
 
     def toggle_network(self):
@@ -142,7 +155,7 @@ class Mercury:
             self.network_status = False
         else:
             print("Starting thread")
-            self.network_trad = threading.Thread(name="Network_thread",target=network_thread, daemon=True, args=(self.network_connection, self.network_callback, self.status_flag_list))
+            self.network_trad = threading.Thread(name="Network_thread",target=network_thread, daemon=True, args=(self.network_handler, self.network_callback, self.status_flag_list))
             self.network_trad.start()
             self.network_status = True
 
@@ -166,7 +179,8 @@ class Mercury:
             
 
 if __name__ == "__main__":
-    pass
+    print(f'Mercury')
+    a = Mercury()
     #dictionary = {"CAN":1, "camera": 1}
     #ip = "127.0.0.1"
     #port = 6900

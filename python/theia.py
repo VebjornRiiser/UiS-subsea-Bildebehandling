@@ -38,8 +38,6 @@ def udp_picture_transfer(pipe_recive, port):
             else:
                 video_stream_socket.sendto(pack[(x*max_pack_len):-1],(ip, port))
                 break
-            #video_stream_socket.sendto(package[(x*61440):(x+1)*61440], ("127.0.0.1", 6888))
-            #video_stream_socket.sendto(package[(x*61440):(x+1)*61440], ("127.0.0.1", 6888))
             time.sleep(0.001)
 
 
@@ -54,8 +52,8 @@ def camera(camera_id, connection, picture_send_pipe):
     else:
         feed = cv2.VideoCapture(camera_id, cv2.CAP_SHOW)
     feed.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
-    frame_width = 1280
-    frame_height = 360
+    frame_width = 2560
+    frame_height = 720
     feed.set(cv2.CAP_PROP_FRAME_WIDTH, frame_width)
     feed.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_height)
     frame_height = int(feed.get(cv2.CAP_PROP_FRAME_HEIGHT))
