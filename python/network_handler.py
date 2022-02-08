@@ -4,7 +4,7 @@ import sys
 import time
 import json
 import subprocess
-from tkinter import W
+#from tkinter import W
 
 global local
 local = False
