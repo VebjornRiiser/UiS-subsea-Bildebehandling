@@ -9,6 +9,7 @@ import time
 import socket
 import json
 from network_handler import Network
+from theia import Theia
 
 
 # Test function for socket connection
@@ -60,7 +61,8 @@ def serial_package_builder(data, can):
 # Reads data from network port
 def network_thread(network_handler, network_callback, flag):
     print("Server started\n")
-    while flag[0]:
+    flag['network'] = True
+    while flag['network']:
         try:
             melding = network_handler.receive()
             #melding = network_socket.recv(1024) #  OLD
@@ -77,7 +79,8 @@ def network_thread(network_handler, network_callback, flag):
 
 # Reads serial data
 def USB_thread(h_serial, USB_callback, flag):
-    while flag[1]:
+    flag['USB'] = True
+    while flag['USB']:
         try:
             melding = h_serial.readline().decode("utf8").strip("\n")
             USB_callback(melding)
@@ -87,28 +90,28 @@ def USB_thread(h_serial, USB_callback, flag):
     print("USB thread stopped")
 
 # Only handles CAN messages, expecting messages to be tuples with length 2, where index 0 is can ID, and index 1 is the datapackage.
-def create_jason(index:str, data):
+def create_json(index:str, data):
     dict = {index:data}
     return json.dumps(dict)
         
 
 def intern_com_thread(intern_com, intern_com_callback, flag):
     print("Starting internal communication")
-    while (flag[2]):
+    flag['intern'] = True
+    while flag['intern']:
         data = intern_com.recv()
         intern_com_callback(data)
 
 
 class Mercury:
     def __init__(self, ip:str="0.0.0.0", port:int=6900) -> None:
-        # Flags
-        self.network_status = False
-        self.USB_status = False
-        self.status ={'Network':1, 'USB':0, 'Intern':0}
+        # Flag dictionary
+        self.status ={'network':False, 'USB':False, 'intern':False}
         self.status_flag_list = [1,1,1,1,1] # Index 0 = Network, Index 1 = USB, Index 3 = Intern com, index 4 = ?
         self.connect_ip = ip
         self.connect_port = 6900
         self.net_init()
+        self.thei = Theia()
 
         # USB socket
         self.serial_port = "/dev/ttyACM0"
@@ -130,51 +133,53 @@ class Mercury:
 
     def network_callback(self, message: Bytes):
         message = json.loads(message.decode())
-        if self.status['USB']:
-            for key in message:
-                if key.lower() == "can":
+        for key in message:
+            if key.lower() == "can":
+                if self.status['USB']:
                     for item in message[key]:
                         #print(serial_package_builder(item, True))
                         self.serial.write(serial_package_builder(item, True))
-                elif key.lower() == "tilt":
+                    else:
+                        self.network_handler.send(create_json('error', 15150))
+            elif key.lower() == "tilt":
+                if self.status['USB']:
                     pass
-                    #self.serial.write(serial_package_builder(message[key], True if key.lower() == "can" else False))
+                    self.serial.write(serial_package_builder(item, False))
                     print("TILT")
-                elif key.lower() == "camera":
-                    pass
                 else:
-                    print("Failed")
-        else:
-            self.network_handler.send(f'USB not connected!')
-            print(message)
+                    self.network_handler.send(create_json('error', 15151))
+                    #self.network_handler.
+            elif key.lower() == "camera":
+                for item in message[key]:
+                    if item == 'toggle_front':
+                        answ = self.thei.toggle_front()
+                        if not answ:
+                            self.network_handler.send(create_json('error', 15152))
 
 
     def toggle_network(self):
-        if self.network_status:
-            self.status_flag_list = 0
-            self.network_status = False
+        if self.self.status['network']:
+            # This will stop network thread
+            self.status['network'] = False
         else:
-            print("Starting thread")
-            self.network_trad = threading.Thread(name="Network_thread",target=network_thread, daemon=True, args=(self.network_handler, self.network_callback, self.status_flag_list))
-            self.network_trad.start()
-            self.network_status = True
+            self.network_trad = threading.Thread(name="Network_thread",target=network_thread, daemon=True, args=(self.network_handler, self.network_callback, self.status)).start()
 
     def USB_callback(self, melding):
-        self.network_connection.sendall(bytes(melding, 'utf-8'))
+        if self.status['network']:
+            self.network_handler.send(bytes(melding, 'utf-8'))
+        else: print('No connection on network')
 
 
     def toggle_USB(self):
         if self.USB_status:
-            self.status_flag_list[1] = 0
+            # This will stop USB thread
+            self.status['USB'] = False
             time.sleep(2)
             self.serial.close()
-            self.USB_status = False
         else:
             self.serial = serial.Serial(self.serial_port, self.serial_baud, timeout=1)
             self.serial.write(b"t")
-            self.serial_thread = threading.Thread(name = "Serial_thread", target=USB_thread, daemon=True, args=(self.serial, self.USB_callback, self.status_flag_list))
-            self.serial_thread.start()
-            self.USB_status = True
+            self.serial_thread = threading.Thread(name = "Serial_thread", target=USB_thread, daemon=True, args=(self.serial, self.USB_callback, self.status)).start()
 
             
 

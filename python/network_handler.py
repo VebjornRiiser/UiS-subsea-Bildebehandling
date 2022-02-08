@@ -4,6 +4,7 @@ import sys
 import time
 import json
 import subprocess
+from tkinter import W
 
 global local
 local = False
@@ -119,24 +120,26 @@ def recieve_forever():
 
 if __name__ == "__main__":
     print(sys.platform)
-if sys.platform != "win32":
-    server_conn = Network(is_server=True, bind_addr="0.0.0.0")
-    # server_conn = Network(is_server=True, bind_addr="127.0.0.1")
-    # threading.Thread(target=recieve_forever).start()
-    while True:
-        data = server_conn.receive()
-        if not data:
-            continue
-        print(data)
-else:
-    # a = subprocess.call("ssh rov python3 ~/socket_testing/network_handler.py")
-    # a = subprocess.Popen("ssh rov touch test")
-    # print(os.system("ssh rov touch test")) # python3 ~/socket_testing/network_handler.py"))
-    # exit()
-    client_conn = Network(connect_addr="10.0.0.2")
-    # send_thread = threading.Thread(target=lambda: send_forever(client_conn))
-    # send_thread.start()
-    # send_thread.join()
-    # while True:
-    #     time.sleep(1)
-    
+    if sys.platform != "win32":
+        server_conn = Network(is_server=True, bind_addr="0.0.0.0")
+        # server_conn = Network(is_server=True, bind_addr="127.0.0.1")
+        # threading.Thread(target=recieve_forever).start()
+        while True:
+            data = server_conn.receive()
+            if not data:
+                continue
+            print(data)
+    else:
+        # a = subprocess.call("ssh rov python3 ~/socket_testing/network_handler.py")
+        # a = subprocess.Popen("ssh rov touch test")
+        # print(os.system("ssh rov touch test")) # python3 ~/socket_testing/network_handler.py"))
+        # exit()
+        client_conn = Network(connect_addr="10.0.0.12")
+        while(1):
+            print(client_conn.receive())
+        # send_thread = threading.Thread(target=lambda: send_forever(client_conn))
+        # send_thread.start()
+        # send_thread.join()
+        # while True:
+        #     time.sleep(1)
+        
