@@ -61,6 +61,7 @@ def serial_package_builder(data, can):
 # Reads data from network port
 def network_thread(network_handler, network_callback, flag):
     print("Server started\n")
+    print("test")
     flag['network'] = True
     while flag['network']:
         try:
