@@ -5,7 +5,7 @@ from ast import Bytes
 import struct
 import threading
 import time
-#import serial
+import serial
 import socket
 import json
 from network_handler import Network
@@ -85,15 +85,16 @@ def USB_thread(h_serial, USB_callback, flag):
     while flag['USB']:
         try:
             melding = h_serial.readline().decode("utf8").strip("\n")
-            USB_callback(melding)
+            print(melding)
+            #USB_callback(melding)
         except Exception as e:
             print(e)
             pass
     print("USB thread stopped")
 
 # Only handles CAN messages, expecting messages to be tuples with length 2, where index 0 is can ID, and index 1 is the datapackage.
-def create_json(index:str, data):
-    dict = {index:data}
+def create_json(can_id:int, data:str):
+    dict = {can_id:data}
     return json.dumps(dict)
         
 
@@ -108,16 +109,16 @@ def intern_com_thread(intern_com, intern_com_callback, flag):
 class Mercury:
     def __init__(self, ip:str="0.0.0.0", port:int=6900) -> None:
         # Flag dictionary
-        self.status ={'network':False, 'USB':False, 'intern':False}
+        self.status ={'network': False, 'USB': False, 'intern': False}
         self.connect_ip = ip
         self.connect_port = 6969
-        self.net_init()
+        #self.net_init()
         self.thei = Theia()
 
         # USB socket
         self.serial_port = "/dev/ttyACM0"
         self.serial_baud = 9600
-        if self.status['USB']:
+        if not self.status['USB']:
             self.toggle_USB()
         #self.network_snd_socket.send_string(f'USB connection started')
 
@@ -176,7 +177,7 @@ class Mercury:
 
 
     def toggle_USB(self):
-        if self.USB_status:
+        if self.status['USB']:
             # This will stop USB thread
             self.status['USB'] = False
             time.sleep(2)
