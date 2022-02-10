@@ -1,7 +1,5 @@
 1#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
-from ast import Bytes
 import struct
 import threading
 import time
@@ -136,29 +134,30 @@ class Mercury:
         #self.network_connection, self.network_address = self.network_rcv_socket.accept()
 
 
-    def network_callback(self, message: Bytes) -> None:
-        if message == b'heartbeat':
-            return
-        else:
-            if isinstance(message, list):
-                return
-            message = json.loads(message)
-            for item in message:
-                if item[0] < 500:
-                    if self.status['USB']:
-                        self.serial.write(serial_package_builder())
+    def network_callback(self, data: bytes) -> None:
+        for message in data.split("*"):
+            if message == b'heartbeat':
+                continue
+            else:
+                if isinstance(message, list):
+                    return
+                message = json.loads(message)
+                for item in message:
+                    if item[0] < 500:
+                        if self.status['USB']:
+                            self.serial.write(serial_package_builder())
+                        else:
+                            self.network_handler.send(create_json('error', 15149))
                     else:
-                        self.network_handler.send(create_json('error', 15149))
-                else:
-                    if isinstance(item[1], str):
-                        if item[1].lower() == "tilt":
-                            pass
-                        elif item[1].lower() == "toggle_front":
-                            answ = self.thei.toggle_front()
-                            if not answ:
-                                self.network_handler.send(create_json('error', 15152))
-                    else:
-                        print(item[1])
+                        if isinstance(item[1], str):
+                            if item[1].lower() == "tilt":
+                                pass
+                            elif item[1].lower() == "toggle_front":
+                                answ = self.thei.toggle_front()
+                                if not answ:
+                                    self.network_handler.send(create_json('error', 15152))
+                        else:
+                            print(item[1])
 
 
     def toggle_network(self):
