@@ -23,7 +23,7 @@ c_types = {
 
 # Test function for socket connection
 def venus(ip, port, meld):
-    network_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    network_socket = socket.socket(socket.AF_INE  socket.SOCK_STREAM)
     network_socket.settimeout(3)
     network_socket.connect((ip, port))
     for __ in range(10):
