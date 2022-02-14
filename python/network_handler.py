@@ -30,7 +30,8 @@ class Network:
 
     def beat(self):
         while self.running:
-            self.send(b"heartbeat")
+            heartbeat_packet = bytes(json.dumps("*"), "utf-8") + bytes(json.dumps("heartbeat"), "utf-8") + bytes(json.dumps("*"), "utf-8")
+            self.send(heartbeat_packet)
             time.sleep(0.3)
 
     def new_conn(self):
@@ -78,7 +79,8 @@ class Network:
             temp_conn, addr = self.socket.accept()
             self.conn = temp_conn
             self.waiting_for_conn = False
-            print(f"New connection from {addr}. conn: {self.conn}, addr")
+            break
+        print(f"New connection from {addr}. conn: {self.conn}, addr")
 
     def send(self, bytes_to_send: bytes) -> None:
         if self.conn is None and not self.waiting_for_conn:
@@ -119,6 +121,8 @@ class Network:
             print(f"Exception: {e}")
 
     def exit(self):
+        if self.conn is None:
+            exit(0)
         self.conn.close()
         self.running = False
 
@@ -149,12 +153,9 @@ if __name__ == "__main__":
         # a = subprocess.Popen("ssh rov touch test")
         # print(os.system("ssh rov touch test")) # python3 ~/socket_testing/network_handler.py"))
         # exit()
-        client_conn = Network(is_server=False, bind_addr="0.0.0.0", connect_addr="10.0.0.2", port=6900)
+        client_conn = Network(is_server=True, bind_addr="0.0.0.0", connect_addr="10.0.0.3")
         while True:
-            time.sleep(0.5)
-            #client_conn.send(b'[[600,"test"],[900,123123]]')
-            meld = client_conn.receive()
-            print(meld)
+            client_conn.send(bytes('{"can": [(0, 99)]}', "utf-8"))
         # send_thread = threading.Thread(target=lambda: send_forever(client_conn))
         # send_thread.start()
         # send_thread.join()
