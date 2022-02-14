@@ -12,7 +12,7 @@ from theia import Theia
 
 # Test function for socket connection
 def venus(ip, port, meld):
-    network_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    network_socket = socket.socket(socket.AF_INE  socket.SOCK_STREAM)
     network_socket.settimeout(3)
     network_socket.connect((ip, port))
     for __ in range(10):
@@ -37,7 +37,7 @@ def serial_package_builder(data, can):
 
     # ID
     [package.append(i) for i in struct.pack('<B', data[0])]
-
+    
     # 8 Byte CAN Data
     if data[0] == 59:
         for char in data[1]:

@@ -149,11 +149,12 @@ if __name__ == "__main__":
         # a = subprocess.Popen("ssh rov touch test")
         # print(os.system("ssh rov touch test")) # python3 ~/socket_testing/network_handler.py"))
         # exit()
-        client_conn = Network(is_server=False, bind_addr="0.0.0.0", connect_addr="10.0.0.2", port=6969)
+        client_conn = Network(is_server=False, bind_addr="0.0.0.0", connect_addr="10.0.0.2", port=6900)
         while True:
             time.sleep(0.5)
-            client_conn.send(b'[[600,"test"],[900,123123]]')
-
+            #client_conn.send(b'[[600,"test"],[900,123123]]')
+            meld = client_conn.receive()
+            print(meld)
         # send_thread = threading.Thread(target=lambda: send_forever(client_conn))
         # send_thread.start()
         # send_thread.join()
