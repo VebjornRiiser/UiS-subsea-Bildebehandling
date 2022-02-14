@@ -9,6 +9,17 @@ import json
 from network_handler import Network
 from theia import Theia
 
+c_types = {
+    "int8": "<b",
+    "uint8": "<B",
+    "int16": "<h",
+    "uint16": "<H",
+    "int32": "<i",
+    "uint32": "<I",
+    "int64": "<q",
+    "uint64": "<Q",
+    "float": "<f"
+}
 
 # Test function for socket connection
 def venus(ip, port, meld):
@@ -83,8 +94,8 @@ def USB_thread(h_serial, USB_callback, flag):
     while flag['USB']:
         try:
             melding = h_serial.readline().decode("utf8").strip("\n")
-            print(melding)
-            #USB_callback(melding)
+            #print(melding)
+            USB_callback(melding)
         except Exception as e:
             print(e)
             pass
@@ -92,8 +103,21 @@ def USB_thread(h_serial, USB_callback, flag):
 
 # Only handles CAN messages, expecting messages to be tuples with length 2, where index 0 is can ID, and index 1 is the datapackage.
 def create_json(can_id:int, data:str):
-    dict = {can_id:data}
-    return json.dumps(dict)
+    if len(data) != 32:
+        return False
+    
+    # Python....
+    data_b = data.encode('latin').decode('unicode_escape').encode('latin')
+    
+    # Leak detection and temperature
+    if can_id == 140:
+        lekk = data_b[0]
+        temp1 = struct.unpack(c_types["int16"], data_b[1:3])[0] / 10 # -100.0°C -> 100.0°C
+        temp2 = struct.unpack(c_types["int16"], data_b[3:5])[0] / 10
+        temp3 = struct.unpack(c_types["int16"], data_b[5:7])[0] / 10
+        json_dict = {"sensor1": [lekk, temp1, temp2, temp3 ]}
+        
+    return json.dumps(json_dict)
         
 
 def intern_com_thread(intern_com, intern_com_callback, flag):
@@ -109,8 +133,8 @@ class Mercury:
         # Flag dictionary
         self.status ={'network': False, 'USB': False, 'intern': False}
         self.connect_ip = ip
-        self.connect_port = 6969
-        #self.net_init()
+        self.connect_port = port
+        self.net_init()
         self.thei = Theia()
 
         # USB socket
@@ -171,8 +195,10 @@ class Mercury:
             
     def USB_callback(self, melding):
         if self.status['network']:
-            self.network_handler.send(bytes(melding, 'utf-8'))
-        else: print('No connection on network')
+            data, can_id = melding.split(";")
+            self.network_handler.send(bytes(create_json(int(can_id), data), 'utf-8'))
+        else: 
+            print('No connection on network')
 
 
     def toggle_USB(self):
