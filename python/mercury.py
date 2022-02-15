@@ -47,6 +47,7 @@ def serial_package_builder(data, can=True):
     
     # Camera tilt
     elif (data[0] == 200) | (data[0] == 201):
+        print( f"{data[1]['tilt'] = }" )
         [package.append(i) for i in struct.pack(c_types["int8"], data[1]['tilt'])]
         for _ in range(7):
             package.append(0x00)
