@@ -80,6 +80,7 @@ def network_thread(network_handler, network_callback, flag):
                 continue
             else:
                 #print(melding)
+                print('før network callback')
                 network_callback(melding)
         except ValueError as e:
             print(f'Feilkode i network thread feilmelding: {e}\n\t{melding = }')
