@@ -216,7 +216,7 @@ class Mercury:
     def USB_callback(self, melding):
         if self.status['network']:
             data, can_id = melding.split(";")
-            self.network_handler.send(bytes(create_json(int(can_id), data), 'utf-8'))
+            self.network_handler.send(create_json(int(can_id), data))
         else: 
             print('No connection on network')
 
