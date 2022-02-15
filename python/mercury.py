@@ -160,7 +160,7 @@ class Mercury:
 
     def network_callback(self, data: bytes) -> None:
         data = bytes.decode(data, "utf-8")
-        for message in data.split("*"):
+        for message in data.split( json.dumps("*") ):
             if message == b'heartbeat':
                 continue
             else:
