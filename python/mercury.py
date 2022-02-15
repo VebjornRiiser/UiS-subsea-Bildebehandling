@@ -82,8 +82,7 @@ def network_thread(network_handler, network_callback, flag):
                 #print(melding)
                 network_callback(melding)
         except ValueError as e:
-            print(e)
-            print("Exception")
+            print(f'Feilkode i network thread feilmelding: {e}')
             break
     network_handler.exit()
     print(f'Network thread stopped')
@@ -97,7 +96,7 @@ def USB_thread(h_serial, USB_callback, flag):
             #print(melding)
             USB_callback(melding)
         except Exception as e:
-            print(e)
+            print(f'Feilkode i usb thread feilmelding: {e}')
             pass
     print("USB thread stopped")
 
