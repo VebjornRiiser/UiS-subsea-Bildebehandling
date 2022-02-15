@@ -47,7 +47,7 @@ def serial_package_builder(data, can=True):
     
     # Camera tilt
     elif (data[0] == 200) | (data[0] == 201):
-        package.append(data[1]['tilt'])
+        package.append(struct.pack(c_types["int8"], data[1]['tilt']))
         for _ in range(7):
             package.append(0x00)
 
@@ -116,14 +116,15 @@ def create_json(can_id:int, data:str):
         temp2 = struct.unpack(c_types["int16"], data_b[3:5])[0] / 10
         temp3 = struct.unpack(c_types["int16"], data_b[5:7])[0] / 10
         json_dict = {"sensor1": [lekk, temp1, temp2, temp3 ]}
-        
-    elif can_id == 6969:
-        json_dict = {"error": data}
+    else:
+        json_dict = "\n\nERROR, ID UNKNOWN!\n\n"    
 
+    return to_json(json_dict)
+        
+def to_json(input):
     packet_sep = json.dumps("*")
     
-    return bytes(packet_sep + json.dumps(json_dict) + packet_sep, "utf-8")
-        
+    return bytes(packet_sep + json.dumps(input) + packet_sep, "utf-8")
 
 def intern_com_thread(intern_com, intern_com_callback, flag):
     print("Starting internal communication")
@@ -177,14 +178,14 @@ class Mercury:
                         if self.status['USB']:
                             self.serial.write(serial_package_builder(item))
                         else:
-                            self.network_handler.send(create_json(6969, 15149))
+                            self.network_handler.send(to_json("error usb not connected"))
                     elif (item[0] == 200) | (item[0] == 201): #Camera_front and back functions
                         for key in item[1]:
                             if key.lower() == "tilt":
                                 mld = serial_package_builder(item, False)
                                 print(f"tesssst: {mld}")
                                 if not isinstance(mld, bytearray):
-                                    self.network_handler.send(create_json(6969, mld))
+                                    self.network_handler.send(to_json(f'{mld}'))
                                 else:
                                     a = self.serial.write(mld)
                             elif key.lower() == "on":
@@ -193,7 +194,7 @@ class Mercury:
                                 elif item[0] == 201:
                                     answ = self.thei.toggle_back()
                                 if not answ:
-                                    self.network_handler.send(create_json(6969, "Could not find front camera"))
+                                    self.network_handler.send(to_json("Could not find front camera"))
                             elif key.lower() == "bildebehandligsmodus":
                                 if item[0] == 200:
                                     self.host_cam_front.send(item[0][key])
@@ -201,7 +202,7 @@ class Mercury:
                                     self.host_cam_back.send(item[0][key])
                     else:
                         print("123")
-                        self.network_handler.send(create_json(6969, "This ID is not handled"))
+                        self.network_handler.send(to_json("This ID is not handled"))
 
 
 
