@@ -166,12 +166,12 @@ class Mercury:
             else:
                 message = json.loads(message)
                 for item in message:
-                    if item[0] < 499:
+                    if item[0] < 200:
                         if self.status['USB']:
                             self.serial.write(serial_package_builder(item))
                         else:
                             self.network_handler.send(create_json('error', 15149))
-                    elif item[0] == 500 or item[0] == 501: #Camera_front and back functions
+                    elif item[0] == 200 or item[0] == 201: #Camera_front and back functions
                         for key in item[1]:
                             if key.lower() == "tilt":
                                 mld = serial_package_builder(item, False)
@@ -180,16 +180,16 @@ class Mercury:
                                 else:
                                     a = self.serial.write(mld)
                             elif key.lower() == "on":
-                                if item[0] == 500:
+                                if item[0] == 200:
                                     answ = self.thei.toggle_front()
-                                elif item[0] == 501:
+                                elif item[0] == 201:
                                     answ = self.thei.toggle_back()
                                 if not answ:
                                     self.network_handler.send(create_json('error', "Could not find front camera"))
                             elif key.lower() == "bildebehandligsmodus":
-                                if item[0] == 500:
+                                if item[0] == 200:
                                     self.host_cam_front.send(item[0][key])
-                                elif item[0] == 501:
+                                elif item[0] == 201:
                                     self.host_cam_back.send(item[0][key])
                     else:
                         self.network_handler.send(create_json('error', "This ID is not handled"))
