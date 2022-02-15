@@ -185,7 +185,7 @@ class Mercury:
                             if key.lower() == "tilt":
                                 mld = serial_package_builder(item, False)
                                 print(f"tesssst: {type(mld)}")
-                                if not isinstance(mld, bytes):
+                                if not isinstance(mld, bytearray):
                                     self.network_handler.send(to_json(f'{mld}'))
                                 else:
                                     a = self.serial.write(mld)
