@@ -82,7 +82,7 @@ def network_thread(network_handler, network_callback, flag):
                 #print(melding)
                 network_callback(melding)
         except ValueError as e:
-            print(f'Feilkode i network thread feilmelding: {e}')
+            print(f'Feilkode i network thread feilmelding: {e}\n\t{melding = }')
             break
     network_handler.exit()
     print(f'Network thread stopped')
