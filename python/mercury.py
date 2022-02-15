@@ -47,7 +47,7 @@ def serial_package_builder(data, can=True):
     
     # Camera tilt
     elif (data[0] == 200) | (data[0] == 201):
-        print( f"{data[1]['tilt'] = }" )
+        #print( f"{data[1]['tilt'] = }" )
         [package.append(i) for i in struct.pack(c_types["int8"], data[1]['tilt'])]
         for _ in range(7):
             package.append(0x00)
@@ -71,7 +71,6 @@ def serial_package_builder(data, can=True):
 # Reads data from network port
 def network_thread(network_handler, network_callback, flag):
     print("Server started\n")
-    print("test")
     flag['network'] = True
     while flag['network']:
         try:
@@ -95,7 +94,6 @@ def USB_thread(h_serial, USB_callback, flag):
     while flag['USB']:
         try:
             melding = h_serial.readline().decode("utf8").strip("\n")
-            print("readline ok")
             #print(melding)
             USB_callback(melding)
         except Exception as e:
@@ -113,7 +111,6 @@ def create_json(can_id:int, data:str):
     
     # Leak detection and temperature
     if can_id == 140:
-        print(f"test: {data_b = }")
         lekk = data_b[0]
         temp1 = struct.unpack(c_types["int16"], data_b[1:3])[0] / 10 # -100.0°C -> 100.0°C
         temp2 = struct.unpack(c_types["int16"], data_b[3:5])[0] / 10
@@ -186,7 +183,6 @@ class Mercury:
                         for key in item[1]:
                             if key.lower() == "tilt":
                                 mld = serial_package_builder(item, False)
-                                print(f"tesssst: {type(mld)}")
                                 if not isinstance(mld, bytearray):
                                     self.network_handler.send(to_json(f'{mld}'))
                                 else:
@@ -207,7 +203,6 @@ class Mercury:
                                 elif item[0] == 201:
                                     self.host_cam_back.send(item[0][key])
                     else:
-                        print("123")
                         self.network_handler.send(to_json("This ID is not handled"))
 
 
@@ -248,6 +243,7 @@ class Mercury:
 if __name__ == "__main__":
     print(f'Mercury')
     a = Mercury()
+    a.thei.toggle_front()
     #dictionary = {"CAN":1, "camera": 1}
     #ip = "127.0.0.1"
     #port = 6900
