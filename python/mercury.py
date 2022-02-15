@@ -95,6 +95,7 @@ def USB_thread(h_serial, USB_callback, flag):
     while flag['USB']:
         try:
             melding = h_serial.readline().decode("utf8").strip("\n")
+            print("readline ok")
             #print(melding)
             USB_callback(melding)
         except Exception as e:
@@ -105,7 +106,7 @@ def USB_thread(h_serial, USB_callback, flag):
 # Only handles CAN messages, expecting messages to be tuples with length 2, where index 0 is can ID, and index 1 is the datapackage.
 def create_json(can_id:int, data:str):
     if len(data) != 32:
-        return False
+        return to_json(False)
     
     # Python....
     data_b = data.encode('latin').decode('unicode_escape').encode('latin')
