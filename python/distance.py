@@ -113,18 +113,16 @@ def contour_img(image):
     mask = cv2.inRange(cvt_pic, color_lower, color_upper)
     cv2.erode(mask,np.ones((5,5),np.uint8), mask)
     ret, threash, = cv2.threshold(mask, 80, 255, 1)
-    #cv2.imshow("name", threash)
+
+  
     cont, hie = cv2.findContours(threash, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     ny_cont = []
     liste_paa_Sizes = list(map(cv2.contourArea , cont))
     for index, areal in enumerate(liste_paa_Sizes):
         if areal > 5000 and areal < 500000:
             ny_cont.append(Object(cont[index]))
-    #rect = []
-    #for a in ny_cont:
-    #    rect.append(cv2.minAreaRect(a))
+
     if len(ny_cont) > 0:
-        #box = np.int0(cv2.boxPoints(rect[0]))
         for object in ny_cont:
             cv2.drawContours(image, object.box , -1, (0, 0, 0), 2 )
     return ny_cont

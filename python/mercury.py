@@ -164,25 +164,44 @@ class Mercury:
             if message == b'heartbeat':
                 continue
             else:
-                if isinstance(message, list):
-                    return
                 message = json.loads(message)
                 for item in message:
-                    if item[0] < 500:
+                    if item[0] < 499:
                         if self.status['USB']:
-                            self.serial.write(serial_package_builder())
+                            self.serial.write(serial_package_builder(item))
                         else:
                             self.network_handler.send(create_json('error', 15149))
-                    else:
-                        if isinstance(item[1], str):
-                            if item[1].lower() == "tilt":
-                                self.serial.write(serial_package_builder())
-                            elif item[1].lower() == "toggle_front":
-                                answ = self.thei.toggle_front()
+                    elif item[0] == 500: #Camera_front functions
+                        for key in item[1]:
+                            if key.lower() == "tilt":
+                                mld = serial_package_builder(item, False)
+                                if isinstance(mld, bytes):
+                                    self.network_handler.send(create_json('error', a))
+                                else:
+                                    a = self.serial.write(mld)
+                            elif key.lower() == "on":
+                                answ = self.thei.toggle_front
                                 if not answ:
-                                    self.network_handler.send(create_json('error', 15152))
-                        else:
-                            print(item[1])
+                                    self.network_handler.send(create_json('error', "Could not find front camera"))
+                            elif key.lower() == "bildebehandligsmodus":
+                                self.host_cam_front.send(item[0][key])
+                    elif item[0] == 501: # Camera_back functions
+                        for key in item[1]:
+                            if key.lower() == "tilt":
+                                mld = serial_package_builder(item, False)
+                                if isinstance(mld, bytes):
+                                    self.network_handler.send(create_json('error', a))
+                                else:
+                                    a = self.serial.write(mld)
+                            elif key.lower() == "on":
+                                answ = self.thei.toggle_front
+                                if not answ:
+                                    self.network_handler.send(create_json('error', "Could not find front camera"))
+                            elif key.lower() == "bildebehandligsmodus":
+                                self.host_cam_front.send(item[0][key])
+                    else:
+                        self.network_handler.send(create_json('error', "This ID is not handled"))
+
 
 
     def toggle_network(self):
