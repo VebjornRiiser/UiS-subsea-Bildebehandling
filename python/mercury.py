@@ -172,11 +172,12 @@ class Mercury:
                             self.serial.write(serial_package_builder(item))
                         else:
                             self.network_handler.send(create_json('error', 15149))
-                    elif item[0] == 200 or item[0] == 201: #Camera_front and back functions
+                    elif (item[0] == 200) | (item[0] == 201): #Camera_front and back functions
                         for key in item[1]:
                             if key.lower() == "tilt":
                                 mld = serial_package_builder(item, False)
-                                if isinstance(mld, bytes):
+                                print(f"tesssst: {mld}")
+                                if not isinstance(mld, bytes):
                                     self.network_handler.send(create_json('error', mld))
                                 else:
                                     a = self.serial.write(mld)
