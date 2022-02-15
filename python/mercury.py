@@ -117,7 +117,12 @@ def create_json(can_id:int, data:str):
         temp3 = struct.unpack(c_types["int16"], data_b[5:7])[0] / 10
         json_dict = {"sensor1": [lekk, temp1, temp2, temp3 ]}
         
-    return json.dumps(json_dict)
+    elif can_id == 6969:
+        json_dict = {"error": data}
+
+    packet_sep = json.dumps("*")
+    
+    return bytes(packet_sep + json.dumps(json_dict) + packet_sep, "utf-8")
         
 
 def intern_com_thread(intern_com, intern_com_callback, flag):
@@ -172,14 +177,14 @@ class Mercury:
                         if self.status['USB']:
                             self.serial.write(serial_package_builder(item))
                         else:
-                            self.network_handler.send(create_json('error', 15149))
+                            self.network_handler.send(create_json(6969, 15149))
                     elif (item[0] == 200) | (item[0] == 201): #Camera_front and back functions
                         for key in item[1]:
                             if key.lower() == "tilt":
                                 mld = serial_package_builder(item, False)
                                 print(f"tesssst: {mld}")
-                                if not isinstance(mld, bytes):
-                                    self.network_handler.send(create_json('error', mld))
+                                if not isinstance(mld, bytearray):
+                                    self.network_handler.send(create_json(6969, mld))
                                 else:
                                     a = self.serial.write(mld)
                             elif key.lower() == "on":
@@ -188,7 +193,7 @@ class Mercury:
                                 elif item[0] == 201:
                                     answ = self.thei.toggle_back()
                                 if not answ:
-                                    self.network_handler.send(create_json('error', "Could not find front camera"))
+                                    self.network_handler.send(create_json(6969, "Could not find front camera"))
                             elif key.lower() == "bildebehandligsmodus":
                                 if item[0] == 200:
                                     self.host_cam_front.send(item[0][key])
@@ -196,7 +201,7 @@ class Mercury:
                                     self.host_cam_back.send(item[0][key])
                     else:
                         print("123")
-                        self.network_handler.send(create_json('error', "This ID is not handled"))
+                        self.network_handler.send(create_json(6969, "This ID is not handled"))
 
 
 
