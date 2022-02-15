@@ -112,6 +112,7 @@ def create_json(can_id:int, data:str):
     
     # Leak detection and temperature
     if can_id == 140:
+        print(f"test: {data_b = }")
         lekk = data_b[0]
         temp1 = struct.unpack(c_types["int16"], data_b[1:3])[0] / 10 # -100.0°C -> 100.0°C
         temp2 = struct.unpack(c_types["int16"], data_b[3:5])[0] / 10
