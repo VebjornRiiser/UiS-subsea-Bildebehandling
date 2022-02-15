@@ -176,7 +176,7 @@ class Mercury:
                             if key.lower() == "tilt":
                                 mld = serial_package_builder(item, False)
                                 if isinstance(mld, bytes):
-                                    self.network_handler.send(create_json('error', a))
+                                    self.network_handler.send(create_json('error', mld))
                                 else:
                                     a = self.serial.write(mld)
                             elif key.lower() == "on":
