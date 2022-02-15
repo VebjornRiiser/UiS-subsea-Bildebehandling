@@ -194,6 +194,7 @@ class Mercury:
                                 elif item[0] == 201:
                                     self.host_cam_back.send(item[0][key])
                     else:
+                        print("123")
                         self.network_handler.send(create_json('error', "This ID is not handled"))
 
 
