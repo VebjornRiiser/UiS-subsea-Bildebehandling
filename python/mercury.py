@@ -176,7 +176,7 @@ class Mercury:
                     else:
                         if isinstance(item[1], str):
                             if item[1].lower() == "tilt":
-                                pass
+                                self.serial.write(serial_package_builder())
                             elif item[1].lower() == "toggle_front":
                                 answ = self.thei.toggle_front()
                                 if not answ:

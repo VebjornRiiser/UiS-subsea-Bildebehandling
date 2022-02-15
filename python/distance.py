@@ -4,7 +4,46 @@ from sys import platform
 import numpy as np
 import time
 
-# TESTSCRIPT FOR AVSTANDSMÅLING
+# TESTSCRIPT FOR AVSTANDSMÅLING + Funksjoner for beregning av avstand og størrlser på objekter
+
+class Object():
+    def __init__(self, contour  ) -> None:
+        self.rectanlge = cv2.minAreaRect(contour)
+        self.angle = self.rectanlge[2]
+        self.box = [np.int0(cv2.boxPoints(self.rectanlge))] # Added into a list due to easier use in draw contours
+        self.position = (int(self.rectanlge[0][0]), int(self.rectanlge[0][1]))
+        self.width = int(self.rectanlge[1][0])
+        self.height = int(self.rectanlge[1][1])
+        self.areal = self.width*self.height
+        self.contour = contour
+
+    @property
+    def get_box(self):
+        return self._box
+
+    @property
+    def get_rectangle(self):
+        return self._rectanlge
+
+    @property
+    def get_position(self):
+        return self._position
+    
+    @property
+    def get_width(self):
+        return self._width
+
+    @property
+    def get_height(self):
+        return self._height
+
+    @property
+    def get_areal(self):
+        return self._areal
+
+    @property
+    def get_contour(self):
+        return self._contour
 
 def white_balance(img):
     result = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
@@ -80,16 +119,15 @@ def contour_img(image):
     liste_paa_Sizes = list(map(cv2.contourArea , cont))
     for index, areal in enumerate(liste_paa_Sizes):
         if areal > 5000 and areal < 500000:
-            ny_cont.append(cont[index])
-    rect = []
-    for a in ny_cont:
-        rect.append(cv2.minAreaRect(a))
-    if len(rect) > 0:
-        box = np.int0(cv2.boxPoints(rect[0]))
-        cv2.drawContours(image, [box] , -1, (0, 0, 0), 2 )
-        return image, [int(i) for i in rect[0][0]], [int(i) for i in rect[0][1]]
-    else:
-        return image, rect, rect
+            ny_cont.append(Object(cont[index]))
+    #rect = []
+    #for a in ny_cont:
+    #    rect.append(cv2.minAreaRect(a))
+    if len(ny_cont) > 0:
+        #box = np.int0(cv2.boxPoints(rect[0]))
+        for object in ny_cont:
+            cv2.drawContours(image, object.box , -1, (0, 0, 0), 2 )
+    return ny_cont
 
 
 def get_center(contur):
@@ -101,6 +139,8 @@ def get_center(contur):
 
 def calc_distance(centers, focal_len, camera_space):
     dist = abs(centers[0][0]-centers[1][0])
+    if dist == 0:
+        return 50
     return int(((focal_len*camera_space)/dist)*100)
 
 
