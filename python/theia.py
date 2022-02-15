@@ -258,10 +258,10 @@ class Theia():
             self.camera_status['back'][1] = 0
         else:
             if self.camera_status['back'][0]:
-                self.host_cam2, self.client_cam2 = Pipe()
+                self.host_back, self.client_cam2 = Pipe()
                 send_back_pic, recive_back_pic = Pipe()
                 self.back_camera_prosess = Process(target=camera_thread, daemon=True, args=(self.cam_back_id, self.client_cam2, send_back_pic)).start()
-                self.front_cam_com_thread = threading.Thread(name="COM_cam_2",target=pipe_com, daemon=True, args=(self.host_cam2, self.camera_com_callback, self.cam_front_name)).start()
+                self.front_cam_com_thread = threading.Thread(name="COM_cam_2",target=pipe_com, daemon=True, args=(self.host_back, self.camera_com_callback, self.cam_front_name)).start()
                 self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_back_pic, self.port_camback_feed)).start()
                 #self.steam_video_prosess = Process(target=udp_picture_transfer, daemon=True, args=(recive_back_pic, self.port_camback_feed)).start()
                 self.camera_status['back'][1] = 1

@@ -21,21 +21,6 @@ c_types = {
     "float": "<f"
 }
 
-# Test function for socket connection
-def venus(ip, port, meld):
-    network_socket = self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    network_socket.settimeout(3)
-    network_socket.connect((ip, port))
-    for __ in range(10):
-        time.sleep(0.2)
-        try:
-            network_socket.sendall(str.encode(meld))
-        except Exception as e:
-            print(e)
-            print("Connection lost")
-            break
-    time.sleep(5)
-    network_socket.close()
 
 #!TODO packaged builder for sending of serial data
 def serial_package_builder(data, can=True):
@@ -186,7 +171,7 @@ class Mercury:
                             self.serial.write(serial_package_builder(item))
                         else:
                             self.network_handler.send(create_json('error', 15149))
-                    elif item[0] == 500: #Camera_front functions
+                    elif item[0] == 500 or item[0] == 501: #Camera_front and back functions
                         for key in item[1]:
                             if key.lower() == "tilt":
                                 mld = serial_package_builder(item, False)
@@ -195,25 +180,17 @@ class Mercury:
                                 else:
                                     a = self.serial.write(mld)
                             elif key.lower() == "on":
-                                answ = self.thei.toggle_front
+                                if item[0] == 500:
+                                    answ = self.thei.toggle_front()
+                                elif item[0] == 501:
+                                    answ = self.thei.toggle_back()
                                 if not answ:
                                     self.network_handler.send(create_json('error', "Could not find front camera"))
                             elif key.lower() == "bildebehandligsmodus":
-                                self.host_cam_front.send(item[0][key])
-                    elif item[0] == 501: # Camera_back functions
-                        for key in item[1]:
-                            if key.lower() == "tilt":
-                                mld = serial_package_builder(item, False)
-                                if isinstance(mld, bytes):
-                                    self.network_handler.send(create_json('error', a))
-                                else:
-                                    a = self.serial.write(mld)
-                            elif key.lower() == "on":
-                                answ = self.thei.toggle_front
-                                if not answ:
-                                    self.network_handler.send(create_json('error', "Could not find front camera"))
-                            elif key.lower() == "bildebehandligsmodus":
-                                self.host_cam_front.send(item[0][key])
+                                if item[0] == 500:
+                                    self.host_cam_front.send(item[0][key])
+                                elif item[0] == 501:
+                                    self.host_cam_back.send(item[0][key])
                     else:
                         self.network_handler.send(create_json('error', "This ID is not handled"))
 
