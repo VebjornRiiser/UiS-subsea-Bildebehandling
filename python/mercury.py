@@ -79,8 +79,8 @@ def network_thread(network_handler, network_callback, flag):
             if melding == b"" or melding is None:
                 continue
             else:
-                print(melding)
-                #network_callback(melding)
+                #print(melding)
+                network_callback(melding)
         except ValueError as e:
             print(e)
             print("Exception")
@@ -160,6 +160,7 @@ class Mercury:
 
 
     def network_callback(self, data: bytes) -> None:
+        data = bytes.decode(data, "utf-8")
         for message in data.split("*"):
             if message == b'heartbeat':
                 continue
