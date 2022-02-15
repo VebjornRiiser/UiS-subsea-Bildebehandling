@@ -190,7 +190,10 @@ class Mercury:
                                 if not isinstance(mld, bytearray):
                                     self.network_handler.send(to_json(f'{mld}'))
                                 else:
-                                    a = self.serial.write(mld)
+                                    if self.status['USB']:
+                                        a = self.serial.write(mld)
+                                    else:
+                                        self.network_handler.send(to_json("error usb not connected"))
                             elif key.lower() == "on":
                                 if item[0] == 200:
                                     answ = self.thei.toggle_front()
