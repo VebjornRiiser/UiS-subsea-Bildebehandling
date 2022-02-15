@@ -38,7 +38,7 @@ def venus(ip, port, meld):
     network_socket.close()
 
 #!TODO packaged builder for sending of serial data
-def serial_package_builder(data, can):
+def serial_package_builder(data, can=True):
     package = []
     # Start byte
     package.append(0x02)
@@ -49,14 +49,23 @@ def serial_package_builder(data, can):
     # ID
     [package.append(i) for i in struct.pack('<B', data[0])]
     
+    #TODO Loging av feil lengde på data
     # 8 Byte CAN Data
     if data[0] == 59:
         for char in data[1]:
             package.append(ord(char))
         #[package.append(i) for i in struct.pack('<B',ord(data[1]))]
+
     elif data[0] == 70:
         pass
         #[package.append(i) for i in struct.pack('<B', data[1])]
+    
+    # Camera tilt
+    elif (data[0] == 500) | (data[0] == 501):
+        package.append(data[1]['tilt'])
+        for _ in range(7):
+            package.append(0x00)
+
 
 
     #TODO Lage til alle typer data som skal mottas: https://docs.python.org/3/library/struct.html
@@ -65,7 +74,13 @@ def serial_package_builder(data, can):
     # Slutt byte
     package.append(0x03)
 
-    return bytearray(package)
+    if len(package) == 12:
+        try:
+            return bytearray(package)
+        except ValueError:
+            return f"feil lengde på tall: '{package}'"
+    else:
+        return f"Feil lengde på liste: '{package}'"
 
 # Reads data from network port
 def network_thread(network_handler, network_callback, flag):
