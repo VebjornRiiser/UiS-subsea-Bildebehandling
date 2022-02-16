@@ -263,7 +263,7 @@ class Theia():
     def toggle_back(self, cam_id: int=2):
         print(self.camera_status['back'])
         if self.camera_status['back'][0] == 1:
-            #self.back_camera_prosess.kill()
+            self.host_back.send('stop')
             self.camera_status['back'][0] = 0
         else:
             if self.camera_status['back'][1]:
