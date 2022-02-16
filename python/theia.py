@@ -59,7 +59,6 @@ class Camera():
         #self.feed.set(cv2.CAP_PROP_EXPOSURE, 600)
         #self.feed.set(cv2.CAP_PROP_AUTO_WB, 1)
         print(self.feed.get(cv2.CAP_PROP_FPS))
-        print(self.feed.get(cv2.CAP_PROP_AUTO_WB))
 
 
     def set_picture_size(self, width:int=2560, height:int=960):
