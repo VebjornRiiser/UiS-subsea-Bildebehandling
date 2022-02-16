@@ -242,6 +242,7 @@ class Theia():
         return False
 
     def toggle_front(self, cam_id: int=0):
+        print(self.camera_status['front'])
         if self.camera_status['front'][0] == 1:
             self.front_camera_prosess.kill()
             self.camera_status['front'][0] = 0
