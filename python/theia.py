@@ -203,23 +203,17 @@ class Theia():
         # Index 0 = id, index 1 = is running
         self.camera_status = {'front':[0,0], 'back':[0,0]}
         #self.camera_status = [0, 0] #Index 0 = Camera front, Index 1 = Camera under/back
-        self.camera_function = [0,0,0,0] # Inex 0 = Camera 1
+        self.camera_function = {'front': False, 'back':False} # Bool = Pircutre prossesing status
         self.autonom = False # If true will send feedback on ROV postion related to red line etc.
-        self.camera_front_id = 99 # Set to 9, so will fail if corret id is not set
-        self_camera_back_id = 99 # Set to 9, so will fail if corret id is not set
-        self.hardware_id_front = "asdopasud809123123"
-        self.cam_front_name = "tage"
-        self.cam_back_name = "mats"
         self.port_camback_feed = 6888
         self.port_camfront_feed = 6889
+        self.set_front_zero = [200, {"tilt": 0}]
+        self.set_back_zero = [201, {"tilt": 0}]
         self.check_hw_id_cam()
 
     def check_hw_id_cam(self):
-        print("test3")
         self.cam_front_id = self.find_cam("3-2") # Finner kamera på usb
-        print("test4")
         self.cam_back_id = self.find_cam("4-2")
-        print(self.cam_front_id)
         if not self.cam_front_id:
             self.camera_status['front'][1] = 0
         else:
@@ -254,11 +248,9 @@ class Theia():
                 self.front_camera_prosess.start()
                 self.front_cam_com_thread = threading.Thread(name="COM_cam_1",target=pipe_com, daemon=True, args=(self.host_cam_front, self.camera_com_callback, self.cam_front_name)).start()
                 self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_front_pic, self.port_camfront_feed)).start()
-                #self.steam_video_prosess = Process(target=udp_picture_transfer, daemon=True, args=(recive_front_pic, self.port_camfront_feed)).start()
                 self.camera_status['front'][0] = 1
                 return True
             else:
-                #! TODO Send message to topside, camera could not be found
                 return False
 
     def toggle_back(self, cam_id: int=2):
@@ -273,7 +265,6 @@ class Theia():
                 self.back_camera_prosess = Process(target=camera_thread, daemon=True, args=(self.cam_back_id, self.client_cam2, send_back_pic)).start()
                 self.front_cam_com_thread = threading.Thread(name="COM_cam_2",target=pipe_com, daemon=True, args=(self.host_back, self.camera_com_callback, self.cam_front_name)).start()
                 self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_back_pic, self.port_camback_feed)).start()
-                #self.steam_video_prosess = Process(target=udp_picture_transfer, daemon=True, args=(recive_back_pic, self.port_camback_feed)).start()
                 self.camera_status['back'][0] = 1
                 return True
             else:
