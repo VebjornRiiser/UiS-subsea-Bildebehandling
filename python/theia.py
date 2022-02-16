@@ -214,7 +214,9 @@ class Theia():
         self.check_hw_id_cam()
 
     def check_hw_id_cam(self):
+        print("test3")
         self.cam_front_id = self.find_cam("3-2") # Finner kamera på usb
+        print("test4")
         self.cam_back_id = self.find_cam("4-2")
         print(self.cam_front_id)
         if not self.cam_front_id:
