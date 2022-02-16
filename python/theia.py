@@ -250,7 +250,8 @@ class Theia():
             if self.camera_status['front'][1]:
                 self.host_cam_front, self.client_cam1 = Pipe()
                 send_front_pic, recive_front_pic = Pipe()
-                self.front_camera_prosess = Process(target=camera_thread, daemon=True, args=(self.cam_front_id, self.client_cam1, send_front_pic)).start()
+                self.front_camera_prosess = Process(target=camera_thread, daemon=True, args=(self.cam_front_id, self.client_cam1, send_front_pic))
+                self.front_camera_prosess.start()
                 self.front_cam_com_thread = threading.Thread(name="COM_cam_1",target=pipe_com, daemon=True, args=(self.host_cam_front, self.camera_com_callback, self.cam_front_name)).start()
                 self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_front_pic, self.port_camfront_feed)).start()
                 #self.steam_video_prosess = Process(target=udp_picture_transfer, daemon=True, args=(recive_front_pic, self.port_camfront_feed)).start()
