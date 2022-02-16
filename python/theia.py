@@ -104,7 +104,7 @@ def find_calc_shapes(pic1, pic2):
 
 
 def camera_thread(camera_id, connection, picture_send_pipe):
-    print('Camera:{camera_id} started')
+    print(f'Camera:{camera_id} started')
     cam = Camera(camera_id)
     shared_list = [1, 0, 1, 0]
     threading.Thread(name="Camera_con", target=pipe_com, daemon=True, args=(connection, None, None, shared_list)).start()
@@ -230,8 +230,11 @@ class Theia():
 
     def find_cam(self, cam):
         cmd = ["/usr/bin/v4l2-ctl", "--list-devices"]
+        print("test5")
         out, err = Popen(cmd, stdout=PIPE, stderr=PIPE).communicate()
+        print("test6")
         out, err = out.strip(), err.strip()
+        print("test7")
         for l in [i.split("\n\t") for i in out.decode("utf-8").split("\n\n")]:
             if cam in l[0]:
                 return l[1]
@@ -297,9 +300,10 @@ class Theia():
 if __name__ == "__main__":
     print("Main=Theia")
     s = Theia()
+    print("test")
     #s.camera_status['front'][1] = 1
     #s.cam_front_id = 2
-    print("test")
+    
     s.toggle_front()
     print("test2")
     
