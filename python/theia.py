@@ -294,9 +294,9 @@ class Theia():
 if __name__ == "__main__":
     print("Main=Theia")
     s = Theia()
-    s.camera_status['front'][1] = 1
-    s.cam_front_id = 2
-    s.toggle_front(2)
+    #s.camera_status['front'][1] = 1
+    #s.cam_front_id = 2
+    s.toggle_front()
     
     #s.toggle_back()
     for __ in range(9999999):
