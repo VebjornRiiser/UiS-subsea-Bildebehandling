@@ -262,11 +262,12 @@ class Theia():
                 return False
 
     def toggle_back(self, cam_id: int=2):
+        print(self.camera_status['back'])
         if self.camera_status['back'][0] == 1:
             #self.back_camera_prosess.kill()
             self.camera_status['back'][0] = 0
         else:
-            if self.camera_status['back'][0]:
+            if self.camera_status['back'][1]:
                 self.host_back, self.client_cam2 = Pipe()
                 send_back_pic, recive_back_pic = Pipe()
                 self.back_camera_prosess = Process(target=camera_thread, daemon=True, args=(self.cam_back_id, self.client_cam2, send_back_pic)).start()
