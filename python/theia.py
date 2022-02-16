@@ -75,10 +75,8 @@ class Camera():
         crop = frame[:self.height, :self.crop_width]
         if double:
             crop2 = frame[:self.height,self.crop_width:]
-            start = time.time()
             crop2 = white_balance(crop2)
             crop = white_balance(crop)
-            print(time.time()-start)
             return crop, crop2
         else:
             #crop = white_balance(crop)
@@ -117,7 +115,6 @@ def camera_thread(camera_id, connection, picture_send_pipe):
         print('Could not open video device')
         run = False
     while run:
-        print(f'{video_feed = }')
         if shared_list[1] == 1:
             mode = shared_list[2]
         if mode == 0:
@@ -127,7 +124,6 @@ def camera_thread(camera_id, connection, picture_send_pipe):
             pic, pic2 = cam.aq_image(True)
             pic = find_calc_shapes(pic, pic2)
         if video_feed:
-            print("Sending pictures to video stream")
             picture_send_pipe.send(pic)
         else:
             #print(time.time()-start)
