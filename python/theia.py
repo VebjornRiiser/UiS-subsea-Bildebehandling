@@ -124,6 +124,7 @@ def camera_thread(camera_id, connection, picture_send_pipe):
             pic, pic2 = cam.aq_image(True)
             pic = find_calc_shapes(pic, pic2)
         if video_feed:
+            print("Sending pictures to video stream")
             picture_send_pipe.send(pic)
         else:
             #print(time.time()-start)
