@@ -244,7 +244,7 @@ class Theia():
     def toggle_front(self, cam_id: int=0):
         print(f"{self.camera_status['front'] = }")
         if self.camera_status['front'][0] == 1:
-            self.front_camera_prosess.kill()
+            #self.front_camera_prosess.kill()
             self.camera_status['front'][0] = 0
         else:
             if self.camera_status['front'][1]:
@@ -263,7 +263,7 @@ class Theia():
 
     def toggle_back(self, cam_id: int=2):
         if self.camera_status['back'][0] == 1:
-            self.back_camera_prosess.kill()
+            #self.back_camera_prosess.kill()
             self.camera_status['back'][0] = 0
         else:
             if self.camera_status['back'][0]:
