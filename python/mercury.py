@@ -202,6 +202,8 @@ class Mercury:
                                 elif item[0] == 201:
                                     print("toggle back")
                                     answ = self.thei.toggle_back()
+                                else:
+                                    self.network_handler.send(to_json("Invalid camera")) # Not possible to send this in theroy
                                 if not answ:
                                     self.network_handler.send(to_json("Could not find front camera"))
                             elif key.lower() == "bildebehandligsmodus":
@@ -214,8 +216,12 @@ class Mercury:
                                         self.thei.camera_function['front'] = False
                                     self.host_cam_front.send(item[0][key])
                                 elif item[0] == 201:
-                                    mld = serial_package_builder(self.thei.set_back_zero)
-                                    self.serial.write(mld)
+                                    if item[0][key] != 0:
+                                        self.thei.camera_function['back'] = True
+                                        mld = serial_package_builder(self.thei.set_back_zero)
+                                        self.serial.write(mld)
+                                    else:
+                                        self.thei.camera_function['back'] = False
                                     self.host_cam_back.send(item[0][key])
                     else:
                         self.network_handler.send(to_json("This ID is not handled"))

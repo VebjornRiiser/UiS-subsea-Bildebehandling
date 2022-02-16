@@ -107,7 +107,6 @@ def camera_thread(camera_id, connection, picture_send_pipe):
     threading.Thread(name="Camera_con", target=pipe_com, daemon=True, args=(connection, None, None, shared_list)).start()
     run = True
     video_feed = True
-    
     mode = shared_list[2] # Camera modes: 0: Default no image processing, 1: Find shapes and calculate distance to shapes, 2: ??, 3 ?? 
     print("Trying to enter loop")
     if not (cam.feed.isOpened()):
@@ -127,6 +126,8 @@ def camera_thread(camera_id, connection, picture_send_pipe):
             #start = time.time()
             pic, pic2 = cam.aq_image(True)
             pic = find_calc_shapes(pic, pic2)
+        elif mode == 5:
+            time.sleep(2)
         if video_feed:
             picture_send_pipe.send(pic)
         else:
@@ -232,11 +233,8 @@ class Theia():
 
     def find_cam(self, cam):
         cmd = ["/usr/bin/v4l2-ctl", "--list-devices"]
-        print("test5")
         out, err = Popen(cmd, stdout=PIPE, stderr=PIPE).communicate()
-        print("test6")
         out, err = out.strip(), err.strip()
-        print("test7")
         for l in [i.split("\n\t") for i in out.decode("utf-8").split("\n\n")]:
             if cam in l[0]:
                 return l[1]
