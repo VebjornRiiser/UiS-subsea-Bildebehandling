@@ -115,6 +115,7 @@ def camera_thread(camera_id, connection, picture_send_pipe):
         print('Could not open video device')
         run = False
     while run:
+        print(f'{video_feed = }')
         if shared_list[1] == 1:
             mode = shared_list[2]
         if mode == 0:
