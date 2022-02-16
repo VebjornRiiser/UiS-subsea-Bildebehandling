@@ -106,6 +106,7 @@ def find_calc_shapes(pic1, pic2):
 def camera_thread(camera_id, connection, picture_send_pipe):
     print(f'Camera:{camera_id} started')
     cam = Camera(camera_id)
+    print("got passed class")
     shared_list = [1, 0, 1, 0]
     threading.Thread(name="Camera_con", target=pipe_com, daemon=True, args=(connection, None, None, shared_list)).start()
     run = True
