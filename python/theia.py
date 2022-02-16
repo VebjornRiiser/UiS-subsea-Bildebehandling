@@ -243,9 +243,9 @@ class Theia():
 
     def toggle_front(self, cam_id: int=0):
         print(f"{self.camera_status['front'] = }")
-        if self.camera_status['front'][1] == 1:
+        if self.camera_status['front'][0] == 1:
             self.front_camera_prosess.kill()
-            self.camera_status['front'][1] = 0
+            self.camera_status['front'][0] = 0
         else:
             if self.camera_status['front'][1]:
                 self.host_cam_front, self.client_cam1 = Pipe()
@@ -254,16 +254,16 @@ class Theia():
                 self.front_cam_com_thread = threading.Thread(name="COM_cam_1",target=pipe_com, daemon=True, args=(self.host_cam_front, self.camera_com_callback, self.cam_front_name)).start()
                 self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_front_pic, self.port_camfront_feed)).start()
                 #self.steam_video_prosess = Process(target=udp_picture_transfer, daemon=True, args=(recive_front_pic, self.port_camfront_feed)).start()
-                self.camera_status['front'][1] = 1
+                self.camera_status['front'][0] = 1
                 return True
             else:
                 #! TODO Send message to topside, camera could not be found
                 return False
 
     def toggle_back(self, cam_id: int=2):
-        if self.camera_status['back'][1] == 1:
+        if self.camera_status['back'][0] == 1:
             self.back_camera_prosess.kill()
-            self.camera_status['back'][1] = 0
+            self.camera_status['back'][0] = 0
         else:
             if self.camera_status['back'][0]:
                 self.host_back, self.client_cam2 = Pipe()
@@ -272,7 +272,7 @@ class Theia():
                 self.front_cam_com_thread = threading.Thread(name="COM_cam_2",target=pipe_com, daemon=True, args=(self.host_back, self.camera_com_callback, self.cam_front_name)).start()
                 self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_back_pic, self.port_camback_feed)).start()
                 #self.steam_video_prosess = Process(target=udp_picture_transfer, daemon=True, args=(recive_back_pic, self.port_camback_feed)).start()
-                self.camera_status['back'][1] = 1
+                self.camera_status['back'][0] = 1
                 return True
             else:
                 return False
