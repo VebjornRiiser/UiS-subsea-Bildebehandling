@@ -120,7 +120,7 @@ def camera_thread(camera_id, connection, picture_send_pipe):
                 if mode.lower() == 'stop':
                     picture_send_pipe('stop')
                     connection.send('stop')
-                    break
+                    run = False
         if mode == 0:
             pic = cam.aq_image()
         elif mode == 1:
