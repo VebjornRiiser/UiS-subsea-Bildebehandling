@@ -133,6 +133,7 @@ def camera_thread(camera_id, connection, picture_send_pipe):
             #cv2.imshow("Named2", pic2)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
+    print("Video thread stopped")
     cam.feed.release()
     cv2.destroyAllWindows()
         
