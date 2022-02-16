@@ -297,7 +297,9 @@ if __name__ == "__main__":
     s = Theia()
     #s.camera_status['front'][1] = 1
     #s.cam_front_id = 2
+    print("test")
     s.toggle_front()
+    print("test2")
     
     #s.toggle_back()
     for __ in range(9999999):
