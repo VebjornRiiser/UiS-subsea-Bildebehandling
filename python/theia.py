@@ -33,7 +33,6 @@ def udp_picture_transfer(pipe_recive, port):
             time.sleep(0.001)
 
 
-
 def white_balance(img):
     result = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
     avg_a = np.average(result[:, :, 1])
@@ -117,6 +116,11 @@ def camera_thread(camera_id, connection, picture_send_pipe):
     while run:
         if shared_list[1] == 1:
             mode = shared_list[2]
+            if isinstance(mode, str):
+                if mode.lower() == 'stop':
+                    picture_send_pipe('stop')
+                    connection.send('stop')
+                    break
         if mode == 0:
             pic = cam.aq_image()
         elif mode == 1:
@@ -185,6 +189,9 @@ def pipe_com(connection, callback=None, name=None, list=None):
     if callback is not None:
         while True:
             msg = connection.recv()
+            if isinstance(msg, str):
+                if msg.lower() == 'stop':
+                    break
             callback(msg, name)
     else:
         while list[0]:
@@ -238,7 +245,7 @@ class Theia():
     def toggle_front(self, cam_id: int=0):
         print(f"{self.camera_status['front'] = }")
         if self.camera_status['front'][0] == 1:
-            #self.front_camera_prosess.kill()
+            self.host_cam_front.send('stop')
             self.camera_status['front'][0] = 0
         else:
             if self.camera_status['front'][1]:

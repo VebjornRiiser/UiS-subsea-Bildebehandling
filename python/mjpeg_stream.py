@@ -24,6 +24,9 @@ class CamHandler(BaseHTTPRequestHandler):
                 try:
                     # rc, img = capture.read()
                     img = self.server.pipe.recv()
+                    if isinstance(img, str):
+                        if img.lower() == "stop":
+                            break
                     # if not rc:
                     #     continue
                     # imgRGB=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
