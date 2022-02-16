@@ -192,8 +192,10 @@ class Mercury:
                                         self.network_handler.send(to_json("error usb not connected"))
                             elif key.lower() == "on":
                                 if item[0] == 200:
+                                    print("toggle front")
                                     answ = self.thei.toggle_front()
                                 elif item[0] == 201:
+                                    print("toggle back")
                                     answ = self.thei.toggle_back()
                                 if not answ:
                                     self.network_handler.send(to_json("Could not find front camera"))
