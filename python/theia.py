@@ -110,7 +110,9 @@ def camera_thread(camera_id, connection, picture_send_pipe):
     threading.Thread(name="Camera_con", target=pipe_com, daemon=True, args=(connection, None, None, shared_list)).start()
     run = True
     video_feed = True
+    
     mode = shared_list[2] # Camera modes: 0: Default no image processing, 1: Find shapes and calculate distance to shapes, 2: ??, 3 ?? 
+    print("Trying to enter loop")
     if not (cam.feed.isOpened()):
         print('Could not open video device')
         run = False
