@@ -87,6 +87,8 @@ class Camera():
 
 def find_calc_shapes(pic1, pic2):
     mached_list = []
+    pic1 = white_balance(pic1)
+    pic2 = white_balance(pic2)
     objects = contour_img(pic1)
     objects2 = contour_img(pic2)
     if len(objects) > 0 and len(objects2) > 0:
@@ -106,9 +108,9 @@ def find_calc_shapes(pic1, pic2):
     return mached_list
 
 
-def image_aqusition_thread(connection):
+def image_aqusition_thread(connection, boli):
     mode = 1 # 1: Find fish, 2: mosaikk 3:TBA
-    while True:
+    while boli:
         mess = connection.recv()
         if isinstance(mess, str):
             if mess.lower() == 'stop':
@@ -120,7 +122,7 @@ def image_aqusition_thread(connection):
         else:
             if mode == 1:
                 if len(mess) == 2:
-                    mached_list = find_calc_shapes[mess[0], mess[1]]
+                    mached_list = find_calc_shapes(mess[0], mess[1])
                     connection.send(mached_list)
             elif mode == 2:
                 pass
@@ -141,13 +143,14 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
     shared_list = [1, 0, 1, 0]
     threading.Thread(name="Camera_con", target=pipe_com, daemon=True, args=(connection, None, None, shared_list)).start()
     run = True
-    video_feed = True
+    video_feed = False
     mode = shared_list[2] # Camera modes: 0: Default no image processing, 1: Find shapes and calculate distance to shapes, 2: ??, 3 ?? 
     print("Trying to enter loop")
     if not (cam.feed.isOpened()):
         print('Could not open video device')
         run = False
     frame_count = 1 # Used to only skip some frames for image AQ
+    draw_frames = []
     while run:
         if shared_list[1] == 1:
             mode = shared_list[2]
@@ -162,13 +165,13 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
             pic, pic2 = cam.aq_image(True)
             #pic = find_calc_shapes(pic, pic2)
             frame_count += 1
-            if frame_count > 3:
+            if frame_count > 2:
                 frame_count = 0
                 if picture_IA_pipe.poll():
                     draw_frames = picture_IA_pipe.recv()
                 picture_IA_pipe.send([pic, pic2])
-                if draw_frames != []:
-                    draw_on_img(pic, draw_frames)
+            if draw_frames != []:
+                draw_on_img(pic, draw_frames)
         elif mode == 5:
             time.sleep(2)
         if video_feed:
@@ -256,6 +259,8 @@ class Theia():
         self.autonom = False # If true will send feedback on ROV postion related to red line etc.
         self.port_camback_feed = 6888
         self.port_camfront_feed = 6889
+        self.cam_front_name = 'mats'
+        self.cam_back_name =  'tage'
         self.set_front_zero = [200, {"tilt": 0}]
         self.set_back_zero = [201, {"tilt": 0}]
         self.check_hw_id_cam()
@@ -296,7 +301,8 @@ class Theia():
                 self.front_cam_com_thread = threading.Thread(name="COM_cam_1",target=pipe_com, daemon=True, args=(self.host_cam_front, self.camera_com_callback, self.cam_front_name)).start()
                 self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_front_pic, self.port_camfront_feed)).start()
                 self.camera_status['front'][0] = 1
-                self.image_AQ_process = Process(target=image_aqusition_thread, args=(recive_IA)).start()
+                self.image_AQ_process = Process(target=image_aqusition_thread, daemon=True, args=(recive_IA, True))
+                self.image_AQ_process.start()
                 return True
             else:
                 return False
@@ -344,11 +350,10 @@ if __name__ == "__main__":
     print("Main=Theia")
     s = Theia()
     print("test")
-    #s.camera_status['front'][1] = 1
-    #s.cam_front_id = 2
+    s.camera_status['front'][1] = 1
+    s.cam_front_id = 0
     
     s.toggle_front()
-    print("test2")
     
     #s.toggle_back()
     for __ in range(9999999):
