@@ -42,8 +42,16 @@ def serial_package_builder(data, can=True):
         #[package.append(i) for i in struct.pack('<B',ord(data[1]))]
 
     elif data[0] == 70:
-        pass
-        #[package.append(i) for i in struct.pack('<B', data[1])]
+        # X, Y, Z, rotasjon: int8
+        for k in range(4):
+            [package.append(i) for i in struct.pack(c_types["int8"], data[1][k])]
+
+        # manipulator: uint8
+        [package.append(i) for i in struct.pack(c_types["uint8"], data[1][4])]
+
+        # fri, fri, throttling: int8
+        for k in range(3):
+            [package.append(i) for i in struct.pack(c_types["int8"], data[1][k+5])]
     
     # Camera tilt
     elif (data[0] == 200) | (data[0] == 201):
@@ -51,6 +59,9 @@ def serial_package_builder(data, can=True):
         [package.append(i) for i in struct.pack(c_types["int8"], data[1]['tilt'])]
         for _ in range(7):
             package.append(0x00)
+
+    else:
+        return f"Gjenkjente ikkje ID frå toppside: '{data[0]}'"
 
 
 
