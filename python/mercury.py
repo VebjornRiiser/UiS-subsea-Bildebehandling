@@ -247,7 +247,6 @@ class Mercury:
         else: 
             print('No connection on network')
 
-
     def toggle_USB(self):
         if self.status['USB']:
             # This will stop USB thread

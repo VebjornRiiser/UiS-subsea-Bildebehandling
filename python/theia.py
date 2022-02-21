@@ -1,3 +1,5 @@
+from ast import While
+from email import message
 import threading, mjpeg_stream, cv2, time, math
 from socket import AF_INET, SOCK_DGRAM, socket
 import numpy as np
@@ -42,6 +44,7 @@ def white_balance(img):
     result = cv2.cvtColor(result, cv2.COLOR_LAB2BGR)
     return result
 
+
 class Camera():
     def __init__(self, id:int, width:int=2560, height:int=720, framerate:int=30 ) -> None:
         self.id = id
@@ -83,6 +86,7 @@ class Camera():
 
 
 def find_calc_shapes(pic1, pic2):
+    mached_list = []
     objects = contour_img(pic1)
     objects2 = contour_img(pic2)
     if len(objects) > 0 and len(objects2) > 0:
@@ -90,16 +94,47 @@ def find_calc_shapes(pic1, pic2):
             for b in objects2:
                 if (cv2.matchShapes(a.contour, b.contour, cv2.CONTOURS_MATCH_I1, 0.0)) < 0.3:
                     distance = calc_distance([a.position, b.position], 60, 6)
+                    a.dept = distance
                     if distance > 10:
-                        cv2.putText(pic1, f'Distance:{distance} cm',a.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
-                        cv2.putText(pic1, f'Distance:{distance} cm',a.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
+                        #cv2.putText(pic1, f'Distance:{distance} cm',a.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
+                        #cv2.putText(pic1, f'Distance:{distance} cm',a.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
                         width  = calc_size (a.width,(a.position,b.position) ,  0)
-                        cv2.putText(pic1, f'Width:{width} cm',(a.position[0], a.position[1]+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
-                        cv2.putText(pic1, f'Width:{width} cm',(a.position[0], a.position[1]+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
-    return pic1
+                        a.true_width = width
+                        mached_list.append(a)
+                        #cv2.putText(pic1, f'Width:{width} cm',(a.position[0], a.position[1]+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
+                        #cv2.putText(pic1, f'Width:{width} cm',(a.position[0], a.position[1]+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
+    return mached_list
 
 
-def camera_thread(camera_id, connection, picture_send_pipe):
+def image_aqusition_thread(connection):
+    mode = 1 # 1: Find fish, 2: mosaikk 3:TBA
+    while True:
+        mess = connection.recv()
+        if isinstance(mess, str):
+            if mess.lower() == 'stop':
+                break
+            elif mess.lower() == 'fish':
+                mode = 1
+            elif mess.lower() == 'mosaikk':
+                mode = 2
+        else:
+            if mode == 1:
+                if len(mess) == 2:
+                    mached_list = find_calc_shapes[mess[0], mess[1]]
+                    connection.send(mached_list)
+            elif mode == 2:
+                pass
+        
+
+def draw_on_img(pic, frames):
+    for a in frames:
+        cv2.putText(pic, f'Distance:{a.dept} cm',a.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
+        cv2.putText(pic, f'Distance:{a.dept} cm',a.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
+        cv2.putText(pic, f'Width:{a.true_width} cm',(a.position[0], a.position[1]+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
+        cv2.putText(pic, f'Width:{a.true_width} cm',(a.position[0], a.position[1]+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
+        cv2.drawContours(pic, a.box , -1, (0, 0, 0), 2 )
+
+def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
     print(f'Camera:{camera_id} started')
     cam = Camera(camera_id)
     print("got passed class")
@@ -112,6 +147,7 @@ def camera_thread(camera_id, connection, picture_send_pipe):
     if not (cam.feed.isOpened()):
         print('Could not open video device')
         run = False
+    frame_count = 1 # Used to only skip some frames for image AQ
     while run:
         if shared_list[1] == 1:
             mode = shared_list[2]
@@ -123,17 +159,22 @@ def camera_thread(camera_id, connection, picture_send_pipe):
         if mode == 0:
             pic = cam.aq_image()
         elif mode == 1:
-            #start = time.time()
             pic, pic2 = cam.aq_image(True)
-            pic = find_calc_shapes(pic, pic2)
+            #pic = find_calc_shapes(pic, pic2)
+            frame_count += 1
+            if frame_count > 3:
+                frame_count = 0
+                if picture_IA_pipe.poll():
+                    draw_frames = picture_IA_pipe.recv()
+                picture_IA_pipe.send([pic, pic2])
+                if draw_frames != []:
+                    draw_on_img(pic, draw_frames)
         elif mode == 5:
             time.sleep(2)
         if video_feed:
             picture_send_pipe.send(pic)
         else:
-            #print(time.time()-start)
             cv2.imshow("Named Frame",pic)
-            #cv2.imshow("Named2", pic2)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
     print("Video thread stopped")
@@ -249,11 +290,13 @@ class Theia():
             if self.camera_status['front'][1]:
                 self.host_cam_front, self.client_cam1 = Pipe()
                 send_front_pic, recive_front_pic = Pipe()
-                self.front_camera_prosess = Process(target=camera_thread, daemon=True, args=(self.cam_front_id, self.client_cam1, send_front_pic))
+                send_IA, recive_IA = Pipe()
+                self.front_camera_prosess = Process(target=camera_thread, daemon=True, args=(self.cam_front_id, self.client_cam1, send_front_pic, send_IA))
                 self.front_camera_prosess.start()
                 self.front_cam_com_thread = threading.Thread(name="COM_cam_1",target=pipe_com, daemon=True, args=(self.host_cam_front, self.camera_com_callback, self.cam_front_name)).start()
                 self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_front_pic, self.port_camfront_feed)).start()
                 self.camera_status['front'][0] = 1
+                self.image_AQ_process = Process(target=image_aqusition_thread, args=(recive_IA)).start()
                 return True
             else:
                 return False

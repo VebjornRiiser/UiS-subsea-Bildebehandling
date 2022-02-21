@@ -14,8 +14,10 @@ class Object():
         self.position = (int(self.rectanlge[0][0]), int(self.rectanlge[0][1]))
         self.width = int(self.rectanlge[1][0])
         self.height = int(self.rectanlge[1][1])
+        self.true_width = 0
         self.areal = self.width*self.height
         self.contour = contour
+        self.dept = 0
 
     @property
     def get_box(self):
@@ -44,6 +46,22 @@ class Object():
     @property
     def get_contour(self):
         return self._contour
+
+    @property
+    def get_dept(self):
+        return self._dept
+
+    def set_dept(self, newdept):
+        self._dept = newdept
+
+    @property
+    def get_true_width(self):
+        return self._true_width
+
+    def set_true_width(self, newwidth):
+        self._true_width = newwidth
+
+
 
 def white_balance(img):
     result = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
@@ -121,7 +139,6 @@ def contour_img(image):
     for index, areal in enumerate(liste_paa_Sizes):
         if areal > 5000 and areal < 500000:
             ny_cont.append(Object(cont[index]))
-
     if len(ny_cont) > 0:
         for object in ny_cont:
             cv2.drawContours(image, object.box , -1, (0, 0, 0), 2 )
