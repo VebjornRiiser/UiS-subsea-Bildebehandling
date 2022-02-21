@@ -21,10 +21,17 @@ c_types = {
     "float": "<f"
 }
 
+def get_byte(c_format:str, number):
+    byte_list = []
+    [byte_list.append(i) for i in struct.pack(c_types[c_format], number)]
 
-#!TODO packaged builder for sending of serial data
+    return byte_list
+
 def serial_package_builder(data, can=True):
     package = []
+    # can_data is a list or a dict
+    can_id, can_data = data
+
     # Start byte
     package.append(0x02)
 
@@ -32,41 +39,38 @@ def serial_package_builder(data, can=True):
     package.append(0x05) if can else package.append(0x06)
 
     # ID
-    [package.append(i) for i in struct.pack('<B', data[0])]
+    package += get_byte("uint8", can_id)
     
-    #TODO Loging av feil lengde på data
-    # 8 Byte CAN Data
-    if data[0] == 59:
-        for char in data[1]:
-            package.append(ord(char))
-        #[package.append(i) for i in struct.pack('<B',ord(data[1]))]
+    # Startup
+    if (can_id == 64) | (can_id == 96) | (can_id == 128):
+        package += bytes("start\n", "latin")
+        for k in range(2):
+            package.append(0x00)
 
-    elif data[0] == 70:
+    elif can_id == 70:
         # X, Y, Z, rotasjon: int8
         for k in range(4):
-            [package.append(i) for i in struct.pack(c_types["int8"], data[1][k])]
+            package += get_byte("int8", can_data[k])
 
         # manipulator: uint8
-        [package.append(i) for i in struct.pack(c_types["uint8"], data[1][4])]
+        package += get_byte("uint8", can_data[4])
 
         # fri, fri, throttling: int8
         for k in range(3):
-            [package.append(i) for i in struct.pack(c_types["int8"], data[1][k+5])]
+            package += get_byte("int8", can_data[k+5])
     
     # Camera tilt
-    elif (data[0] == 200) | (data[0] == 201):
-        #print( f"{data[1]['tilt'] = }" )
-        [package.append(i) for i in struct.pack(c_types["int8"], data[1]['tilt'])]
+    elif (can_id == 200) | (can_id == 201):
+        package += get_byte("int8", can_data['tilt'])
         for _ in range(7):
             package.append(0x00)
 
     else:
-        return f"Gjenkjente ikkje ID frå toppside: '{data[0]}'"
+        return f"Gjenkjente ikkje ID frå toppside: '{can_id}'"
 
 
 
-    #TODO Lage til alle typer data som skal mottas: https://docs.python.org/3/library/struct.html
-    #[package.append(i) for i in struct.pack('<q', 345)]
+    # Info om struct: https://docs.python.org/3/library/struct.html
 
     # Slutt byte
     package.append(0x03)
