@@ -167,6 +167,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
             if pic is False:
                 cam.feed.release()
                 cv2.destroyAllWindows()
+                cam = Camera(camera_id)
         elif mode == 1:
             pic, pic2 = cam.aq_image(True)
             #pic = find_calc_shapes(pic, pic2)
