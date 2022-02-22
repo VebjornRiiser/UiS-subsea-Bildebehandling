@@ -77,6 +77,11 @@ class Camera():
         #frame = cv2.rotate(frame, cv2.ROTATE_180)
         if frame is None:
             print("test")
+            self.feed.release()
+            if platform == "linux" or platform == "linux2":
+                self.feed = cv2.VideoCapture(self.id, cv2.CAP_V4L2)
+            else:
+                self.feed = cv2.VideoCapture(self.id, cv2.CAP_SHOW)
             return False
         crop = frame[:self.height, :self.crop_width]
         if double:
