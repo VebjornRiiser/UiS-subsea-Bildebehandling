@@ -76,6 +76,7 @@ class Camera():
         ref, frame = self.feed.read()
         #frame = cv2.rotate(frame, cv2.ROTATE_180)
         if frame is None:
+            print(ref)
             return False
         crop = frame[:self.height, :self.crop_width]
         if double:
