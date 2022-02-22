@@ -140,10 +140,10 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
     print(f'Camera:{camera_id} started')
     cam = Camera(camera_id)
     print("got passed class")
-    shared_list = [1, 0, 1, 0]
+    shared_list = [1, 0, 0, 0]
     threading.Thread(name="Camera_con", target=pipe_com, daemon=True, args=(connection, None, None, shared_list)).start()
     run = True
-    video_feed = False
+    video_feed = True
     mode = shared_list[2] # Camera modes: 0: Default no image processing, 1: Find shapes and calculate distance to shapes, 2: ??, 3 ?? 
     print("Trying to enter loop")
     if not (cam.feed.isOpened()):
@@ -266,7 +266,7 @@ class Theia():
         self.check_hw_id_cam()
 
     def check_hw_id_cam(self):
-        self.cam_front_id = self.find_cam("3-2") # Finner kamera på usb
+        self.cam_front_id = self.find_cam("1-7") # Finner kamera på usb
         self.cam_back_id = self.find_cam("4-2")
         if not self.cam_front_id:
             self.camera_status['front'][1] = 0
