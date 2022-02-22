@@ -176,7 +176,8 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
         elif mode == 5:
             time.sleep(2)
         if video_feed:
-            picture_send_pipe.send(pic)
+            pass
+            #picture_send_pipe.send(pic)
         else:
             cv2.imshow("Named Frame",pic)
             if cv2.waitKey(1) & 0xFF == ord('q'):
