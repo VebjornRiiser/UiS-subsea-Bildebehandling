@@ -76,13 +76,6 @@ class Camera():
         ref, frame = self.feed.read()
         #frame = cv2.rotate(frame, cv2.ROTATE_180)
         if frame is None:
-            print("test")
-            self.feed.release()
-            cv2.destroyAllWindows()
-            if platform == "linux" or platform == "linux2":
-                self.feed = cv2.VideoCapture(self.id, cv2.CAP_V4L2)
-            else:
-                self.feed = cv2.VideoCapture(self.id, cv2.CAP_SHOW)
             return False
         crop = frame[:self.height, :self.crop_width]
         if double:
@@ -172,7 +165,8 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
         if mode == 0:
             pic = cam.aq_image()
             if pic is False:
-                continue
+                cam.feed.release()
+                cv2.destroyAllWindows()
         elif mode == 1:
             pic, pic2 = cam.aq_image(True)
             #pic = find_calc_shapes(pic, pic2)
