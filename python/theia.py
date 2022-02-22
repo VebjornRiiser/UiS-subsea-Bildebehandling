@@ -78,6 +78,7 @@ class Camera():
         if frame is None:
             print("test")
             self.feed.release()
+            cv2.destroyAllWindows()
             if platform == "linux" or platform == "linux2":
                 self.feed = cv2.VideoCapture(self.id, cv2.CAP_V4L2)
             else:
