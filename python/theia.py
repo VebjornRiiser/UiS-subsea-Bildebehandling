@@ -74,7 +74,7 @@ class Camera():
 
     def aq_image(self, double:bool=False):
         ref, frame = self.feed.read()
-        frame = cv2.rotate(frame, cv2.cv2.ROTATE_180_CLOCKWISE)
+        frame = cv2.warpAffine(src=frame, M=frame, dsize=(self.width, self.height))
         crop = frame[:self.height, :self.crop_width]
         if double:
             crop2 = frame[:self.height,self.crop_width:]
