@@ -74,10 +74,10 @@ class Camera():
 
     def aq_image(self, double:bool=False):
         ref, frame = self.feed.read()
-        test = cv2.flip(frame, 0)
-        crop = test[:self.height, :self.crop_width]
+        #frame = cv2.flip(frame, 0)
+        crop = frame[:self.height, :self.crop_width]
         if double:
-            crop2 = test[:self.height,self.crop_width:]
+            crop2 = frame[:self.height,self.crop_width:]
             crop2 = white_balance(crop2)
             crop = white_balance(crop)
             return crop, crop2
