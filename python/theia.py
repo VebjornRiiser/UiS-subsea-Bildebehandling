@@ -350,8 +350,8 @@ if __name__ == "__main__":
     print("Main=Theia")
     s = Theia()
     print("test")
-    s.camera_status['front'][1] = 1
-    s.cam_front_id = 0
+    #s.camera_status['front'][1] = 1
+    #s.cam_front_id = 0
     
     s.toggle_front()
     
