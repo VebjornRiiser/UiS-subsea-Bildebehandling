@@ -76,6 +76,8 @@ class Camera():
         ref, frame = self.feed.read()
         #frame = cv2.rotate(frame, cv2.ROTATE_180)
         crop = frame[:self.height, :self.crop_width]
+        if crop is None:
+            return False
         if double:
             crop2 = frame[:self.height,self.crop_width:]
             crop2 = white_balance(crop2)
@@ -162,6 +164,8 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
                     run = False
         if mode == 0:
             pic = cam.aq_image()
+            if pic is False:
+                continue
         elif mode == 1:
             pic, pic2 = cam.aq_image(True)
             #pic = find_calc_shapes(pic, pic2)
@@ -176,8 +180,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
         elif mode == 5:
             time.sleep(2)
         if video_feed:
-            pass
-            #picture_send_pipe.send(pic)
+            picture_send_pipe.send(pic)
         else:
             cv2.imshow("Named Frame",pic)
             if cv2.waitKey(1) & 0xFF == ord('q'):
