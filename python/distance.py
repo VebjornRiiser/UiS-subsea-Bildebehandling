@@ -156,7 +156,8 @@ def calc_distance(centers, focal_len, camera_space):
     dist = abs(centers[0][0]-centers[1][0])
     if dist == 0:
         return 50
-    return int(((focal_len*camera_space)/dist)*100)
+    return int((3.631e-6 * (dist**4)) - (0.003035 * (dist**3)) + (0.9672 * (dist**2)) - (139.9 * dist) + 7862)
+    #return int(((focal_len*camera_space)/dist)*100)
 
 
 def calc_size(num_pixels:int, centers, axis:int=0):
