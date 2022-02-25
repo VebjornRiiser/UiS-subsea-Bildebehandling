@@ -53,7 +53,7 @@ class Camera():
         if platform == "linux" or platform == "linux2":
             self.feed = cv2.VideoCapture(self.id, cv2.CAP_V4L2)
         else:
-            self.feed = cv2.VideoCapture(self.id, cv2.CAP_SHOW)
+            self.feed = cv2.VideoCapture(self.id)
         self.set_picture_size(self.width, self.height)
         #self.feed.set(cv2.CAP_PROP_FPS, framerate)
         #self.feed.set(cv2.CAP_PROP_AUTOFOCUS, 1)
@@ -73,7 +73,7 @@ class Camera():
         self.crop_width = int(self.width/2)
 
     def aq_image(self, double:bool=False):
-        ref, frame = self.feed.read(timeout=3)
+        ref, frame = self.feed.read()
         #frame = cv2.rotate(frame, cv2.ROTATE_180)
         if frame is None:
             print(ref)
@@ -147,7 +147,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
     shared_list = [1, 0, 0, 0]
     threading.Thread(name="Camera_con", target=pipe_com, daemon=True, args=(connection, None, None, shared_list)).start()
     run = True
-    video_feed = True
+    video_feed = False
     mode = shared_list[2] # Camera modes: 0: Default no image processing, 1: Find shapes and calculate distance to shapes, 2: ??, 3 ?? 
     print("Trying to enter loop")
     if not (cam.feed.isOpened()):
@@ -271,7 +271,7 @@ class Theia():
         self.cam_back_name =  'tage'
         self.set_front_zero = [200, {"tilt": 0}]
         self.set_back_zero = [201, {"tilt": 0}]
-        self.check_hw_id_cam()
+        #self.check_hw_id_cam()
 
     def check_hw_id_cam(self):
         self.cam_front_id = self.find_cam(".5") # Finner kamera på usb
@@ -358,8 +358,8 @@ if __name__ == "__main__":
     print("Main=Theia")
     s = Theia()
     print("test")
-    #s.camera_status['front'][1] = 1
-    #s.cam_front_id = 0
+    s.camera_status['front'][1] = 1
+    s.cam_front_id = 1
     
     s.toggle_front()
     
