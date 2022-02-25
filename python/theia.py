@@ -73,16 +73,26 @@ class Camera():
         self.crop_width = int(self.width/2)
 
     def aq_image(self, double:bool=False):
-        ref, frame = self.feed.read(timeout=3)
-        #frame = cv2.rotate(frame, cv2.ROTATE_180)
+        #ref, frame = self.feed.read()
+        ref = self.feed.grab()
+        if ref:
+            _, frame = self.feed.retrieve(0)
+        else:
+            if double:
+                return False, False
+            else:
+                print(time.asctime())
+                return False
         if frame is None:
-            print(ref)
-            return False
+            if double:
+                return False, False
+            else:
+                print(time.asctime())
+                return False
+        frame = cv2.rotate(frame, cv2.ROTATE_180)
         crop = frame[:self.height, :self.crop_width]
         if double:
             crop2 = frame[:self.height,self.crop_width:]
-            crop2 = white_balance(crop2)
-            crop = white_balance(crop)
             return crop, crop2
         else:
             #crop = white_balance(crop)
@@ -91,8 +101,8 @@ class Camera():
 
 def find_calc_shapes(pic1, pic2):
     mached_list = []
-    pic1 = white_balance(pic1)
-    pic2 = white_balance(pic2)
+    #pic1 = white_balance(pic1)
+    #pic2 = white_balance(pic2)
     objects = contour_img(pic1)
     objects2 = contour_img(pic2)
     if len(objects) > 0 and len(objects2) > 0:
@@ -171,6 +181,10 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
                 cam = Camera(camera_id)
         elif mode == 1:
             pic, pic2 = cam.aq_image(True)
+            if pic is False:
+                cam.feed.release()
+                cv2.destroyAllWindows()
+                cam = Camera(camera_id)
             #pic = find_calc_shapes(pic, pic2)
             frame_count += 1
             if frame_count > 2:
@@ -274,7 +288,7 @@ class Theia():
         self.check_hw_id_cam()
 
     def check_hw_id_cam(self):
-        self.cam_front_id = self.find_cam(".5") # Finner kamera på usb
+        self.cam_front_id = self.find_cam(".3") # Finner kamera på usb
         self.cam_back_id = self.find_cam("4-2")
         if not self.cam_front_id:
             self.camera_status['front'][1] = 0
@@ -362,6 +376,7 @@ if __name__ == "__main__":
     #s.cam_front_id = 0
     
     s.toggle_front()
+    print(time.asctime())
     
     #s.toggle_back()
     for __ in range(9999999):
