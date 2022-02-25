@@ -73,10 +73,8 @@ class Camera():
         self.crop_width = int(self.width/2)
 
     def aq_image(self, double:bool=False):
-<<<<<<< HEAD
         ref, frame = self.feed.read()
         #frame = cv2.rotate(frame, cv2.ROTATE_180)
-=======
         #ref, frame = self.feed.read()
         ref = self.feed.grab()
         if ref:
@@ -87,7 +85,6 @@ class Camera():
             else:
                 print(time.asctime())
                 return False
->>>>>>> e18dd766cb55444e7da55c3a338a9340a63c4f24
         if frame is None:
             if double:
                 return False, False
@@ -96,6 +93,7 @@ class Camera():
                 return False
         frame = cv2.rotate(frame, cv2.ROTATE_180)
         crop = frame[:self.height, :self.crop_width]
+        crop2 = frame[:self.height,self.crop_width:]
         if double:
             crop2 = frame[:self.height,self.crop_width:]
             return crop, crop2
@@ -106,8 +104,8 @@ class Camera():
 
 def find_calc_shapes(pic1, pic2):
     mached_list = []
-    #pic1 = white_balance(pic1)
-    #pic2 = white_balance(pic2)
+    pic1 = white_balance(pic1)
+    pic2 = white_balance(pic2)
     objects = contour_img(pic1)
     objects2 = contour_img(pic2)
     if len(objects) > 0 and len(objects2) > 0:
@@ -162,7 +160,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
     shared_list = [1, 0, 0, 0]
     threading.Thread(name="Camera_con", target=pipe_com, daemon=True, args=(connection, None, None, shared_list)).start()
     run = True
-    video_feed = False
+    video_feed = True
     mode = shared_list[2] # Camera modes: 0: Default no image processing, 1: Find shapes and calculate distance to shapes, 2: ??, 3 ?? 
     print("Trying to enter loop")
     if not (cam.feed.isOpened()):
@@ -290,18 +288,22 @@ class Theia():
         self.cam_back_name =  'tage'
         self.set_front_zero = [200, {"tilt": 0}]
         self.set_back_zero = [201, {"tilt": 0}]
-        #self.check_hw_id_cam()
+        self.check_hw_id_cam()
 
     def check_hw_id_cam(self):
-        self.cam_front_id = self.find_cam(".3") # Finner kamera på usb
-        self.cam_back_id = self.find_cam("4-2")
+        self.cam_front_id = self.find_cam(".7") # Finner kamera på usb
+        self.cam_back_id = self.find_cam("3-2")
         if not self.cam_front_id:
+            print(f'Did no find front camera')
             self.camera_status['front'][1] = 0
         else:
+            print(f'Found front camera')
             self.camera_status['front'][1] = 1
         if not self.cam_back_id:
+            print(f'Did no find back camera')
             self.camera_status['back'][1] = 0
         else:
+            print(f'Found back camera')
             self.camera_status['back'][1] = 1
 
     def find_cam(self, cam):
@@ -343,10 +345,13 @@ class Theia():
             if self.camera_status['back'][1]:
                 self.host_back, self.client_cam2 = Pipe()
                 send_back_pic, recive_back_pic = Pipe()
-                self.back_camera_prosess = Process(target=camera_thread, daemon=True, args=(self.cam_back_id, self.client_cam2, send_back_pic)).start()
+                send_IA2, recive_IA2 = Pipe()
+                self.back_camera_prosess = Process(target=camera_thread, daemon=True, args=(self.cam_back_id, self.client_cam2, send_back_pic, send_IA2)).start()
                 self.front_cam_com_thread = threading.Thread(name="COM_cam_2",target=pipe_com, daemon=True, args=(self.host_back, self.camera_com_callback, self.cam_front_name)).start()
                 self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_back_pic, self.port_camback_feed)).start()
                 self.camera_status['back'][0] = 1
+                self.image_AQ_process2 = Process(target=image_aqusition_thread, daemon=True, args=(recive_IA2, True))
+                self.image_AQ_process2.start()
                 return True
             else:
                 return False
@@ -377,10 +382,11 @@ if __name__ == "__main__":
     print("Main=Theia")
     s = Theia()
     print("test")
-    s.camera_status['front'][1] = 1
-    s.cam_front_id = 1
+    #s.camera_status['front'][1] = 1
+    #s.cam_front_id = 1
     
     s.toggle_front()
+    s.toggle_back()
     print(time.asctime())
     
     #s.toggle_back()
