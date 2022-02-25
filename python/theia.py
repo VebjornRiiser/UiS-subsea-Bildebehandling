@@ -73,10 +73,6 @@ class Camera():
         self.crop_width = int(self.width/2)
 
     def aq_image(self, double:bool=False):
-<<<<<<< HEAD
-        ref, frame = self.feed.read()
-        #frame = cv2.rotate(frame, cv2.ROTATE_180)
-=======
         #ref, frame = self.feed.read()
         ref = self.feed.grab()
         if ref:
@@ -87,7 +83,6 @@ class Camera():
             else:
                 print(time.asctime())
                 return False
->>>>>>> e18dd766cb55444e7da55c3a338a9340a63c4f24
         if frame is None:
             if double:
                 return False, False
@@ -290,7 +285,7 @@ class Theia():
         self.cam_back_name =  'tage'
         self.set_front_zero = [200, {"tilt": 0}]
         self.set_back_zero = [201, {"tilt": 0}]
-        #self.check_hw_id_cam()
+        self.check_hw_id_cam()
 
     def check_hw_id_cam(self):
         self.cam_front_id = self.find_cam(".3") # Finner kamera på usb
@@ -377,8 +372,8 @@ if __name__ == "__main__":
     print("Main=Theia")
     s = Theia()
     print("test")
-    s.camera_status['front'][1] = 1
-    s.cam_front_id = 1
+    #s.camera_status['front'][1] = 1
+    #s.cam_front_id = 1
     
     s.toggle_front()
     print(time.asctime())
