@@ -124,6 +124,7 @@ def find_calc_shapes(pic1, pic2):
 
 def image_aqusition_thread(connection, boli):
     mode = 1 # 1: Find fish, 2: mosaikk 3:TBA
+    old_list = []
     while boli:
         mess = connection.recv()
         if isinstance(mess, str):
@@ -137,6 +138,13 @@ def image_aqusition_thread(connection, boli):
             if mode == 1:
                 if len(mess) == 2:
                     mached_list = find_calc_shapes(mess[0], mess[1])
+                    if old_list != []:
+                        for a in old_list:
+                            for b in mached_list:
+                                if (cv2.matchShapes(a.contour, b.contour, cv2.CONTOURS_MATCH_I1, 0.0)) < 0.3:
+                                    a.dept = 0.9*b.dept+0.1*a.dept 
+                                    print("test")
+                    old_list = mached_list
                     connection.send(mached_list)
             elif mode == 2:
                 pass
@@ -149,6 +157,7 @@ def draw_on_img(pic, frames):
         cv2.putText(pic, f'Width:{a.true_width} cm',(a.position[0], a.position[1]+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
         cv2.putText(pic, f'Width:{a.true_width} cm',(a.position[0], a.position[1]+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
         cv2.drawContours(pic, a.box , -1, (0, 0, 0), 2 )
+
 
 def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
     print(f'Camera:{camera_id} started')
@@ -210,7 +219,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
 #TODO click funksjon, Show image for debug/test 
 def camera(camera_id, connection, picture_send_pipe):
     print("Camera Thread started")
-    shared_list = [1, 0, 0, 0]
+    shared_list = [1, 0, 1, 0]
     picture = np.array
     conn_thread = threading.Thread(name="Camera_con", target=pipe_com, daemon=True, args=(connection, None, None, shared_list)).start()
     if platform == "linux" or platform == "linux2":
@@ -264,7 +273,6 @@ def pipe_com(connection, callback=None, name=None, list=None):
         while list[0]:
             list[2] = connection.recv()
             list[1] = 1
-            #print(f"{list[1] = }")
 
 
 #TODO cli_runtime

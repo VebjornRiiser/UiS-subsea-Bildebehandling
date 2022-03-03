@@ -135,11 +135,13 @@ def create_json(can_id:int, data:str):
         json_dict = "\n\nERROR, ID UNKNOWN!\n\n"    
 
     return to_json(json_dict)
-        
+
+
 def to_json(input):
     packet_sep = json.dumps("*")
     
     return bytes(packet_sep + json.dumps(input) + packet_sep, "utf-8")
+
 
 def intern_com_thread(intern_com, intern_com_callback, flag):
     print("Starting internal communication")
@@ -165,20 +167,12 @@ class Mercury:
             self.toggle_USB()
         #self.network_snd_socket.send_string(f'USB connection started')
 
-
     def net_init(self):
         self.network_handler = Network(is_server=True, bind_addr=self.connect_ip, port=self.connect_port)
         while self.network_handler.waiting_for_conn:
             time.sleep(0.3)
             print("waiting for connection before continuing")
         self.toggle_network()
-
-        ##### OLD
-        #self.network_rcv_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        #self.network_rcv_socket.bind((self.connect_ip, self.connect_port))
-        #self.network_rcv_socket.listen()
-        #self.network_connection, self.network_address = self.network_rcv_socket.accept()
-
 
     def network_callback(self, data: bytes) -> None:
         data:str = bytes.decode(data, "utf-8")
@@ -241,8 +235,6 @@ class Mercury:
                     else:
                         self.network_handler.send(to_json("This ID is not handled"))
 
-
-
     def toggle_network(self):
         if self.status['network']:
             # This will stop network thread
@@ -250,7 +242,7 @@ class Mercury:
         else:
             self.network_trad = threading.Thread(name="Network_thread",target=network_thread, daemon=True, args=(self.network_handler, self.network_callback, self.status))
             self.network_trad.start()
-            
+        
     def USB_callback(self, melding):
         if melding == "":
             return
