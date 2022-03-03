@@ -8,4 +8,4 @@ def teach(path, name):
         for a in os.listdir(path):
             bilde = cv2.imread(a)
             hoyde, bredde, chr = bilde.shape
-            f.write(f'{path}/{a}.png 1 0 0 {hoyde} {bredde}')
+            f.write(f'{path}/{a}.png 1 0 0 {hoyde} {bredde}')a
