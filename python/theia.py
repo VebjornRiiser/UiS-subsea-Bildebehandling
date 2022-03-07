@@ -61,6 +61,7 @@ class Camera():
         #self.feed.set(cv2.CAP_PROP_EXPOSURE, 600)
         #self.feed.set(cv2.CAP_PROP_AUTO_WB, 1)
         print(self.feed.get(cv2.CAP_PROP_FPS))
+        cv2.setWindowProperty("window",cv2.WND_PROP_FULLSCREEN,cv2.WINDOW_FULLSCREEN)
 
 
     def set_picture_size(self, width:int=2560, height:int=960):
@@ -165,7 +166,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
     print(f'Camera:{camera_id} started')
     cam = Camera(camera_id)
     print("got passed class")
-    shared_list = [1, 0, 0, 0]
+    shared_list = [1, 0, 1, 0]
     threading.Thread(name="Camera_con", target=pipe_com, daemon=True, args=(connection, None, None, shared_list)).start()
     run = True
     video_feed = False
