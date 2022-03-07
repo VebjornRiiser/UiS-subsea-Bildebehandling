@@ -73,11 +73,8 @@ class Camera():
         self.crop_width = int(self.width/2)
 
     def aq_image(self, double:bool=False):
-<<<<<<< HEAD
-=======
-        ref, frame = self.feed.read()
+        #ref, frame = self.feed.read()
         #frame = cv2.rotate(frame, cv2.ROTATE_180)
->>>>>>> 592b15225cf5a72b185376b2b17e091d0171f509
         #ref, frame = self.feed.read()
         ref = self.feed.grab()
         if ref:
@@ -148,8 +145,7 @@ def image_aqusition_thread(connection, boli):
                         for a in old_list:
                             for b in mached_list:
                                 if (cv2.matchShapes(a.contour, b.contour, cv2.CONTOURS_MATCH_I1, 0.0)) < 0.3:
-                                    a.dept = 0.9*b.dept+0.1*a.dept 
-                                    print("test")
+                                    a.dept = 0.9*b.dept+0.1*a.dept
                     old_list = mached_list
                     connection.send(mached_list)
             elif mode == 2:
@@ -243,7 +239,7 @@ def camera(camera_id, connection, picture_send_pipe):
     feed.set(cv2.CAP_PROP_FPS, 30)
     feed.set(cv2.CAP_PROP_AUTOFOCUS, 1)
     run = True
-    f_video_feed = True
+    f_video_feed = False
     if not (feed.isOpened()):
         print("Could not open video device")
         run = False
@@ -392,12 +388,11 @@ class Theia():
 if __name__ == "__main__":
     print("Main=Theia")
     s = Theia()
-    print("test")
     #s.camera_status['front'][1] = 1
     #s.cam_front_id = 1
     
     s.toggle_front()
-    s.toggle_back()
+    #s.toggle_back()
     print(time.asctime())
     
     #s.toggle_back()
