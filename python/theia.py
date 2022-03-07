@@ -61,7 +61,6 @@ class Camera():
         #self.feed.set(cv2.CAP_PROP_EXPOSURE, 600)
         #self.feed.set(cv2.CAP_PROP_AUTO_WB, 1)
         print(self.feed.get(cv2.CAP_PROP_FPS))
-        cv2.setWindowProperty("window",cv2.WND_PROP_FULLSCREEN,cv2.WINDOW_FULLSCREEN)
 
 
     def set_picture_size(self, width:int=2560, height:int=960):
@@ -177,6 +176,8 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
         run = False
     frame_count = 1 # Used to only skip some frames for image AQ
     draw_frames = []
+    if shared_list[2]:
+        cv2.namedWindow('FishCam', cv2.WINDOW_AUTOSIZE)
     while run:
         if shared_list[1] == 1:
             mode = shared_list[2]
@@ -211,8 +212,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
         if video_feed:
             picture_send_pipe.send(pic)
         else:
-            print("testestsadsda")
-            cv2.imshow("Named Frame",pic)
+            cv2.imshow('FishCam',pic)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
     print("Video thread stopped")
