@@ -176,8 +176,8 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
         run = False
     frame_count = 1 # Used to only skip some frames for image AQ
     draw_frames = []
-    if shared_list[2]:
-        cv2.namedWindow('FishCam', cv2.WINDOW_AUTOSIZE)
+    if not video_feed:
+        cv2.namedWindow('FishCam', cv2.WINDOW_NORMAL)
     while run:
         if shared_list[1] == 1:
             mode = shared_list[2]
