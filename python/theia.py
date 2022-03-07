@@ -210,6 +210,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
         if video_feed:
             picture_send_pipe.send(pic)
         else:
+            print("testestsadsda")
             cv2.imshow("Named Frame",pic)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
