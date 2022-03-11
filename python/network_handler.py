@@ -155,7 +155,10 @@ if __name__ == "__main__":
         # exit()
         client_conn = Network(is_server=False, bind_addr="0.0.0.0", connect_addr="10.0.0.2")
         while True:
-            time.sleep(5)
+            time.sleep(3)
+            asd = [500, "teststring"]
+            mess = bytes(json.dumps("*"), "utf-8") + bytes(json.dumps(asd), "utf-8") + bytes(json.dumps("*"), "utf-8")
+            client_conn.send([mess])
             #client_conn.send(bytes('*{"can": [(0, 99)]}*', "utf-8"))
         # send_thread = threading.Thread(target=lambda: send_forever(client_conn))
         # send_thread.start()
