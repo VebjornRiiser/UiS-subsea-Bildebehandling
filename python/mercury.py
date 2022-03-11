@@ -220,13 +220,12 @@ class Mercury:
                                     self.thei.camera_function['front'] = True
                                     mld = serial_package_builder(self.thei.set_front_zero)
                                     self.serial.write(mld)
-                                    if self.thei.camera_status['front']:
-                                        self.thei.host_cam_front.send(item[2])
-                                    else:
-                                        self.network_handler.send(to_json("Front camera is not on"))
                                 else:
                                     self.thei.camera_function['front'] = False
-                                self.host_cam_front.send(item[0][key])
+                                if self.thei.camera_status['front']:
+                                    self.thei.host_cam_front.send(item[2])
+                                else:
+                                    self.network_handler.send(to_json("Front camera is not on"))
                             elif item[0] == 201:
                                 if item[2] != 0:
                                     self.thei.camera_function['back'] = True
