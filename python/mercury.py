@@ -235,7 +235,7 @@ class Mercury:
                                 else:
                                     self.thei.camera_function['back'] = False
                                 if self.thei.camera_status['back']:
-                                    self.host_back.send(item[2])
+                                    self.thei.host_back.send(item[2])
                                 else:
                                     self.network_handler.send(to_json("Back camera is not on"))
                     else:
