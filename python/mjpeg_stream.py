@@ -26,6 +26,7 @@ class CamHandler(BaseHTTPRequestHandler):
                     img = self.server.pipe.recv()
                     if isinstance(img, str):
                         if img.lower() == "stop":
+                            self.server.socket.close()
                             break
                     # if not rc:
                     #     continue
