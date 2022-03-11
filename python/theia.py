@@ -183,7 +183,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
             mode = shared_list[2]
             if isinstance(mode, str):
                 if mode.lower() == 'stop':
-                    picture_send_pipe('stop')
+                    picture_send_pipe.send('stop')
                     connection.send('stop')
                     run = False
         if mode == 0:
