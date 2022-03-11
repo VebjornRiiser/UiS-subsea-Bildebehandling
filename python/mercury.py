@@ -108,7 +108,7 @@ def USB_thread(h_serial, USB_callback, flag):
     while flag['USB']:
         try:
             melding = h_serial.readline().decode("utf8").strip("\n")
-            #print(melding)
+            print(melding)
             USB_callback(melding)
         except Exception as e:
             print(f'Feilkode i usb thread feilmelding: {e}')
