@@ -234,7 +234,10 @@ class Mercury:
                                     self.serial.write(mld)
                                 else:
                                     self.thei.camera_function['back'] = False
-                                self.host_cam_back.send(item[0][key])
+                                if self.thei.camera_status['back']:
+                                    self.host_back.send(item[2])
+                                else:
+                                    self.network_handler.send(to_json("Back camera is not on"))
                     else:
                         self.network_handler.send(to_json("This ID is not handled"))
 
