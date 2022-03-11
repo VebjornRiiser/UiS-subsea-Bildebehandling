@@ -168,7 +168,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
     shared_list = [1, 0, 1, 0]
     threading.Thread(name="Camera_con", target=pipe_com, daemon=True, args=(connection, None, None, shared_list)).start()
     run = True
-    video_feed = False
+    video_feed = True
     mode = shared_list[2] # Camera modes: 0: Default no image processing, 1: Find shapes and calculate distance to shapes, 2: ??, 3 ?? 
     print("Trying to enter loop")
     if not (cam.feed.isOpened()):
@@ -302,8 +302,6 @@ class Theia():
     def check_hw_id_cam(self):
         self.cam_front_id = self.find_cam(".7") # Checks if a camera is connected on this port
         self.cam_back_id = self.find_cam("3-2")
-        for a in range(15):
-            print(self.find_cam(f'2-{a}'))
         if not self.cam_front_id:
             print(f'Did no find front camera')
             self.camera_status['front'][1] = 0
@@ -320,7 +318,6 @@ class Theia():
     def find_cam(self, cam):
         cmd = ["/usr/bin/v4l2-ctl", "--list-devices"]
         out, err = Popen(cmd, stdout=PIPE, stderr=PIPE).communicate()
-        print(out)
         out, err = out.strip(), err.strip()
         for l in [i.split("\n\t") for i in out.decode("utf-8").split("\n\n")]:
             if cam in l[0]:
