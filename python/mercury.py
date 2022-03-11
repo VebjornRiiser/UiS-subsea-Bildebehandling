@@ -183,6 +183,7 @@ class Mercury:
                 message = json.loads(message)
                 for item in message:
                     if item[0] < 200:
+                        print(message)
                         if self.status['USB']:
                             self.serial.write(serial_package_builder(item))
                         else:
@@ -215,7 +216,7 @@ class Mercury:
                             if not answ:
                                 self.network_handler.send(to_json("Could not find front camera"))
                         elif key.lower() == "bildebehandligsmodus":
-                            print("got here")
+                            print("got herea")
                             if item[0] == 200:
                                 if item[2] != 0:
                                     self.thei.camera_function['front'] = True
