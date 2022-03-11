@@ -181,6 +181,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
     while run:
         if shared_list[1] == 1:
             mode = shared_list[2]
+            shared_list[1] = 0
             if isinstance(mode, str):
                 print(mode)
                 if mode.lower() == 'stop':
@@ -280,7 +281,6 @@ def pipe_com(connection, callback=None, name=None, list=None):
     else:
         while list[0]:
             list[2] = connection.recv()
-            print(list[2])
             list[1] = 1
 
 
