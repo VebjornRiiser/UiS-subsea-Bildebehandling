@@ -214,6 +214,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
             if draw_frames != []:
                 draw_on_img(pic, draw_frames)
         elif mode == 5:
+            print("sleeeep\n")
             time.sleep(2)
         if video_feed:
             picture_send_pipe.send(pic)
