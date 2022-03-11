@@ -219,7 +219,7 @@ class Mercury:
                                     self.network_handler.send(to_json("Could not find front camera"))
                             elif key.lower() == "bildebehandligsmodus":
                                 if item[0] == 200:
-                                    if item[key] != 0:
+                                    if item[1][key] != 0:
                                         self.thei.camera_function['front'] = True
                                         mld = serial_package_builder(self.thei.set_front_zero)
                                         self.serial.write(mld)
@@ -230,7 +230,7 @@ class Mercury:
                                     else:
                                         self.network_handler.send(to_json("Front camera is not on"))
                                 elif item[0] == 201:
-                                    if item[key] != 0:
+                                    if item[1][key] != 0:
                                         self.thei.camera_function['back'] = True
                                         mld = serial_package_builder(self.thei.set_back_zero)
                                         self.serial.write(mld)
