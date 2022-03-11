@@ -183,7 +183,6 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
             mode = shared_list[2]
             shared_list[1] = 0
             if isinstance(mode, str):
-                print(mode)
                 if mode.lower() == 'stop':
                     print('Camera thread stopped')
                     picture_send_pipe.send('stop')
@@ -191,6 +190,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
                     cam.feed.release()
                     cv2.destroyAllWindows()
                     break
+                print(f'Mode set to{mode}')
         if mode == 0:
             pic = cam.aq_image()
             if pic is False:

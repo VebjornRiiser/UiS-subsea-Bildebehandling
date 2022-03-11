@@ -216,7 +216,6 @@ class Mercury:
                             if not answ:
                                 self.network_handler.send(to_json("Could not find front camera"))
                         elif key.lower() == "bildebehandligsmodus":
-                            print("got herea")
                             if item[0] == 200:
                                 if item[2] != 0:
                                     self.thei.camera_function['front'] = True
