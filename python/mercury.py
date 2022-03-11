@@ -154,7 +154,7 @@ def intern_com_thread(intern_com, intern_com_callback, flag):
 class Mercury:
     def __init__(self, ip:str="0.0.0.0", port:int=6900) -> None:
         # Flag dictionary
-        self.status ={'network': False, 'USB': True, 'intern': False}
+        self.status ={'network': False, 'USB': False, 'intern': False}
         self.connect_ip = ip
         self.connect_port = port
         self.net_init()
