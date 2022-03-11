@@ -279,8 +279,9 @@ def pipe_com(connection, callback=None, name=None, list=None):
             callback(msg, name)
     else:
         while list[0]:
-            print("282:Waiting for pipe message")
+            print("theia:282:Waiting for pipe message")
             list[2] = connection.recv()
+            print("theia:284:Got pipe message")
             print(list[2])
             list[1] = 1
 
