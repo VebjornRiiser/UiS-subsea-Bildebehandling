@@ -321,8 +321,8 @@ class Theia():
         cmd = ["/usr/bin/v4l2-ctl", "--list-devices"]
         out, err = Popen(cmd, stdout=PIPE, stderr=PIPE).communicate()
         out, err = out.strip(), err.strip()
+        print(out)
         for l in [i.split("\n\t") for i in out.decode("utf-8").split("\n\n")]:
-            print(l)
             if cam in l[0]:
                 return l[1]
         return False
