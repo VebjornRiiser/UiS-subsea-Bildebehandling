@@ -319,9 +319,9 @@ class Theia():
 
     def find_cam(self, cam):
         cmd = ["/usr/bin/v4l2-ctl", "--list-devices"]
+        print(cmd)
         out, err = Popen(cmd, stdout=PIPE, stderr=PIPE).communicate()
         out, err = out.strip(), err.strip()
-        print(out)
         for l in [i.split("\n\t") for i in out.decode("utf-8").split("\n\n")]:
             if cam in l[0]:
                 return l[1]
