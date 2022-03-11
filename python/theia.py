@@ -300,7 +300,7 @@ class Theia():
         self.check_hw_id_cam()
 
     def check_hw_id_cam(self):
-        self.cam_front_id = self.find_cam(".7") # Finner kamera på usb
+        self.cam_front_id = self.find_cam(".5") # Checks if a camera is connected on this port
         self.cam_back_id = self.find_cam("3-2")
         if not self.cam_front_id:
             print(f'Did no find front camera')
