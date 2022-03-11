@@ -226,7 +226,7 @@ class Mercury:
                                     else:
                                         self.thei.camera_function['front'] = False
                                     if self.thei.camera_status['front']:
-                                        self.thei.host_cam_front.send(item[2])
+                                        self.thei.host_cam_front.send(item[1][key])
                                     else:
                                         self.network_handler.send(to_json("Front camera is not on"))
                                 elif item[0] == 201:
@@ -237,7 +237,7 @@ class Mercury:
                                     else:
                                         self.thei.camera_function['back'] = False
                                     if self.thei.camera_status['back']:
-                                        self.thei.host_back.send(item[2])
+                                        self.thei.host_back.send(item[1][key])
                                     else:
                                         self.network_handler.send(to_json("Back camera is not on"))
                     else:
