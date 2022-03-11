@@ -303,6 +303,7 @@ class Theia():
         self.cam_front_id = self.find_cam(".7") # Checks if a camera is connected on this port
         self.cam_back_id = self.find_cam("3-2")
         for a in range(5):
+            print(a)
             if self.find_cam(f'.{a}'):
                 print(a)
         if not self.cam_front_id:
