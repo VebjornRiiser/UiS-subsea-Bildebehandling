@@ -156,7 +156,7 @@ if __name__ == "__main__":
         client_conn = Network(is_server=False, bind_addr="0.0.0.0", connect_addr="10.0.0.2")
         while True:
             time.sleep(5)
-            asd = [[200, "on"],[500, "teststring"]]
+            asd = [[200, "bildebehandligsmodus", 3],[500, "teststring"]]
             mess = bytes(json.dumps("*"), "utf-8") + bytes(json.dumps(asd), "utf-8") + bytes(json.dumps("*"), "utf-8")
             client_conn.send(mess)
             time.sleep(20)
