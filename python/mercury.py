@@ -94,7 +94,7 @@ def network_thread(network_handler, network_callback, flag):
             if melding == b"" or melding is None:
                 continue
             else:
-                print(melding)
+                #print(melding)
                 network_callback(melding)
         except ValueError as e:
             print(f'Feilkode i network thread feilmelding: {e}\n\t{melding = }')
