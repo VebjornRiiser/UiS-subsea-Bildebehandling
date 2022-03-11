@@ -163,7 +163,15 @@ if __name__ == "__main__":
                     asd = [[200, "stop"],[500, "teststring"]]
                 else:
                     asd = [[201, "stop"],[500, "teststring"]]
-            asd = [[200, "bildebehandligsmodus", 3],[500, "teststring"]]
+            elif a == "modus":
+                a = input("What cam do you want to change mode on?\n")
+                if a == "back":
+                    a = input("Set mode to what?\n")
+                    asd = [[200, "bildebehandligsmodus", a],[500, "teststring"]]
+                else:
+                    a = input("Set mode to what?\n")
+                    asd = [[201, "bildebehandligsmodus", a],[500, "teststring"]]
+            asd = [[296, "bildebehandligsmodus", a],[500, "teststring"]]
             mess = bytes(json.dumps("*"), "utf-8") + bytes(json.dumps(asd), "utf-8") + bytes(json.dumps("*"), "utf-8")
             client_conn.send(mess)
             #client_conn.send(bytes('*{"can": [(0, 99)]}*', "utf-8"))

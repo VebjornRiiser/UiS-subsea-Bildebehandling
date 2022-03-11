@@ -280,6 +280,7 @@ def pipe_com(connection, callback=None, name=None, list=None):
     else:
         while list[0]:
             list[2] = connection.recv()
+            print(list[2])
             list[1] = 1
 
 
