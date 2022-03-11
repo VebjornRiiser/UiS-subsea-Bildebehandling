@@ -322,6 +322,7 @@ class Theia():
         out, err = Popen(cmd, stdout=PIPE, stderr=PIPE).communicate()
         out, err = out.strip(), err.strip()
         for l in [i.split("\n\t") for i in out.decode("utf-8").split("\n\n")]:
+            print(l)
             if cam in l[0]:
                 return l[1]
         return False
