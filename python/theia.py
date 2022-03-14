@@ -185,8 +185,11 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
                 video_capture ^= True
                 if video_capture:
                     print("Video stream started")
-                    video = cv2.VideoWriter(f'vid_{time.asctime()}.avi', cv2.VideoWriter_fourcc('M','J','P','G'), 30.0, (cam.width, cam.height))
+                    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+                    print(cam.width, cam.height)
+                    video = cv2.VideoWriter(f'vid_{time.asctime()}.avi', fourcc, 30.0, (cam.width, cam.height))
                 else:
+                    print("Video stream stopped")
                     video.release()
             else:
                 mode = shared_list[2]
