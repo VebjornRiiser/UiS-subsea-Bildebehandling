@@ -228,7 +228,9 @@ class Mercury:
                                     self.network_handler.send(to_json("Could not find front camera"))
                             elif key.lower() == "bildebehandligsmodus":
                                 if item[0] == 200:
-                                    if item[1][key] != 0:
+                                    if item[1][key] == 6: # Toggles on/off videofile creation
+                                        self.thei.send_IA_front('video')
+                                    elif item[1][key] != 0:
                                         self.thei.camera_function['front'] = True
                                         mld = serial_package_builder(self.thei.set_front_zero, False)
                                         self.serial.write(mld)
@@ -259,7 +261,8 @@ class Mercury:
         else:
             self.network_trad = threading.Thread(name="Network_thread",target=network_thread, daemon=True, args=(self.network_handler, self.network_callback, self.status))
             self.network_trad.start()
-        
+
+
     def USB_callback(self, melding):
         if melding == "":
             return
@@ -271,6 +274,7 @@ class Mercury:
             self.network_handler.send(create_json(int(can_id), data))
         else: 
             print('No connection on network')
+
 
     def toggle_USB(self):
         if self.status['USB']:

@@ -164,14 +164,11 @@ def draw_on_img(pic, frames):
 def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
     print(f'Camera:{camera_id} started')
     cam = Camera(camera_id)
-    print("got passed class")
     shared_list = [1, 0, 1, 0]
     threading.Thread(name="Camera_con", target=pipe_com, daemon=True, args=(connection, None, None, shared_list)).start()
     run = True
     video_feed = True
-    video_capture = False
     mode = shared_list[2] # Camera modes: 0: Default no image processing, 1: Find shapes and calculate distance to shapes, 2: ??, 3 ?? 
-    print("Trying to enter loop")
     if not (cam.feed.isOpened()):
         print('Could not open video device')
         run = False
@@ -181,17 +178,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
         cv2.namedWindow('FishCam', cv2.WINDOW_NORMAL)
     while run:
         if shared_list[1] == 1:
-            if shared_list[2] == 6:
-                video_capture ^= True
-                if video_capture:
-                    print("Video stream started")
-                    fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-                    video = cv2.VideoWriter(f'vid_{time.asctime()}.avi', fourcc, 30.0, (cam.crop_width, cam.height))
-                else:
-                    print("Video stream stopped")
-                    video.release()
-            else:
-                mode = shared_list[2]
+            mode = shared_list[2]
             shared_list[1] = 0
             if isinstance(mode, str):
                 if mode.lower() == 'stop':
@@ -232,11 +219,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
             cv2.imshow('FishCam',pic)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-        if video_capture:
-            video.write(pic)
     print("Video thread stopped")
-    if video_capture:
-        video.release()
     cam.feed.release()
     cv2.destroyAllWindows()
         
@@ -354,8 +337,8 @@ class Theia():
             if self.camera_status['front'][1]:
                 self.host_cam_front, self.client_cam1 = Pipe()
                 send_front_pic, recive_front_pic = Pipe()
-                send_IA, recive_IA = Pipe()
-                self.front_camera_prosess = Process(target=camera_thread, daemon=True, args=(self.cam_front_id, self.client_cam1, send_front_pic, send_IA))
+                self.send_IA_front, recive_IA = Pipe()
+                self.front_camera_prosess = Process(target=camera_thread, daemon=True, args=(self.cam_front_id, self.client_cam1, send_front_pic, self.send_IA_front))
                 self.front_camera_prosess.start()
                 self.front_cam_com_thread = threading.Thread(name="COM_cam_1",target=pipe_com, daemon=True, args=(self.host_cam_front, self.camera_com_callback, self.cam_front_name)).start()
                 self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_front_pic, self.port_camfront_feed)).start()
