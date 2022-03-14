@@ -23,6 +23,7 @@ c_types = {
 }
 
 def can_handler_up(id, msg):
+    print(id)
     if id == 140:
         print(f'Can Id:{id}, Data:{msg}')
     else:
@@ -33,6 +34,7 @@ def get_byte(c_format:str, number):
     [byte_list.append(i) for i in struct.pack(c_types[c_format], number)]
 
     return byte_list
+
 
 def serial_package_builder(data, can=True):
     package = []
