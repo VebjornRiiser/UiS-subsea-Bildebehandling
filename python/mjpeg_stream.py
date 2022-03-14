@@ -27,6 +27,7 @@ class CamHandler(BaseHTTPRequestHandler):
                     # rc, img = capture.read()
                     img = self.server.pipe.recv()
                     if isinstance(img, str):
+                        print("got string")
                         if img.lower() == "stop": # Closes prosess
                             print("stopping video stream")
                             self.server.socket.close()
