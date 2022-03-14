@@ -1,5 +1,6 @@
 1#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from doctest import ELLIPSIS_MARKER
 import struct
 import threading
 import time
@@ -20,6 +21,12 @@ c_types = {
     "uint64": "<Q",
     "float": "<f"
 }
+
+def can_handler_up(id, msg):
+    if id == 140:
+        print(f'Can Id:{id}, Data:{msg}')
+    else:
+        pass
 
 def get_byte(c_format:str, number):
     byte_list = []
@@ -257,7 +264,7 @@ class Mercury:
         if self.status['network']:
             #print(f"usb callback {melding =}")
             data, can_id = melding.split(";")
-            print(f'Can Id:{can_id}, Data:{data}')
+            can_handler_up(can_id, data)
             self.network_handler.send(create_json(int(can_id), data))
         else: 
             print('No connection on network')
