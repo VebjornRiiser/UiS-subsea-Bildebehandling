@@ -201,7 +201,6 @@ class Mercury:
                         #key = item[1]
                         for key in item[1]:
                             if key.lower() == "tilt":
-                                print(self.status['USB'])
                                 if self.status['USB']:
                                     mld = serial_package_builder(item, False)
                                     if not isinstance(mld, bytearray):
@@ -231,7 +230,7 @@ class Mercury:
                                 if item[0] == 200:
                                     if item[1][key] != 0:
                                         self.thei.camera_function['front'] = True
-                                        mld = serial_package_builder(self.thei.set_front_zero)
+                                        mld = serial_package_builder(self.thei.set_front_zero, False)
                                         self.serial.write(mld)
                                     else:
                                         self.thei.camera_function['front'] = False
@@ -242,7 +241,7 @@ class Mercury:
                                 elif item[0] == 201:
                                     if item[1][key] != 0:
                                         self.thei.camera_function['back'] = True
-                                        mld = serial_package_builder(self.thei.set_back_zero)
+                                        mld = serial_package_builder(self.thei.set_back_zero, False)
                                         self.serial.write(mld)
                                     else:
                                         self.thei.camera_function['back'] = False
