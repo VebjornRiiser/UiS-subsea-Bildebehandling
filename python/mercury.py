@@ -23,7 +23,7 @@ c_types = {
 }
 
 def can_handler_up(id, msg):
-    if int(id) == 140:
+    if int(id) == 80:
         print(f'Can Id:{id}, Data:{msg}')
     else:
         pass
