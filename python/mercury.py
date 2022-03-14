@@ -192,13 +192,11 @@ class Mercury:
                 message = json.loads(message)
                 for item in message:
                     if item[0] < 200:
-                        print(message)
                         if self.status['USB']:
                             self.serial.write(serial_package_builder(item))
                         else:
                             self.network_handler.send(to_json("error usb not connected"))
                     elif (item[0] == 200) | (item[0] == 201): #Camera_front and back functions
-                        #key = item[1]
                         for key in item[1]:
                             if key.lower() == "tilt":
                                 if self.status['USB']:
@@ -229,7 +227,6 @@ class Mercury:
                             elif key.lower() == "bildebehandligsmodus":
                                 if item[0] == 200:
                                     if item[1][key] == 6: # Toggles on/off videofile creation
-                                        print("TEST:M:232")
                                         self.thei.host_cam_front.send('video')
                                     elif item[1][key] != 0:
                                         self.thei.camera_function['front'] = True
@@ -237,8 +234,10 @@ class Mercury:
                                         self.serial.write(mld)
                                     else:
                                         self.thei.camera_function['front'] = False
-                                    if self.thei.camera_status['front']:
+                                    if self.thei.camera_status['front'] and item[1][key] !=6:
                                         self.thei.host_cam_front.send(item[1][key])
+                                    elif item[1][key] !=6:
+                                        pass
                                     else:
                                         self.network_handler.send(to_json("Front camera is not on"))
                                 elif item[0] == 201:
