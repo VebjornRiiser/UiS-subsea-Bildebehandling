@@ -42,6 +42,7 @@ class CamHandler(BaseHTTPRequestHandler):
                                 self.video = cv2.VideoWriter(f'vid_{time.asctime()}.mp4', fourcc, 30.0, (1280, 960))
                             else:
                                 self.video.release()
+                        return
                     # if not rc:
                     #     continue
                     # imgRGB=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
