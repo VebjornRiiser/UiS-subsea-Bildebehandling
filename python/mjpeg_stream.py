@@ -38,7 +38,7 @@ class CamHandler(BaseHTTPRequestHandler):
                             print('Starting video file creation!\n')
                             self.video_cap ^= True
                             if self.video_cap:
-                                fourcc = cv2.VideoWriter_fourcc(*'XVID')
+                                fourcc = cv2.VideoWriter_fourcc(*'MJPG')
                                 self.video = cv2.VideoWriter(f'vid_{time.asctime()}.mp4', fourcc, 30.0, (1280, 720))
                             else:
                                 self.video.release()
