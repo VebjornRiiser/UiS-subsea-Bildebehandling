@@ -202,9 +202,9 @@ class Mercury:
                         print(item[1])
                         for key in item[1]:
                             if key.lower() == "tilt":
-                                print("Test print 204")
                                 if self.status['USB']:
                                     mld = serial_package_builder(item, False)
+                                    print(self.thei.camera_function['front'])
                                     if not isinstance(mld, bytearray):
                                         self.network_handler.send(to_json(f'{mld}'))
                                     else:
