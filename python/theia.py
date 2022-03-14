@@ -169,6 +169,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
     threading.Thread(name="Camera_con", target=pipe_com, daemon=True, args=(connection, None, None, shared_list)).start()
     run = True
     video_feed = True
+    video_capture = False
     mode = shared_list[2] # Camera modes: 0: Default no image processing, 1: Find shapes and calculate distance to shapes, 2: ??, 3 ?? 
     print("Trying to enter loop")
     if not (cam.feed.isOpened()):
@@ -180,7 +181,14 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
         cv2.namedWindow('FishCam', cv2.WINDOW_NORMAL)
     while run:
         if shared_list[1] == 1:
-            mode = shared_list[2]
+            if shared_list[2] == 6:
+                video_capture ^= True
+                if video_capture:
+                    video = cv2.VideoWriter(f'vid_{time.asctime()}.avi', cv2.VideoWriter_fourcc(*'XVID'), 20.0, (cam.width, cam.height))
+                else:
+                    video.release()
+            else:
+                mode = shared_list[2]
             shared_list[1] = 0
             if isinstance(mode, str):
                 if mode.lower() == 'stop':
@@ -221,7 +229,11 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
             cv2.imshow('FishCam',pic)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
+        if video_capture:
+            video.write(pic)
     print("Video thread stopped")
+    if video_capture:
+        video.release()
     cam.feed.release()
     cv2.destroyAllWindows()
         
