@@ -230,7 +230,7 @@ class Mercury:
                                 if item[0] == 200:
                                     if item[1][key] == 6: # Toggles on/off videofile creation
                                         print("TEST:M:232")
-                                        self.thei.send_front_pic.send('video')
+                                        self.thei.host_cam_front.send('video')
                                     elif item[1][key] != 0:
                                         self.thei.camera_function['front'] = True
                                         mld = serial_package_builder(self.thei.set_front_zero, False)

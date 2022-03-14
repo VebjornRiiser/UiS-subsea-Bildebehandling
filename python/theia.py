@@ -178,18 +178,21 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
         cv2.namedWindow('FishCam', cv2.WINDOW_NORMAL)
     while run:
         if shared_list[1] == 1:
-            mode = shared_list[2]
-            shared_list[1] = 0
-            if isinstance(mode, str):
-                if mode.lower() == 'stop':
-                    print('Camera thread stopped')
-                    picture_send_pipe.send('stop')
-                    connection.send('stop')
-                    cam.feed.release()
-                    cv2.destroyAllWindows()
-                    break
-                mode = int(mode)
-                print(f'Mode set to{mode}')
+            if shared_list[2] == 'video':
+                picture_send_pipe.send('video')
+            else:
+                mode = shared_list[2]
+                shared_list[1] = 0
+                if isinstance(mode, str):
+                    if mode.lower() == 'stop':
+                        print('Camera thread stopped')
+                        picture_send_pipe.send('stop')
+                        connection.send('stop')
+                        cam.feed.release()
+                        cv2.destroyAllWindows()
+                        break
+                    mode = int(mode)
+                    print(f'Mode set to{mode}')
         if mode == 0:
             pic = cam.aq_image()
             if pic is False:
