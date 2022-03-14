@@ -49,7 +49,8 @@ class CamHandler(BaseHTTPRequestHandler):
                     self.send_header('Content-length',str(len(jpg)))
                     self.end_headers()
                     self.wfile.write(bytes(jpg))
-                    self.video.write(jpg)
+                    if self.video_cap:
+                        self.video.write(jpg)
                     time.sleep(0.016)
                 except KeyboardInterrupt:
                         break
