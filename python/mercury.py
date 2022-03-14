@@ -213,6 +213,7 @@ class Mercury:
                                         elif not self.thei.camera_function['back'] and item[0] == 201:
                                             self.serial.write(mld)
                                         else:
+                                            print('Cant tilt camera')
                                             self.network_handler.send(to_json("Video prossesing running, cant tilt camera"))
                                 else:
                                     self.network_handler.send(to_json("error usb not connected"))
