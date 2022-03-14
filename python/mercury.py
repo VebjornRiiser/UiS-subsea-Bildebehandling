@@ -204,8 +204,6 @@ class Mercury:
                                 print(self.status['USB'])
                                 if self.status['USB']:
                                     mld = serial_package_builder(item, False)
-                                    print(mld)
-                                    print(self.thei.camera_function['front'])
                                     if not isinstance(mld, bytearray):
                                         self.network_handler.send(to_json(f'{mld}'))
                                     else:
