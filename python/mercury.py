@@ -201,6 +201,7 @@ class Mercury:
                         #key = item[1]
                         for key in item[1]:
                             if key.lower() == "tilt":
+                                print(self.status['USB'])
                                 if self.status['USB']:
                                     mld = serial_package_builder(item, False)
                                     print(mld)
