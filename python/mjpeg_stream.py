@@ -30,6 +30,8 @@ class CamHandler(BaseHTTPRequestHandler):
                         if img.lower() == "stop": # Closes prosess
                             print("stopping video stream")
                             self.server.socket.close()
+                            if self.video_cap:
+                                self.video.release()
                             break
                         elif img.lower() == "video": #Toggle videofile creation
                             print('Starting video file creation!\n')
@@ -47,6 +49,8 @@ class CamHandler(BaseHTTPRequestHandler):
                     self.send_header('Content-length',str(len(jpg)))
                     self.end_headers()
                     self.wfile.write(bytes(jpg))
+                    if self.video_cap:
+                        self.video.write(jpg)
                     time.sleep(0.016)
                 except KeyboardInterrupt:
                         break
