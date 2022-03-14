@@ -203,6 +203,7 @@ class Mercury:
                             if key.lower() == "tilt":
                                 if self.status['USB']:
                                     mld = serial_package_builder(item, False)
+                                    print(mld)
                                     print(self.thei.camera_function['front'])
                                     if not isinstance(mld, bytearray):
                                         self.network_handler.send(to_json(f'{mld}'))
@@ -229,13 +230,11 @@ class Mercury:
                                     self.network_handler.send(to_json("Could not find front camera"))
                             elif key.lower() == "bildebehandligsmodus":
                                 if item[0] == 200:
-                                    print(int(item[1][key]) == 0)
                                     if item[1][key] != 0:
                                         self.thei.camera_function['front'] = True
                                         mld = serial_package_builder(self.thei.set_front_zero)
                                         self.serial.write(mld)
                                     else:
-                                        print("LINE 238")
                                         self.thei.camera_function['front'] = False
                                     if self.thei.camera_status['front']:
                                         self.thei.host_cam_front.send(item[1][key])
