@@ -185,7 +185,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
                 video_capture ^= True
                 if video_capture:
                     print("Video stream started")
-                    video = cv2.VideoWriter(f'vid_{time.asctime()}.mkv', cv2.VideoWriter_fourcc(*'MJPG'), 20.0, (cam.width, cam.height))
+                    video = cv2.VideoWriter(f'vid_{time.asctime()}.avi', cv2.VideoWriter_fourcc('M','J','P','G'), 30.0, (cam.width, cam.height))
                 else:
                     video.release()
             else:
@@ -231,7 +231,6 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
         if video_capture:
-            print("Write to vid")
             video.write(pic)
     print("Video thread stopped")
     if video_capture:
