@@ -285,7 +285,7 @@ class Mercury:
 if __name__ == "__main__":
     print(f'Mercury')
     a = Mercury()
-    #a.thei.toggle_front()
+    a.thei.toggle_front()
     #a.thei.toggle_back()
     #dictionary = {"CAN":1, "camera": 1}
     #ip = "127.0.0.1"
