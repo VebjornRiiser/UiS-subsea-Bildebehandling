@@ -187,7 +187,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
                     print("Video stream started")
                     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
                     print(cam.width, cam.height)
-                    video = cv2.VideoWriter(f'vid_{time.asctime()}.avi', fourcc, 30.0, (cam.width/2, cam.height))
+                    video = cv2.VideoWriter(f'vid_{time.asctime()}.avi', fourcc, 30.0, (cam.crop_width, cam.height))
                 else:
                     print("Video stream stopped")
                     video.release()
