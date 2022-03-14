@@ -26,7 +26,6 @@ class CamHandler(BaseHTTPRequestHandler):
                 try:
                     # rc, img = capture.read()
                     img = self.server.pipe.recv()
-                    print("got img")
                     if isinstance(img, str):
                         print("got string")
                         if img.lower() == "stop": # Closes prosess
