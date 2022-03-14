@@ -199,7 +199,6 @@ class Mercury:
                             self.network_handler.send(to_json("error usb not connected"))
                     elif (item[0] == 200) | (item[0] == 201): #Camera_front and back functions
                         #key = item[1]
-                        print(item[1])
                         for key in item[1]:
                             if key.lower() == "tilt":
                                 if self.status['USB']:
@@ -236,6 +235,7 @@ class Mercury:
                                         mld = serial_package_builder(self.thei.set_front_zero)
                                         self.serial.write(mld)
                                     else:
+                                        print("LINE 238")
                                         self.thei.camera_function['front'] = False
                                     if self.thei.camera_status['front']:
                                         self.thei.host_cam_front.send(item[1][key])
