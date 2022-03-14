@@ -185,7 +185,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
                 video_capture ^= True
                 if video_capture:
                     print("Video stream started")
-                    fourcc = cv2.VideoWriter_fourcc(*'mjpg')
+                    fourcc = cv2.VideoWriter_fourcc(*'MJPG')
                     video = cv2.VideoWriter(f'vid_{time.asctime()}.avi', fourcc, 30.0, (cam.crop_width, cam.height))
                 else:
                     print("Video stream stopped")
