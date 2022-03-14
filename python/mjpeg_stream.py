@@ -42,21 +42,21 @@ class CamHandler(BaseHTTPRequestHandler):
                                 self.video = cv2.VideoWriter(f'vid_{time.asctime()}.mpv4', fourcc, 30.0, (1280, 720))
                             else:
                                 self.video.release()
-                        return
-                    # if not rc:
-                    #     continue
-                    # imgRGB=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
-                    _, jpg = cv2.imencode(".jpg", img)
-                    self.wfile.write(b"--frame\n")
-                    self.send_header('Content-type','image/jpeg')
-                    self.send_header('Content-length',str(len(jpg)))
-                    self.end_headers()
-                    self.wfile.write(bytes(jpg))
-                    if self.video_cap:
-                        self.video.write(jpg)
-                    time.sleep(0.016)
+                    else:
+                        # if not rc:
+                        #     continue
+                        # imgRGB=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+                        _, jpg = cv2.imencode(".jpg", img)
+                        self.wfile.write(b"--frame\n")
+                        self.send_header('Content-type','image/jpeg')
+                        self.send_header('Content-length',str(len(jpg)))
+                        self.end_headers()
+                        self.wfile.write(bytes(jpg))
+                        if self.video_cap:
+                            self.video.write(jpg)
+                        time.sleep(0.016)
                 except KeyboardInterrupt:
-                        break
+                    break
             return
         if self.path.endswith('.html'):
             self.send_response(200)
