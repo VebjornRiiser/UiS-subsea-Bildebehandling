@@ -12,9 +12,14 @@ import time
 capture=None
 
 class CamHandler(BaseHTTPRequestHandler):
-    # def __init__(self, pipe):
-    #     self.pipe = pipe
-        
+    def __init__(self):
+        pass
+        #self.pipe = pipe
+    
+    def sudoinit(self):
+        pass
+
+
     def do_GET(self):
         if self.path.endswith('.mjpg'):
             self.send_response(200)
