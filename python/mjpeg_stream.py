@@ -12,9 +12,7 @@ import time
 capture=None
 
 class CamHandler(BaseHTTPRequestHandler):
-    def __init__(self):
-        self.video_cap = False # Creates videofile if true
-        self.fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+    # def __init__(self, pipe):
     #     self.pipe = pipe
         
     def do_GET(self):
@@ -27,19 +25,10 @@ class CamHandler(BaseHTTPRequestHandler):
                     # rc, img = capture.read()
                     img = self.server.pipe.recv()
                     if isinstance(img, str):
-                        if img.lower() == "stop": # Closes prosess
+                        if img.lower() == "stop":
                             print("stopping video stream")
                             self.server.socket.close()
-                            if self.video_cap:
-                                self.video.release()
                             break
-                        elif img.lower() == "video": #Toggle videofile creation
-                            print('Starting video file creation!\n')
-                            self.video_cap ^= True
-                            if self.video_cap:
-                                self.video = cv2.VideoWriter(f'vid_{time.asctime()}.mp4', self.fourcc, 30.0, (1024, 960))
-                            else:
-                                self.video.release()
                     # if not rc:
                     #     continue
                     # imgRGB=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
@@ -49,8 +38,6 @@ class CamHandler(BaseHTTPRequestHandler):
                     self.send_header('Content-length',str(len(jpg)))
                     self.end_headers()
                     self.wfile.write(bytes(jpg))
-                    if self.video_cap:
-                        self.video.write(jpg)
                     time.sleep(0.016)
                 except KeyboardInterrupt:
                         break
@@ -65,6 +52,7 @@ class CamHandler(BaseHTTPRequestHandler):
             return
 
 def capture_and_send(pipe):
+    # print("here")
     while True:
         rc, img = capture.read()
         if not rc:
