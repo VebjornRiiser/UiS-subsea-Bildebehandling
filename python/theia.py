@@ -180,7 +180,6 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
         if shared_list[1] == 1:
             print(shared_list[2])
             if shared_list[2] == "video":
-                print("TEST:theia:182")
                 picture_send_pipe.send("video")
             else:
                 mode = shared_list[2]
