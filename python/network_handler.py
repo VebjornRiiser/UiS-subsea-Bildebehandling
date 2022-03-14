@@ -172,6 +172,9 @@ if __name__ == "__main__":
                 else:
                     a = input("Set mode to what?\n")
                     asd = [[200, {"bildebehandligsmodus": a}]]
+            elif a == 'tilt':
+                a = input("Tilt camera to what angle?\n")
+                asd = [[200, {"tilt": a}]]
             mess = bytes(json.dumps("*"), "utf-8") + bytes(json.dumps(asd), "utf-8") + bytes(json.dumps("*"), "utf-8")
             client_conn.send(mess)
             #client_conn.send(bytes('*{"can": [(0, 99)]}*', "utf-8"))

@@ -108,7 +108,6 @@ def USB_thread(h_serial, USB_callback, flag):
     while flag['USB']:
         try:
             melding = h_serial.readline().decode("utf8").strip("\n")
-            print(melding)
             USB_callback(melding)
         except Exception as e:
             print(f'Feilkode i usb thread feilmelding: {e}')
@@ -258,6 +257,7 @@ class Mercury:
         if self.status['network']:
             #print(f"usb callback {melding =}")
             data, can_id = melding.split(";")
+            print(f'Can Id:{can_id}, Data:{data}')
             self.network_handler.send(create_json(int(can_id), data))
         else: 
             print('No connection on network')
