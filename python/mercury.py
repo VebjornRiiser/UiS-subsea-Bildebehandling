@@ -229,7 +229,7 @@ class Mercury:
                             elif key.lower() == "bildebehandligsmodus":
                                 if item[0] == 200:
                                     if item[1][key] == 6: # Toggles on/off videofile creation
-                                        self.thei.send_IA_front('video')
+                                        self.thei.send_IA_front.send('video')
                                     elif item[1][key] != 0:
                                         self.thei.camera_function['front'] = True
                                         mld = serial_package_builder(self.thei.set_front_zero, False)
