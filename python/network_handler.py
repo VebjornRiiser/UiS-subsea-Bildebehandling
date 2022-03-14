@@ -168,10 +168,10 @@ if __name__ == "__main__":
                 a = input("What cam do you want to change mode on?\n")
                 if a == "back":
                     a = input("Set mode to what?\n")
-                    asd = [[201, {"bildebehandligsmodus": a}]]
+                    asd = [[201, {"bildebehandligsmodus": int(a)}]]
                 else:
                     a = input("Set mode to what?\n")
-                    asd = [[200, {"bildebehandligsmodus": a}]]
+                    asd = [[200, {"bildebehandligsmodus": int(a)}]]
             elif a == 'tilt':
                 a = input("Tilt camera to what angle?\n")
                 asd = [[200, {"tilt": int(a)}]]
