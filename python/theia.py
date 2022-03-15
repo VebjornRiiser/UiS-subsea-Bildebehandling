@@ -184,7 +184,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
                 video_capture ^= True
                 if video_capture:
                     print("Started creating video file")
-                    video_write = cv2.VideoWriter(f'vid_{time.asctime()}.mp4', fourcc, 30.0, (cam.crop_width, cam.height))
+                    video_write = cv2.VideoWriter(f'vid_{time.asctime()}.mp4v', fourcc, 30.0, (cam.crop_width, cam.height))
                 else:
                     print("Video finished")
                     video_write.release()
