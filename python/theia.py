@@ -183,10 +183,11 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
             if shared_list[2] == "video":
                 video_capture ^= True
                 if video_capture:
+                    print("Started creating video file")
                     video = cv2.VideoWriter(f'vid_{time.asctime()}.mpv4', fourcc, 30.0, (cam.crop_width, cam.height))
                 else:
+                    print("Video finished")
                     video.release()
-                picture_send_pipe.send("video")
                 shared_list[1] = 0
             else:
                 mode = shared_list[2]
