@@ -166,7 +166,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
     cam = Camera(camera_id)
     shared_list = [1, 0, 1, 0]
     threading.Thread(name="Camera_con", target=pipe_com, daemon=True, args=(connection, None, None, shared_list)).start()
-    fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
     run = True
     video_feed = True
     video_capture = False
