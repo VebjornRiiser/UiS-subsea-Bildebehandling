@@ -169,7 +169,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
     run = True
     video_feed = True
-    vide_capture = False
+    video_capture = False
     mode = shared_list[2] # Camera modes: 0: Default no image processing, 1: Find shapes and calculate distance to shapes, 2: ??, 3 ?? 
     if not (cam.feed.isOpened()):
         print('Could not open video device')
