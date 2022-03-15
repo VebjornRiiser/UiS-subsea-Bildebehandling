@@ -184,10 +184,10 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
                 video_capture ^= True
                 if video_capture:
                     print("Started creating video file")
-                    video = cv2.VideoWriter(f'vid_{time.asctime()}.mpv4', fourcc, 30.0, (cam.crop_width, cam.height))
+                    video_write = cv2.VideoWriter(f'vid_{time.asctime()}.mp4', fourcc, 30.0, (cam.crop_width, cam.height))
                 else:
                     print("Video finished")
-                    video.release()
+                    video_write.release()
                 shared_list[1] = 0
             else:
                 mode = shared_list[2]
@@ -231,9 +231,9 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
         if video_capture:
-	        video.write(pic)
+	        video_write.write(pic)
     if video_capture:
-        video.release()
+        video_write.release()
     print("Video thread stopped")
     cam.feed.release()
     cv2.destroyAllWindows()
