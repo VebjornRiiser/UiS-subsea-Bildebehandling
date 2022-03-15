@@ -168,6 +168,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
     threading.Thread(name="Camera_con", target=pipe_com, daemon=True, args=(connection, None, None, shared_list)).start()
     run = True
     video_feed = True
+    vide_capture = False
     mode = shared_list[2] # Camera modes: 0: Default no image processing, 1: Find shapes and calculate distance to shapes, 2: ??, 3 ?? 
     if not (cam.feed.isOpened()):
         print('Could not open video device')
@@ -206,7 +207,6 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
                 cam.feed.release()
                 cv2.destroyAllWindows()
                 cam = Camera(camera_id)
-            #pic = find_calc_shapes(pic, pic2)
             frame_count += 1
             if frame_count > 2:
                 frame_count = 0

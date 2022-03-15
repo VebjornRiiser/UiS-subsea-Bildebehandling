@@ -21,7 +21,6 @@ class CamHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-type','multipart/x-mixed-replace; boundary=frame')
             self.end_headers()
-            self.video_cap = False
             while True:
                 try:
                     # rc, img = capture.read()
@@ -34,14 +33,6 @@ class CamHandler(BaseHTTPRequestHandler):
                             if self.video_cap:
                                 self.video.release()
                             break
-                        elif img.lower() == "video": #Toggle videofile creation
-                            print('Starting video file creation!\n')
-                            self.video_cap ^= True
-                            if self.video_cap:
-                                fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-                                self.video = cv2.VideoWriter(f'vid_{time.asctime()}.mpv4', fourcc, 30.0, (1280, 720))
-                            else:
-                                self.video.release()
                     else:
                         # if not rc:
                         #     continue
@@ -52,8 +43,6 @@ class CamHandler(BaseHTTPRequestHandler):
                         self.send_header('Content-length',str(len(jpg)))
                         self.end_headers()
                         self.wfile.write(bytes(jpg))
-                        if self.video_cap:
-                            self.video.write(jpg)
                         time.sleep(0.016)
                 except KeyboardInterrupt:
                     break
