@@ -166,6 +166,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
     cam = Camera(camera_id)
     shared_list = [1, 0, 1, 0]
     threading.Thread(name="Camera_con", target=pipe_com, daemon=True, args=(connection, None, None, shared_list)).start()
+    fourcc = cv2.VideoWriter_fourcc(*'MJPG')
     run = True
     video_feed = True
     vide_capture = False
@@ -180,6 +181,11 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
     while run:
         if shared_list[1] == 1:
             if shared_list[2] == "video":
+                video_capture ^= True
+                if video_capture:
+                    video = cv2.VideoWriter(f'vid_{time.asctime()}.mpv4', fourcc, 30.0, (cam.crop_width, cam.height))
+                else:
+                    video.release()
                 picture_send_pipe.send("video")
                 shared_list[1] = 0
             else:
@@ -223,6 +229,10 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
             cv2.imshow('FishCam',pic)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
+        if video_capture:
+	        video.write(pic)
+    if video_capture:
+        video.release()
     print("Video thread stopped")
     cam.feed.release()
     cv2.destroyAllWindows()
