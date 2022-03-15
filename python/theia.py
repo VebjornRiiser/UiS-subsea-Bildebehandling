@@ -178,9 +178,9 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
         cv2.namedWindow('FishCam', cv2.WINDOW_NORMAL)
     while run:
         if shared_list[1] == 1:
-            print(shared_list[2])
             if shared_list[2] == "video":
                 picture_send_pipe.send("video")
+                shared_list[1] = 0
             else:
                 mode = shared_list[2]
                 shared_list[1] = 0
