@@ -126,7 +126,8 @@ def find_calc_shapes(pic1, pic2):
 
 
 def image_aqusition_thread(connection, boli):
-    mode = 1 # 1: Find fish, 2: mosaikk 3:TBA
+    mode = 1 # 1: Find fish, 2: mosaikk 3:TBA 
+    #TODO Her skal autonom kjøring legges inn
     old_list = []
     while boli:
         mess = connection.recv()
