@@ -38,13 +38,14 @@ class PID:
         self._params["mode"] = self._mode
 
     def calculate_new(self,PV:int|float,SV:int|float) -> int|float:
-        
-        error = SV - PV
+        self.PV = PV
+        self.SV = SV
+        self.error = SV - PV
         if self.prevtime == 0:
             samplingtime = 1/20
         else:
             time_now = time.time()
-            samplingtime = time_now - self.prevtime
+            self.samplingtime = time_now - self.prevtime
             self.prevtime = time_now       
 
         match self.mode:
@@ -62,15 +63,22 @@ class PID:
                 pass
             case "ON/OFF":
                 pass
-            
+        
+        self.prevError = self.error
+        self.prevPV = self.PV
+        
     def calcP(self,error):
         return self.KP * error
     
     def calcI(self):
-        pass
-    
-    def calcD(self):
-        pass
+        self.integrator = self.integrator * 0.5 * self.KI * self.samplingtime * (self.error + self.prevError)
+        
+        #TODO Klamping
+        
+    def calcD(self) -> int|float:
+        #derivat on measurement
+        self.derivator = -(2 * self.KD *(self.PV - self.prevPV) + (2 * self.tau - self.samplingtime) * self.derivator) / (2*self.tau + self.samplingtime)
+        
     
     def ON_OFF(self):
         pass
