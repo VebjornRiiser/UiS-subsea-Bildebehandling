@@ -22,19 +22,14 @@ c_types = {
     "float": "<f"
 }
 
-def can_handler_up(id, msg):
-    #print(f'Can Id:{id}, Data:{msg}')
-    if int(id) == 80:
-        pass
-        #print(f'Can Id:{id}, Data:{msg}')
-    else:
-        pass
-
 def get_byte(c_format:str, number):
     byte_list = []
     [byte_list.append(i) for i in struct.pack(c_types[c_format], number)]
 
     return byte_list
+
+def get_num(c_format:str, byt):
+    return struct.unpack(c_types[c_format], byt)[0]
 
 
 def serial_package_builder(data, can=True):
@@ -52,10 +47,8 @@ def serial_package_builder(data, can=True):
     package += get_byte("uint8", can_id)
     
     # Startup
-    if (can_id == 64) | (can_id == 96) | (can_id == 128):
+    if can_id in [64, 96, 128]:
         package += bytes("start\n", "latin")
-        for k in range(2):
-            package.append(0x00)
 
     elif can_id == 70:
         # X, Y, Z, rotasjon: int8
@@ -68,19 +61,35 @@ def serial_package_builder(data, can=True):
         # fri, fri, throttling: int8
         for k in range(3):
             package += get_byte("int8", can_data[k+5])
+
+    # Parameter endring
+    elif can_id == 71:
+        package += get_byte("uint32", can_data[0])
+        package += get_byte("float", can_data[1])
+
+    # Ping
+    elif can_id in [95, 127, 159]:
+        package += bytes("ping!\n", "latin")
+
+    # Lysstyrke
+    elif can_id == 142:
+        package += get_byte("uint8", can_data[0])
+        package += get_byte("uint8", can_data[1])
     
     # Camera tilt
     elif (can_id == 200) | (can_id == 201):
         package += get_byte("int8", can_data['tilt'])
-        for _ in range(7):
-            package.append(0x00)
 
     else:
         return f"Gjenkjente ikkje ID frå toppside: '{can_id}'"
 
-
-
     # Info om struct: https://docs.python.org/3/library/struct.html
+
+    # Pad lengde
+    pack_length = len(package)
+    if pack_length < 11:
+        for _ in range(11 - pack_length):
+            package.append(0x00)
 
     # Slutt byte
     package.append(0x03)
@@ -132,13 +141,40 @@ def create_json(can_id:int, data:str):
     # Python....
     data_b = data.encode('latin').decode('unicode_escape').encode('latin')
     
+    # Gyrodata
+    if can_id == 80:
+        rull = get_num("int16", data_b[0:2])
+        stamp = get_num("int16", data_b[2:4])
+        hiv = get_num("int16", data_b[4:6])
+        gir = get_num("int16", data_b[6:])
+        json_dict = {"gyro": [rull, stamp, hiv, gir]}
+
+    # Akselerometer
+    elif can_id == 81:
+        accel_x = get_num("int16", data_b[0:2])
+        accel_y = get_num("int16", data_b[2:4])
+        accel_z = get_num("int16", data_b[4:6])
+        json_dict = {"accel": [accel_x, accel_y, accel_z]}
+
+    # Straumforbruk
+    elif can_id in [90, 91, 92]:
+        json_dict = {f"power_consumption{can_id - 90}": [ get_num("uint16", data_b[0:]) ]}
+
     # Leak detection and temperature
-    if can_id == 140:
+    elif can_id == 140:
         lekk = data_b[0]
-        temp1 = struct.unpack(c_types["int16"], data_b[1:3])[0] / 10 # -100.0°C -> 100.0°C
-        temp2 = struct.unpack(c_types["int16"], data_b[3:5])[0] / 10
-        temp3 = struct.unpack(c_types["int16"], data_b[5:7])[0] / 10
-        json_dict = {"sensor1": [lekk, temp1, temp2, temp3 ]}
+        temp1 = get_num("int16", data_b[1:3]) / 10 # -100.0°C -> 100.0°C
+        temp2 = get_num("int16", data_b[3:5]) / 10
+        temp3 = get_num("int16", data_b[5:7]) / 10
+        json_dict = {"lekk_temp": [lekk, temp1, temp2, temp3]}
+
+    # Thrusterpådrag
+    elif can_id == 170:
+        thrust_list = []
+        for byt in data_b:
+            thrust_list.append( get_num("int8", byt) )
+        json_dict = {"thrust": thrust_list}
+
     else:
         json_dict = "\n\nERROR, ID UNKNOWN!\n\n"    
 
@@ -184,76 +220,79 @@ class Mercury:
 
 
     def network_callback(self, data: bytes) -> None:
-        data:str = bytes.decode(data, "utf-8")
-        for message in data.split(json.dumps("*")):
-            #print(f'Sjekker for heartbeat {data = }, {message = }')
-            if message == json.dumps('heartbeat') or message == "":
-                continue
-            else:
-                message = json.loads(message)
-                for item in message:
-                    if item[0] < 200:
-                        if self.status['USB']:
-                            self.serial.write(serial_package_builder(item))
-                        else:
-                            self.network_handler.send(to_json("error usb not connected"))
-                    elif (item[0] == 200) | (item[0] == 201): #Camera_front and back functions
-                        for key in item[1]:
-                            if key.lower() == "tilt":
-                                if self.status['USB']:
-                                    mld = serial_package_builder(item, False)
-                                    if not isinstance(mld, bytearray):
-                                        self.network_handler.send(to_json(f'{mld}'))
+        try:
+            data:str = bytes.decode(data, "utf-8")
+            for message in data.split( json.dumps("*") ):
+                #print(f'Sjekker for heartbeat {data = }, {message = }')
+                if message == json.dumps('heartbeat') or message == "":
+                    continue
+                else:
+                    message = json.loads(message)
+                    for item in message:
+                        if item[0] < 200:
+                            if self.status['USB']:
+                                self.serial.write(serial_package_builder(item))
+                            else:
+                                self.network_handler.send(to_json("error usb not connected"))
+                        elif (item[0] == 200) | (item[0] == 201): #Camera_front and back functions
+                            for key in item[1]:
+                                if key.lower() == "tilt":
+                                    if self.status['USB']:
+                                        mld = serial_package_builder(item, False)
+                                        if not isinstance(mld, bytearray):
+                                            self.network_handler.send(to_json(f'{mld}'))
+                                        else:
+                                            if not self.thei.camera_function['front'] and item[0] == 200:
+                                                self.serial.write(mld)
+                                            elif not self.thei.camera_function['back'] and item[0] == 201:
+                                                self.serial.write(mld)
+                                            else:
+                                                print('Cant tilt camera')
+                                                self.network_handler.send(to_json("Video prossesing running, cant tilt camera"))
                                     else:
-                                        if not self.thei.camera_function['front'] and item[0] == 200:
-                                            self.serial.write(mld)
-                                        elif not self.thei.camera_function['back'] and item[0] == 201:
+                                        self.network_handler.send(to_json("error usb not connected"))
+                                elif key.lower() == "on":
+                                    if item[0] == 200:
+                                        print("toggle front")
+                                        answ = self.thei.toggle_front()
+                                    elif item[0] == 201:
+                                        print("toggle back")
+                                        answ = self.thei.toggle_back()
+                                    else:
+                                        self.network_handler.send(to_json("Invalid camera")) # Not possible to send this in theroy
+                                    if not answ:
+                                        self.network_handler.send(to_json("Could not find front camera"))
+                                elif key.lower() == "bildebehandligsmodus":
+                                    if item[0] == 200:
+                                        if item[1][key] == 6: # Toggles on/off videofile creation
+                                            self.thei.host_cam_front.send('video')
+                                        elif item[1][key] != 0:
+                                            self.thei.camera_function['front'] = True
+                                            mld = serial_package_builder(self.thei.set_front_zero, False)
                                             self.serial.write(mld)
                                         else:
-                                            print('Cant tilt camera')
-                                            self.network_handler.send(to_json("Video prossesing running, cant tilt camera"))
-                                else:
-                                    self.network_handler.send(to_json("error usb not connected"))
-                            elif key.lower() == "on":
-                                if item[0] == 200:
-                                    print("toggle front")
-                                    answ = self.thei.toggle_front()
-                                elif item[0] == 201:
-                                    print("toggle back")
-                                    answ = self.thei.toggle_back()
-                                else:
-                                    self.network_handler.send(to_json("Invalid camera")) # Not possible to send this in theroy
-                                if not answ:
-                                    self.network_handler.send(to_json("Could not find front camera"))
-                            elif key.lower() == "bildebehandligsmodus":
-                                if item[0] == 200:
-                                    if item[1][key] == 6: # Toggles on/off videofile creation
-                                        self.thei.host_cam_front.send('video')
-                                    elif item[1][key] != 0:
-                                        self.thei.camera_function['front'] = True
-                                        mld = serial_package_builder(self.thei.set_front_zero, False)
-                                        self.serial.write(mld)
-                                    else:
-                                        self.thei.camera_function['front'] = False
-                                    if self.thei.camera_status['front'] and item[1][key] !=6:
-                                        self.thei.host_cam_front.send(item[1][key])
-                                    elif item[1][key] !=6:
-                                        pass
-                                    else:
-                                        self.network_handler.send(to_json("Front camera is not on"))
-                                elif item[0] == 201:
-                                    if item[1][key] != 0:
-                                        self.thei.camera_function['back'] = True
-                                        mld = serial_package_builder(self.thei.set_back_zero, False)
-                                        self.serial.write(mld)
-                                    else:
-                                        self.thei.camera_function['back'] = False
-                                    if self.thei.camera_status['back']:
-                                        self.thei.host_back.send(item[1][key])
-                                    else:
-                                        self.network_handler.send(to_json("Back camera is not on"))
-                    else:
-                        self.network_handler.send(to_json("This ID is not handled"))
+                                            self.thei.camera_function['front'] = False
+                                        if self.thei.camera_status['front'] and item[1][key] !=6:
+                                            self.thei.host_cam_front.send(item[1][key])
+                                        elif item[1][key] !=6:
+                                            pass
+                                        else:
+                                            self.network_handler.send(to_json("Front camera is not on"))
+                                    elif item[0] == 201:
+                                        if item[1][key] != 0:
+                                            self.thei.camera_function['back'] = True
+                                            mld = serial_package_builder(self.thei.set_back_zero, False)
+                                            self.serial.write(mld)
+                                        else:
+                                            self.thei.camera_function['back'] = False
+                                        if self.thei.camera_status['back']:
+                                            self.thei.host_back.send(item[1][key])
+                                        else:
+                                            self.network_handler.send(to_json("Back camera is not on"))
+                        else:
+                            self.network_handler.send(to_json("This ID is not handled"))
+        except Exception as e:
+            print(f'Feilkode i network_callback, feilmelding: {e}\n\t{data = }')
 
 
     def toggle_network(self):

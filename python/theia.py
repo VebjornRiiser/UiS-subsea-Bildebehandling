@@ -165,7 +165,7 @@ def draw_on_img(pic, frames):
 def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
     print(f'Camera:{camera_id} started')
     cam = Camera(camera_id)
-    shared_list = [1, 0, 1, 0]
+    shared_list = [1, 0, 0, 0]
     threading.Thread(name="Camera_con", target=pipe_com, daemon=True, args=(connection, None, None, shared_list)).start()
     fourcc = cv2.VideoWriter_fourcc(*'MPEG')
     run = True
@@ -201,8 +201,8 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
                         cam.feed.release()
                         cv2.destroyAllWindows()
                         break
-                    mode = int(mode)
-                    print(f'Mode set to{mode}')
+                mode = int(mode)
+                print(f'Mode set to {mode}')
         if mode == 0:
             pic = cam.aq_image()
             if pic is False:
