@@ -232,7 +232,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
         if video_capture:
-	        video_write.write(pic)
+            video_write.write(pic)
     if video_capture:
         video_write.release()
     print("Video thread stopped")
