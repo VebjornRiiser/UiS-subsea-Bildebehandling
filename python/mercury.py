@@ -22,14 +22,6 @@ c_types = {
     "float": "<f"
 }
 
-def can_handler_up(id, msg):
-    #print(f'Can Id:{id}, Data:{msg}')
-    if int(id) == 80:
-        pass
-        #print(f'Can Id:{id}, Data:{msg}')
-    else:
-        pass
-
 def get_byte(c_format:str, number):
     byte_list = []
     [byte_list.append(i) for i in struct.pack(c_types[c_format], number)]
