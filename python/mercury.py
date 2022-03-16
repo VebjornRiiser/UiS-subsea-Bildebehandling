@@ -182,6 +182,7 @@ class Mercury:
             print("waiting for connection before continuing")
         self.toggle_network()
 
+
     def network_callback(self, data: bytes) -> None:
         data:str = bytes.decode(data, "utf-8")
         for message in data.split( json.dumps("*") ):
@@ -253,6 +254,7 @@ class Mercury:
                                         self.network_handler.send(to_json("Back camera is not on"))
                     else:
                         self.network_handler.send(to_json("This ID is not handled"))
+
 
     def toggle_network(self):
         if self.status['network']:
