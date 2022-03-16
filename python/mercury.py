@@ -185,7 +185,7 @@ class Mercury:
 
     def network_callback(self, data: bytes) -> None:
         data:str = bytes.decode(data, "utf-8")
-        for message in data.split( json.dumps("*") ):
+        for message in data.split(json.dumps("*")):
             #print(f'Sjekker for heartbeat {data = }, {message = }')
             if message == json.dumps('heartbeat') or message == "":
                 continue
