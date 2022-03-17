@@ -24,6 +24,9 @@ class PID:
             self.mode = param_dict["mode"]
             self.nummode = param_dict["nummode"]
             self.ON_OFF_param = param_dict["ON/OFF"]
+            self.derivator_klamp = param_dict["derivator_klamp"]
+            self.integrator_klamp = param_dict["integrator_klamp"]
+            
         except KeyError as e:
             print(f'KeyError: det ser ut som om ikke alle parameteren er satt, dette kan medføre udefinert oppførsel')
             #TODO Konverter til logging -- Dette må vel være på en program level
@@ -50,35 +53,34 @@ class PID:
 
         match self.mode:
             case "P":
-                return 
+                return self.calcP()
             case "I":
-                return 
+                return self.calcI()
             case "D":
-                pass
+                return self.calcD
             case "PI":
-                pass
+                return self.calcP() + self.calcI()
             case "PD":
-                pass
+                return self.calcP() + self.calcD()
             case "PID":
-                pass
+                return self.calcP() + self.calcI() + self.calcD()
             case "ON/OFF":
                 pass
         
         self.prevError = self.error
         self.prevPV = self.PV
         
-    def calcP(self,error):
-        return self.KP * error
+    def calcP(self) -> int|float:
+        return self.KP * self.error
     
-    def calcI(self):
+    def calcI(self) -> int|float:
         self.integrator = self.integrator * 0.5 * self.KI * self.samplingtime * (self.error + self.prevError)
-        
         #TODO Klamping
         
     def calcD(self) -> int|float:
         #derivat on measurement
         self.derivator = -(2 * self.KD *(self.PV - self.prevPV) + (2 * self.tau - self.samplingtime) * self.derivator) / (2*self.tau + self.samplingtime)
-        
+        #TODO Klamping
     
     def ON_OFF(self):
         pass

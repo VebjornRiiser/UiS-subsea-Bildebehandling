@@ -220,15 +220,17 @@ class Mercury:
 
 
     def network_callback(self, data: bytes) -> None:
-        try:
-            data:str = bytes.decode(data, "utf-8")
-            for message in data.split( json.dumps("*") ):
+        data:str = bytes.decode(data, "utf-8")
+        for message_org in data.split( json.dumps("*") ):
+            try:
                 #print(f'Sjekker for heartbeat {data = }, {message = }')
-                if message == json.dumps('heartbeat') or message == "":
+                if message_org == json.dumps('heartbeat') or message_org == "":
                     continue
                 else:
-                    message = json.loads(message)
+                    message = json.loads(message_org)
                     for item in message:
+                        if item[0] != 70:
+                            print(item)
                         if item[0] < 200:
                             if self.status['USB']:
                                 self.serial.write(serial_package_builder(item))
@@ -291,8 +293,8 @@ class Mercury:
                                             self.network_handler.send(to_json("Back camera is not on"))
                         else:
                             self.network_handler.send(to_json("This ID is not handled"))
-        except Exception as e:
-            print(f'Feilkode i network_callback, feilmelding: {e}\n\t{data = }')
+            except Exception as e:
+                print(f'Feilkode i network_callback, feilmelding: {e}\n\t{message_org = }\n\t{message = }\n')
 
 
     def toggle_network(self):
@@ -311,7 +313,6 @@ class Mercury:
         if self.status['network']:
             #print(f"usb callback {melding =}")
             data, can_id = melding.split(";")
-            can_handler_up(can_id, data)
             self.network_handler.send(create_json(int(can_id), data))
         else: 
             print('No connection on network')
