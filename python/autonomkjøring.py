@@ -15,18 +15,14 @@ class Autonom:
         self.logger.setLevel(1)
     
     def dock(self) -> None:
-        self.logger.info("Autonom docking startert")
-        self.logger.debug("Debug melding")
-        self.logger.warning("Muligens ikke noe kode her")
-        self.logger.error("Program fungerte ikke")
-        self.logger.critical("Kritisk logikk feil")
+        self.logger.info("Autonom docking startet")
         
         
     def merd(self) -> None:
-        pass
+        self.logger.info("Autonom merd skanning startet")
     
     def mosaic(self) -> None:
-        pass
+        self.logger.info("Autonom mosaic startet")
     
     
     

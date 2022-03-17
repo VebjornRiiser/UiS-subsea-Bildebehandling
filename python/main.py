@@ -17,8 +17,6 @@ import logging
 # Our main loop for both programs
 def main_loop():
     
-    
-    
     m = Mercury(logger=generate_logging()) #WARNING Dette er ikke sikker fungerer
     m.thei.toggle_front()
     m.thei.toggle_back()
