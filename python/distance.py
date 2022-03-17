@@ -150,30 +150,6 @@ def contour_img(image): # Finds shapes by color and size
             cv2.drawContours(image, object.box , -1, (0, 0, 0), 2 )
     return ny_cont
 
-class Yolo():
-    def __init__(self) -> None:
-        self.device = select_device('')
-        self.weights = '/yolov5/models/yolov5s.pt'
-        self.data = '/yolov5/data/coco128.yaml'
-        self.conf_trees = 0.25
-        self.iou_tres 
-        self.model = DetectMultiBackend(self.weights, self.device, False, self.data)
-        self.model.warmup((1, 3, 1280, 960)) # Tage u fix, ikkje sikker ka me sga her
-
-    def yolo_image(self, image, test = False): #Find shapes using YOLO (Mostly fish)
-        image = torch.from_numpy(image).to(self.device)
-        image = image.float()
-        image /= 255
-        if len(image.shape) == 3: # What this does it not clear
-            image = image[None]
-        pred = self.model(image, False, False)
-        pred = non_max_suppression(pred, self.conf_trees)
-        for i, detected in enumerate(pred):
-            print("Deteced object\n")
-            print(detected)
-        if test:
-            cv2.imshow('WindowName', image)
-
 
 def get_center(contur): #Unused function 17/3-2022
     center = cv2.moments(contur)
@@ -198,10 +174,6 @@ def calc_size(num_pixels:int, centers, axis:int=0): # Calulates size of objects 
     #print(f'Distance between pic: {dist}, Object size: {num_pixels}')
     return round((dist * factor + constant)*num_pixels, 1)
 
-
-def get_pic():
-    
-    return
 
 
 if __name__ == "__main__":
