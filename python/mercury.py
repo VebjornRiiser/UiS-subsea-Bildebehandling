@@ -268,6 +268,7 @@ class Mercury:
                                         self.network_handler.send(to_json("Could not find front camera"))
                                 elif key.lower() == "bildebehandligsmodus":
                                     if item[0] == 200:
+                                        print(f'{item}\n')
                                         if item[1][key] == 6: # Toggles on/off videofile creation
                                             self.thei.host_cam_front.send('video')
                                         elif item[1][key] != 0:
@@ -277,6 +278,7 @@ class Mercury:
                                         else:
                                             self.thei.camera_function['front'] = False
                                         if self.thei.camera_status['front'] and item[1][key] !=6:
+                                            print("MerK:278: Change camer function")
                                             self.thei.host_cam_front.send(item[1][key])
                                         elif item[1][key] !=6:
                                             pass
