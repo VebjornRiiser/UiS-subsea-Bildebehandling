@@ -311,7 +311,6 @@ class Mercury:
         if self.status['network']:
             #print(f"usb callback {melding =}")
             data, can_id = melding.split(";")
-            can_handler_up(can_id, data)
             self.network_handler.send(create_json(int(can_id), data))
         else: 
             print('No connection on network')
