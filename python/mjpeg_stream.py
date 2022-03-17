@@ -12,9 +12,10 @@ import time
 capture=None
 
 class CamHandler(BaseHTTPRequestHandler):
-    # def __init__(self, pipe):
-    #     self.pipe = pipe
-        
+    #def __init__(self):
+        #pass
+        #selasf.pipe = pipe
+
     def do_GET(self):
         if self.path.endswith('.mjpg'):
             self.send_response(200)
@@ -25,20 +26,26 @@ class CamHandler(BaseHTTPRequestHandler):
                     # rc, img = capture.read()
                     img = self.server.pipe.recv()
                     if isinstance(img, str):
-                        if img.lower() == "stop":
+                        print("got string")
+                        if img.lower() == "stop": # Closes prosess
+                            print("stopping video stream")
+                            self.server.socket.close()
+                            if self.video_cap:
+                                self.video.release()
                             break
-                    # if not rc:
-                    #     continue
-                    # imgRGB=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
-                    _, jpg = cv2.imencode(".jpg", img)
-                    self.wfile.write(b"--frame\n")
-                    self.send_header('Content-type','image/jpeg')
-                    self.send_header('Content-length',str(len(jpg)))
-                    self.end_headers()
-                    self.wfile.write(bytes(jpg))
-                    time.sleep(0.016)
+                    else:
+                        # if not rc:
+                        #     continue
+                        # imgRGB=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+                        _, jpg = cv2.imencode(".jpg", img)
+                        self.wfile.write(b"--frame\n")
+                        self.send_header('Content-type','image/jpeg')
+                        self.send_header('Content-length',str(len(jpg)))
+                        self.end_headers()
+                        self.wfile.write(bytes(jpg))
+                        time.sleep(0.016)
                 except KeyboardInterrupt:
-                        break
+                    break
             return
         if self.path.endswith('.html'):
             self.send_response(200)

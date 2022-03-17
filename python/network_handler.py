@@ -140,7 +140,7 @@ def recieve_forever():
 if __name__ == "__main__":
     print(sys.platform)
     if sys.platform != "win32":
-        server_conn = Network(is_server=True, bind_addr="0.0.0.0")
+        server_conn = Network(is_server=False, bind_addr="0.0.0.0")
         # server_conn = Network(is_server=True, bind_addr="127.0.0.1")
         # threading.Thread(target=recieve_forever).start()
         while True:
@@ -153,9 +153,31 @@ if __name__ == "__main__":
         # a = subprocess.Popen("ssh rov touch test")
         # print(os.system("ssh rov touch test")) # python3 ~/socket_testing/network_handler.py"))
         # exit()
-        client_conn = Network(is_server=True, bind_addr="0.0.0.0", connect_addr="10.0.0.3")
+        client_conn = Network(is_server=False, bind_addr="0.0.0.0", connect_addr="10.0.0.2")
         while True:
-            client_conn.send(bytes('{"can": [(0, 99)]}', "utf-8"))
+            time.sleep(2)
+            asd = [[296, "bildebehandligsmodus", 1],[500, "teststring"]]
+            a = input("Click to send message\n")
+            if a == "stop":
+                a = input("What cam do you want to stop?\n")
+                if a == "front":
+                    asd = [[201, {"on": True}]]
+                else:
+                    asd = [[200, {"on": True}]]
+            elif a == "modus":
+                a = input("What cam do you want to change mode on?\n")
+                if a == "back":
+                    a = input("Set mode to what?\n")
+                    asd = [[201, {"bildebehandligsmodus": int(a)}]]
+                else:
+                    a = input("Set mode to what?\n")
+                    asd = [[200, {"bildebehandligsmodus": int(a)}]]
+            elif a == 'tilt':
+                a = input("Tilt camera to what angle?\n")
+                asd = [[200, {"tilt": int(a)}]]
+            mess = bytes(json.dumps("*"), "utf-8") + bytes(json.dumps(asd), "utf-8") + bytes(json.dumps("*"), "utf-8")
+            client_conn.send(mess)
+            #client_conn.send(bytes('*{"can": [(0, 99)]}*', "utf-8"))
         # send_thread = threading.Thread(target=lambda: send_forever(client_conn))
         # send_thread.start()
         # send_thread.join()

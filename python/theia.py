@@ -53,7 +53,7 @@ class Camera():
         if platform == "linux" or platform == "linux2":
             self.feed = cv2.VideoCapture(self.id, cv2.CAP_V4L2)
         else:
-            self.feed = cv2.VideoCapture(self.id, cv2.CAP_SHOW)
+            self.feed = cv2.VideoCapture(self.id)
         self.set_picture_size(self.width, self.height)
         #self.feed.set(cv2.CAP_PROP_FPS, framerate)
         #self.feed.set(cv2.CAP_PROP_AUTOFOCUS, 1)
@@ -73,12 +73,29 @@ class Camera():
         self.crop_width = int(self.width/2)
 
     def aq_image(self, double:bool=False):
-        ref, frame = self.feed.read()
+        #ref, frame = self.feed.read()
+        #frame = cv2.rotate(frame, cv2.ROTATE_180)
+        #ref, frame = self.feed.read()
+        ref = self.feed.grab()
+        if ref:
+            _, frame = self.feed.retrieve(0)
+        else:
+            if double:
+                return False, False
+            else:
+                print(time.asctime())
+                return False
+        if frame is None:
+            if double:
+                return False, False
+            else:
+                print(time.asctime())
+                return False
+        frame = cv2.rotate(frame, cv2.ROTATE_180)
         crop = frame[:self.height, :self.crop_width]
+        crop2 = frame[:self.height,self.crop_width:]
         if double:
             crop2 = frame[:self.height,self.crop_width:]
-            crop2 = white_balance(crop2)
-            crop = white_balance(crop)
             return crop, crop2
         else:
             #crop = white_balance(crop)
@@ -109,7 +126,9 @@ def find_calc_shapes(pic1, pic2):
 
 
 def image_aqusition_thread(connection, boli):
-    mode = 1 # 1: Find fish, 2: mosaikk 3:TBA
+    mode = 1 # 1: Find fish, 2: mosaikk 3:TBA 
+    #TODO Her skal autonom kjøring legges inn
+    old_list = []
     while boli:
         mess = connection.recv()
         if isinstance(mess, str):
@@ -123,6 +142,12 @@ def image_aqusition_thread(connection, boli):
             if mode == 1:
                 if len(mess) == 2:
                     mached_list = find_calc_shapes(mess[0], mess[1])
+                    if old_list != []:
+                        for a in old_list:
+                            for b in mached_list:
+                                if (cv2.matchShapes(a.contour, b.contour, cv2.CONTOURS_MATCH_I1, 0.0)) < 0.3:
+                                    a.dept = 0.9*b.dept+0.1*a.dept
+                    old_list = mached_list
                     connection.send(mached_list)
             elif mode == 2:
                 pass
@@ -140,31 +165,56 @@ def draw_on_img(pic, frames):
 def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
     print(f'Camera:{camera_id} started')
     cam = Camera(camera_id)
-    print("got passed class")
-    shared_list = [1, 0, 1, 0]
+    shared_list = [1, 0, 0, 0]
     threading.Thread(name="Camera_con", target=pipe_com, daemon=True, args=(connection, None, None, shared_list)).start()
+    fourcc = cv2.VideoWriter_fourcc(*'MPEG')
     run = True
-    video_feed = False
+    video_feed = True
+    video_capture = False
     mode = shared_list[2] # Camera modes: 0: Default no image processing, 1: Find shapes and calculate distance to shapes, 2: ??, 3 ?? 
-    print("Trying to enter loop")
     if not (cam.feed.isOpened()):
         print('Could not open video device')
         run = False
     frame_count = 1 # Used to only skip some frames for image AQ
     draw_frames = []
+    if not video_feed:
+        cv2.namedWindow('FishCam', cv2.WINDOW_NORMAL)
     while run:
         if shared_list[1] == 1:
-            mode = shared_list[2]
-            if isinstance(mode, str):
-                if mode.lower() == 'stop':
-                    picture_send_pipe('stop')
-                    connection.send('stop')
-                    run = False
+            if shared_list[2] == "video":
+                video_capture ^= True
+                if video_capture:
+                    print("Started creating video file")
+                    video_write = cv2.VideoWriter(f'vid_{time.asctime()}.mp4', fourcc, 30.0, (cam.crop_width, cam.height))
+                else:
+                    print("Video finished")
+                    video_write.release()
+                shared_list[1] = 0
+            else:
+                mode = shared_list[2]
+                shared_list[1] = 0
+                if isinstance(mode, str):
+                    if mode.lower() == 'stop':
+                        print('Camera thread stopped')
+                        picture_send_pipe.send('stop')
+                        connection.send('stop')
+                        cam.feed.release()
+                        cv2.destroyAllWindows()
+                        break
+                mode = int(mode)
+                print(f'Mode set to {mode}')
         if mode == 0:
             pic = cam.aq_image()
+            if pic is False:
+                cam.feed.release()
+                cv2.destroyAllWindows()
+                cam = Camera(camera_id)
         elif mode == 1:
             pic, pic2 = cam.aq_image(True)
-            #pic = find_calc_shapes(pic, pic2)
+            if pic is False:
+                cam.feed.release()
+                cv2.destroyAllWindows()
+                cam = Camera(camera_id)
             frame_count += 1
             if frame_count > 2:
                 frame_count = 0
@@ -173,14 +223,18 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
                 picture_IA_pipe.send([pic, pic2])
             if draw_frames != []:
                 draw_on_img(pic, draw_frames)
-        elif mode == 5:
-            time.sleep(2)
-        if video_feed:
+        if mode == 5:
+            time.sleep(3)
+        elif video_feed:
             picture_send_pipe.send(pic)
         else:
-            cv2.imshow("Named Frame",pic)
+            cv2.imshow('FishCam',pic)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
+        if video_capture:
+            video_write.write(pic)
+    if video_capture:
+        video_write.release()
     print("Video thread stopped")
     cam.feed.release()
     cv2.destroyAllWindows()
@@ -189,7 +243,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
 #TODO click funksjon, Show image for debug/test 
 def camera(camera_id, connection, picture_send_pipe):
     print("Camera Thread started")
-    shared_list = [1, 0, 0, 0]
+    shared_list = [1, 0, 1, 0]
     picture = np.array
     conn_thread = threading.Thread(name="Camera_con", target=pipe_com, daemon=True, args=(connection, None, None, shared_list)).start()
     if platform == "linux" or platform == "linux2":
@@ -207,7 +261,7 @@ def camera(camera_id, connection, picture_send_pipe):
     feed.set(cv2.CAP_PROP_FPS, 30)
     feed.set(cv2.CAP_PROP_AUTOFOCUS, 1)
     run = True
-    f_video_feed = True
+    f_video_feed = False
     if not (feed.isOpened()):
         print("Could not open video device")
         run = False
@@ -243,7 +297,6 @@ def pipe_com(connection, callback=None, name=None, list=None):
         while list[0]:
             list[2] = connection.recv()
             list[1] = 1
-            #print(f"{list[1] = }")
 
 
 #TODO cli_runtime
@@ -267,15 +320,19 @@ class Theia():
         self.check_hw_id_cam()
 
     def check_hw_id_cam(self):
-        self.cam_front_id = self.find_cam("3-2") # Finner kamera på usb
-        self.cam_back_id = self.find_cam("4-2")
+        self.cam_front_id = self.find_cam(".7") # Checks if a camera is connected on this port
+        self.cam_back_id = self.find_cam("3-2")
         if not self.cam_front_id:
+            print(f'Did no find front camera')
             self.camera_status['front'][1] = 0
         else:
+            print(f'Found front camera')
             self.camera_status['front'][1] = 1
         if not self.cam_back_id:
+            print(f'Did no find back camera')
             self.camera_status['back'][1] = 0
         else:
+            print(f'Found back camera')
             self.camera_status['back'][1] = 1
 
     def find_cam(self, cam):
@@ -288,16 +345,16 @@ class Theia():
         return False
 
     def toggle_front(self, cam_id: int=0):
-        print(f"{self.camera_status['front'] = }")
+        #print(f"{self.camera_status['front'] = }")
         if self.camera_status['front'][0] == 1:
             self.host_cam_front.send('stop')
             self.camera_status['front'][0] = 0
         else:
             if self.camera_status['front'][1]:
                 self.host_cam_front, self.client_cam1 = Pipe()
-                send_front_pic, recive_front_pic = Pipe()
-                send_IA, recive_IA = Pipe()
-                self.front_camera_prosess = Process(target=camera_thread, daemon=True, args=(self.cam_front_id, self.client_cam1, send_front_pic, send_IA))
+                self.send_front_pic, recive_front_pic = Pipe()
+                send_IA_front, recive_IA = Pipe()
+                self.front_camera_prosess = Process(target=camera_thread, daemon=True, args=(self.cam_front_id, self.client_cam1, self.send_front_pic, send_IA_front))
                 self.front_camera_prosess.start()
                 self.front_cam_com_thread = threading.Thread(name="COM_cam_1",target=pipe_com, daemon=True, args=(self.host_cam_front, self.camera_com_callback, self.cam_front_name)).start()
                 self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_front_pic, self.port_camfront_feed)).start()
@@ -317,10 +374,13 @@ class Theia():
             if self.camera_status['back'][1]:
                 self.host_back, self.client_cam2 = Pipe()
                 send_back_pic, recive_back_pic = Pipe()
-                self.back_camera_prosess = Process(target=camera_thread, daemon=True, args=(self.cam_back_id, self.client_cam2, send_back_pic)).start()
+                send_IA2, recive_IA2 = Pipe()
+                self.back_camera_prosess = Process(target=camera_thread, daemon=True, args=(self.cam_back_id, self.client_cam2, send_back_pic, send_IA2)).start()
                 self.front_cam_com_thread = threading.Thread(name="COM_cam_2",target=pipe_com, daemon=True, args=(self.host_back, self.camera_com_callback, self.cam_front_name)).start()
                 self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_back_pic, self.port_camback_feed)).start()
                 self.camera_status['back'][0] = 1
+                self.image_AQ_process2 = Process(target=image_aqusition_thread, daemon=True, args=(recive_IA2, True))
+                self.image_AQ_process2.start()
                 return True
             else:
                 return False
@@ -350,11 +410,12 @@ class Theia():
 if __name__ == "__main__":
     print("Main=Theia")
     s = Theia()
-    print("test")
-    s.camera_status['front'][1] = 1
-    s.cam_front_id = 0
+    #s.camera_status['front'][1] = 1
+    #s.cam_front_id = 1
     
     s.toggle_front()
+    #s.toggle_back()
+    print(time.asctime())
     
     #s.toggle_back()
     for __ in range(9999999):
