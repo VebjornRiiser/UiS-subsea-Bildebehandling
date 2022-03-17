@@ -265,7 +265,7 @@ class Mercury:
                                         self.network_handler.send(to_json("Invalid camera")) # Not possible to send this in theroy
                                     if not answ:
                                         self.network_handler.send(to_json("Could not find front camera"))
-                                elif key.lower() == "bildebehandligsmodus":
+                                elif key.lower() == "bildebehandlingsmodus":
                                     if item[0] == 200:
                                         print(f'{item}\n')
                                         if item[1][key] == 6: # Toggles on/off videofile creation
