@@ -6,7 +6,7 @@ import time
 
 # TESTSCRIPT FOR AVSTANDSMÅLING + Funksjoner for beregning av avstand og størrlser på objekter
 
-class Object():
+class Object(): # Used in functions to draw on image, find distance to objects etc, refers to objects in pictures
     def __init__(self, contour  ) -> None:
         self.rectanlge = cv2.minAreaRect(contour)
         self.angle = self.rectanlge[2]
@@ -62,8 +62,7 @@ class Object():
         self._true_width = newwidth
 
 
-
-def white_balance(img):
+def white_balance(img): # Copy pasta function, used to change color in image
     result = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
     avg_a = np.average(result[:, :, 1])
     avg_b = np.average(result[:, :, 2])
@@ -73,7 +72,7 @@ def white_balance(img):
     return result
 
 
-def camera(camera_id):
+def camera(camera_id): #Testfunction to get images from camera
     print("Camera Thread started")
     shared_list = [1, 0, 0, 0]
     picture = np.array
@@ -124,7 +123,7 @@ def camera(camera_id):
     cv2.destroyAllWindows()
 
 
-def contour_img(image):
+def contour_img(image): # Finds shapes by color and size
     cvt_pic = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     color_lower = np.array([60,100,50])
     color_upper = np.array([160,255,255])
@@ -145,14 +144,18 @@ def contour_img(image):
     return ny_cont
 
 
-def get_center(contur):
+def yolo_image(image): #Find shapes using YOLO
+    pass
+
+
+def get_center(contur): #Unused function 17/3-2022
     center = cv2.moments(contur)
     x = int(center["m10"] / center["m00"])
     y = int(center["m01"] / center["m00"])
     return (x,y)
 
 
-def calc_distance(centers, focal_len, camera_space):
+def calc_distance(centers, focal_len, camera_space): # Calculates distance to object using test data, needs position on object in two pictures
     dist = abs(centers[0][0]-centers[1][0])
     if dist == 0:
         return 50
@@ -160,7 +163,7 @@ def calc_distance(centers, focal_len, camera_space):
     #return int(((focal_len*camera_space)/dist)*100)
 
 
-def calc_size(num_pixels:int, centers, axis:int=0):
+def calc_size(num_pixels:int, centers, axis:int=0): # Calulates size of objects in picture
     """Calculates size with center points and number of pixelse size of object, axis=0 refers to horisontal measurment"""
     factor = -0.002344
     constant = 0.541
