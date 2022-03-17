@@ -202,7 +202,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
                         cv2.destroyAllWindows()
                         break
                 mode = int(mode)
-                print(f'Mode set to{mode}')
+                print(f'Mode set to {mode}')
         if mode == 0:
             pic = cam.aq_image()
             if pic is False:
