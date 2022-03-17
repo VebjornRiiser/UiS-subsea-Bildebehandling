@@ -6,17 +6,13 @@ from theia import Theia
 import time
 import threading
 import json
-
+from logging_init import generate_logging
 import logging
 
 # setter opp logging
 
 
-def generate_logging(log_name: str = "Hovedlogger"):
-    logging.basicConfig(level=logging.NOTSET) #setter hovedloggeren til det laveste nivået
-    main_logger = logging.getLogger(log_name)
 
-    return main_logger
 
 # Our main loop for both programs
 def main_loop():
