@@ -225,12 +225,13 @@ class Mercury:
             try:
                 #print(f'Sjekker for heartbeat {data = }, {message = }')
                 if message == json.dumps('heartbeat') or message == "":
+                    if message is None:
+                        message = ""
                     continue
                 else:
                     message = json.loads(message)
                     for item in message:
-                        if item[0] != 70:
-                            print(item)
+                        print(item)
                         if item[0] < 200:
                             if self.status['USB']:
                                 self.serial.write(serial_package_builder(item))
