@@ -8,7 +8,43 @@ from subprocess import Popen, PIPE
 import time
 from sys import platform
 import pickle as p
-from distance import contour_img, calc_size, calc_distance
+#from distance import contour_img, calc_size, calc_distance
+
+def contour_img(image): # Finds shapes by color and size
+    cvt_pic = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    color_lower = np.array([60,100,50])
+    color_upper = np.array([160,255,255])
+    mask = cv2.inRange(cvt_pic, color_lower, color_upper)
+    cv2.erode(mask,np.ones((5,5),np.uint8), mask)
+    ret, threash, = cv2.threshold(mask, 80, 255, 1)
+
+  
+    cont, hie = cv2.findContours(threash, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    ny_cont = []
+    liste_paa_Sizes = list(map(cv2.contourArea , cont))
+    for index, areal in enumerate(liste_paa_Sizes):
+        if areal > 5000 and areal < 500000:
+            ny_cont.append(Object(cont[index]))
+    if len(ny_cont) > 0:
+        for object in ny_cont:
+            cv2.drawContours(image, object.box , -1, (0, 0, 0), 2 )
+    return ny_cont
+
+def calc_distance(centers, focal_len, camera_space): # Calculates distance to object using test data, needs position on object in two pictures
+    dist = abs(centers[0][0]-centers[1][0])
+    if dist == 0:
+        return 50
+    return int((3.631e-6 * (dist**4)) - (0.003035 * (dist**3)) + (0.9672 * (dist**2)) - (139.9 * dist) + 7862)
+    #return int(((focal_len*camera_space)/dist)*100)
+
+
+def calc_size(num_pixels:int, centers, axis:int=0): # Calulates size of objects in picture
+    """Calculates size with center points and number of pixelse size of object, axis=0 refers to horisontal measurment"""
+    factor = -0.002344
+    constant = 0.541
+    dist = abs(centers[0][0]-centers[1][0])
+    #print(f'Distance between pic: {dist}, Object size: {num_pixels}')
+    return round((dist * factor + constant)*num_pixels, 1)
 
 
 def udp_picture_transfer(pipe_recive, port):
