@@ -3,6 +3,13 @@ import cv2
 from sys import platform
 import numpy as np
 import time
+import torch
+from yolov5.models.common import DetectMultiBackend
+from yolov5.utils.datasets import IMG_FORMATS, VID_FORMATS, LoadImages, LoadStreams
+from yolov5.utils.general import (LOGGER, check_file, check_img_size, check_imshow, check_requirements, colorstr,
+                           increment_path, non_max_suppression, print_args, scale_coords, strip_optimizer, xyxy2xywh)
+from yolov5.utils.plots import Annotator, colors, save_one_box
+from yolov5.utils.torch_utils import select_device, time_sync
 
 # TESTSCRIPT FOR AVSTANDSMÅLING + Funksjoner for beregning av avstand og størrlser på objekter
 
@@ -143,9 +150,24 @@ def contour_img(image): # Finds shapes by color and size
             cv2.drawContours(image, object.box , -1, (0, 0, 0), 2 )
     return ny_cont
 
+class Yolo():
+    def __init__(self) -> None:
+        self.device = select_device('')
+        self.weights = '/yolov5/models/yolov5s.pt'
+        self.data = '/yolov5/data/coco.yaml'
+        self.conf_trees = 0.25
+        self.iou_tres 
+        self.model = DetectMultiBackend(self.weights, self.device, False, self.data)
+        self.model.warmup() # Tage u fix, ikkje sikker ka me sga her
 
-def yolo_image(image): #Find shapes using YOLO
-    pass
+    def yolo_image(self, image): #Find shapes using YOLO (Mostly fish)
+        image = torch.from_numpy(image).to(self.device)
+        image = image.float()
+        image /= 255
+        if len(image.shape) == 3: # What this does it not clear
+            image = image[None]
+        pred = self.model(image, False, False)
+        pred = non_max_suppression(pred, self.conf_trees)
 
 
 def get_center(contur): #Unused function 17/3-2022
