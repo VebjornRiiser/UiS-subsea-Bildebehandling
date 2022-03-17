@@ -9,19 +9,11 @@ import json
 
 # Our main loop for both programs
 def main_loop():
-    ip = "127.0.0.1"
     m = Mercury()
-    t = Theia()
-    #m.toggle_network()
-    #m.toggle_USB
-    t.toggle_back()
-    t.toggle_front()
+    m.thei.toggle_front()
+    m.thei.toggle_back()
 
     while(1):
-        #if not t.camera_status[0]:
-        #    print("Camera top stopped")
-        #elif not t.camera_status[1]:
-        #    print("Camera back stopped")
         time.sleep(2)
         print("Still running")
 

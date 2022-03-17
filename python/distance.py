@@ -160,7 +160,7 @@ class Yolo():
         self.model = DetectMultiBackend(self.weights, self.device, False, self.data)
         self.model.warmup((1, 3, 1280, 960)) # Tage u fix, ikkje sikker ka me sga her
 
-    def yolo_image(self, image): #Find shapes using YOLO (Mostly fish)
+    def yolo_image(self, image, test = False): #Find shapes using YOLO (Mostly fish)
         image = torch.from_numpy(image).to(self.device)
         image = image.float()
         image /= 255
@@ -171,6 +171,8 @@ class Yolo():
         for i, detected in enumerate(pred):
             print("Deteced object\n")
             print(detected)
+        if test:
+            cv2.imshow('WindowName', image)
 
 
 def get_center(contur): #Unused function 17/3-2022
@@ -201,6 +203,6 @@ def get_pic():
     
     return
 
+
 if __name__ == "__main__":
-    #camera(2)
-    pass
+    camera(2)
