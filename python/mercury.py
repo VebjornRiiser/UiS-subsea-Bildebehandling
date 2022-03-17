@@ -220,9 +220,9 @@ class Mercury:
 
 
     def network_callback(self, data: bytes) -> None:
-        try:
-            data:str = bytes.decode(data, "utf-8")
-            for message in data.split( json.dumps("*") ):
+        data:str = bytes.decode(data, "utf-8")
+        for message in data.split( json.dumps("*") ):
+            try:
                 #print(f'Sjekker for heartbeat {data = }, {message = }')
                 if message == json.dumps('heartbeat') or message == "":
                     continue
@@ -291,8 +291,8 @@ class Mercury:
                                             self.network_handler.send(to_json("Back camera is not on"))
                         else:
                             self.network_handler.send(to_json("This ID is not handled"))
-        except Exception as e:
-            print(f'Feilkode i network_callback, feilmelding: {e}\n\t{data = }')
+            except Exception as e:
+                print(f'Feilkode i network_callback, feilmelding: {e}\n\t{message = }')
 
 
     def toggle_network(self):
