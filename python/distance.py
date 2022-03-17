@@ -154,11 +154,11 @@ class Yolo():
     def __init__(self) -> None:
         self.device = select_device('')
         self.weights = '/yolov5/models/yolov5s.pt'
-        self.data = '/yolov5/data/coco.yaml'
+        self.data = '/yolov5/data/coco128.yaml'
         self.conf_trees = 0.25
         self.iou_tres 
         self.model = DetectMultiBackend(self.weights, self.device, False, self.data)
-        self.model.warmup() # Tage u fix, ikkje sikker ka me sga her
+        self.model.warmup((1, 3, 1280, 960)) # Tage u fix, ikkje sikker ka me sga her
 
     def yolo_image(self, image): #Find shapes using YOLO (Mostly fish)
         image = torch.from_numpy(image).to(self.device)
@@ -168,6 +168,9 @@ class Yolo():
             image = image[None]
         pred = self.model(image, False, False)
         pred = non_max_suppression(pred, self.conf_trees)
+        for i, detected in enumerate(pred):
+            print("Deteced object\n")
+            print(detected)
 
 
 def get_center(contur): #Unused function 17/3-2022
@@ -194,5 +197,10 @@ def calc_size(num_pixels:int, centers, axis:int=0): # Calulates size of objects 
     return round((dist * factor + constant)*num_pixels, 1)
 
 
+def get_pic():
+    
+    return
+
 if __name__ == "__main__":
-    camera(2)
+    #camera(2)
+    pass
