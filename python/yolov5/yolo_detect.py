@@ -16,12 +16,12 @@ from utils.torch_utils import select_device, time_sync
 class Yolo():
     def __init__(self) -> None:
         self.device = select_device('')
-        self.weights = '/yolov5/models/yolov5s.pt'
-        self.data = '/yolov5/data/coco128.yaml'
+        self.weights = 'models/best.pt'
+        self.data = 'data/coco128.yaml'
         self.conf_trees = 0.25
-        self.iou_tres 
-        self.model = DetectMultiBackend(self.weights, self.device, False, self.data)
-        self.model.warmup((1, 3, 1280, 960)) # Tage u fix, ikkje sikker ka me sga her
+        self.iou_tres = 0.45
+        self.model = DetectMultiBackend(self.weights, self.device, False, self.data,)
+        #self.model.warmup(imgsz=(1, 2, 640, 640), half=False) # Tage u fix, ikkje sikker ka me sga her
 
     def yolo_image(self, image, test = False): #Find shapes using YOLO (Mostly fish)
         image = torch.from_numpy(image).to(self.device)
@@ -61,16 +61,16 @@ def camera(camera_id): #Testfunction to get images from camera
     run = True
     feed.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
     feed.set(cv2.CAP_PROP_EXPOSURE, 600)
+    yal = Yolo()
     if not (feed.isOpened()):
         print("Could not open video device")
         run = False
     total_list = []
     while run:
         ref, frame = feed.read()
-        crop_frame = frame[:frame_height, :crop_width]
-        crop_frame2 = frame[:frame_height,crop_width:]
-        cv2.imshow("Named Frame",crop_frame)
-        cv2.imshow("named Frame2", crop_frame2)
+        cv2.imshow("Named Frame",frame)
+        if ref:
+            yal.yolo_image(frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     feed.release()
@@ -78,4 +78,4 @@ def camera(camera_id): #Testfunction to get images from camera
 
 
 if __name__ == "__main__":
-    camera(2)
+    camera(0)
