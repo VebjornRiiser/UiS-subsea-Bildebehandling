@@ -221,15 +221,15 @@ class Mercury:
 
     def network_callback(self, data: bytes) -> None:
         data:str = bytes.decode(data, "utf-8")
-        for message_org in data.split( json.dumps("*") ):
+        for message in data.split( json.dumps("*") ):
             try:
                 #print(f'Sjekker for heartbeat {data = }, {message = }')
-                if message_org == json.dumps('heartbeat') or message_org == "":
+                if message == json.dumps('heartbeat') or message == "":
                     if message is None:
                         message = ""
                     continue
                 else:
-                    message = json.loads(message_org)
+                    message = json.loads(message)
                     for item in message:
                         if item[0] != 70:
                             print(item)
@@ -296,7 +296,7 @@ class Mercury:
                         else:
                             self.network_handler.send(to_json("This ID is not handled"))
             except Exception as e:
-                print(f'Feilkode i network_callback, feilmelding: {e}\n\t{message_org = }\n\t{message = }\n')
+                print(f'Feilkode i network_callback, feilmelding: {e}\n\t{message = }')
 
 
     def toggle_network(self):
