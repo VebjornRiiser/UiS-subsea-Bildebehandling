@@ -175,7 +175,7 @@ if __name__ == "__main__":
             elif a == 'tilt':
                 a = input("Tilt camera to what angle?\n")
                 asd = [[200, {"tilt": int(a)}]]
-            elif a = 'loop':
+            elif a == 'loop':
                 for _ in range(10):
                     asd = [70]
             mess = bytes(json.dumps("*"), "utf-8") + bytes(json.dumps(asd), "utf-8") + bytes(json.dumps("*"), "utf-8")
