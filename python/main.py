@@ -7,9 +7,23 @@ import time
 import threading
 import json
 
+import logging
+
+# setter opp logging
+
+
+def generate_logging(log_name: str = "Hovedlogger"):
+    logging.basicConfig(level=logging.NOTSET) #setter hovedloggeren til det laveste nivået
+    main_logger = logging.getLogger(log_name)
+
+    return main_logger
+
 # Our main loop for both programs
 def main_loop():
-    m = Mercury()
+    
+    
+    
+    m = Mercury(logger=generate_logging()) #WARNING Dette er ikke sikker fungerer
     m.thei.toggle_front()
     m.thei.toggle_back()
 

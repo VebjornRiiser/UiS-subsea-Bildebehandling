@@ -1,6 +1,7 @@
 1#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from doctest import ELLIPSIS_MARKER
+from logging import Logger
 import struct
 import threading
 import time
@@ -196,13 +197,13 @@ def intern_com_thread(intern_com, intern_com_callback, flag):
 
 
 class Mercury:
-    def __init__(self, ip:str="0.0.0.0", port:int=6900) -> None:
+    def __init__(self, ip:str="0.0.0.0", port:int=6900, logger: Logger=None) -> None:
         # Flag dictionary
         self.status ={'network': False, 'USB': False, 'intern': False}
         self.connect_ip = ip
         self.connect_port = port
         self.net_init()
-        self.thei = Theia()
+        self.thei = Theia(logger=logger) #WARNING potensiel breake
 
         # USB socket
         self.serial_port = "/dev/ttyACM0"
@@ -211,6 +212,12 @@ class Mercury:
             self.toggle_USB()
         #self.network_snd_socket.send_string(f'USB connection started')
 
+        
+        # Logging
+        self.logger = logger.getChild("Mercury")
+        self.logger.setLevel(1)
+        
+        
     def net_init(self):
         self.network_handler = Network(is_server=True, bind_addr=self.connect_ip, port=self.connect_port)
         while self.network_handler.waiting_for_conn:
