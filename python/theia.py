@@ -10,6 +10,61 @@ from sys import platform
 import pickle as p
 #from distance import contour_img, calc_size, calc_distance
 
+class Object(): # Used in functions to draw on image, find distance to objects etc, refers to objects in pictures
+    def __init__(self, contour  ) -> None:
+        self.rectanlge = cv2.minAreaRect(contour)
+        self.angle = self.rectanlge[2]
+        self.box = [np.int0(cv2.boxPoints(self.rectanlge))] # Added into a list due to easier use in draw contours
+        self.position = (int(self.rectanlge[0][0]), int(self.rectanlge[0][1]))
+        self.width = int(self.rectanlge[1][0])
+        self.height = int(self.rectanlge[1][1])
+        self.true_width = 0
+        self.areal = self.width*self.height
+        self.contour = contour
+        self.dept = 0
+
+    @property
+    def get_box(self):
+        return self._box
+
+    @property
+    def get_rectangle(self):
+        return self._rectanlge
+
+    @property
+    def get_position(self):
+        return self._position
+    
+    @property
+    def get_width(self):
+        return self._width
+
+    @property
+    def get_height(self):
+        return self._height
+
+    @property
+    def get_areal(self):
+        return self._areal
+
+    @property
+    def get_contour(self):
+        return self._contour
+
+    @property
+    def get_dept(self):
+        return self._dept
+
+    def set_dept(self, newdept):
+        self._dept = newdept
+
+    @property
+    def get_true_width(self):
+        return self._true_width
+
+    def set_true_width(self, newwidth):
+        self._true_width = newwidth
+
 def contour_img(image): # Finds shapes by color and size
     cvt_pic = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     color_lower = np.array([60,100,50])
