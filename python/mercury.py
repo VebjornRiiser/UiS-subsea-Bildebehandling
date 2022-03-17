@@ -225,6 +225,8 @@ class Mercury:
             try:
                 #print(f'Sjekker for heartbeat {data = }, {message = }')
                 if message_org == json.dumps('heartbeat') or message_org == "":
+                    if message is None:
+                        message = ""
                     continue
                 else:
                     message = json.loads(message_org)
