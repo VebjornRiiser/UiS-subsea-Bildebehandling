@@ -71,7 +71,6 @@ class Yolo(): #
                 c = 0
         return xyxy
 
-
 def camera(camera_id): #Testfunction to get images from camera
     print("Camera Thread started")
     shared_list = [1, 0, 0, 0]
