@@ -2,6 +2,7 @@ from ast import While
 from email import message
 from logging import Logger
 import threading, mjpeg_stream, cv2, time, math
+from logging_init import generate_logging
 from socket import AF_INET, SOCK_DGRAM, socket
 import numpy as np
 from multiprocessing import Pipe, Process
@@ -513,7 +514,7 @@ class Theia():
 
 if __name__ == "__main__":
     print("Main=Theia")
-    s = Theia()
+    s = Theia(generate_logging())
     #s.camera_status['front'][1] = 1
     #s.cam_front_id = 1
     

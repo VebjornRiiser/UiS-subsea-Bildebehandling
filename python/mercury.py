@@ -223,6 +223,7 @@ class Mercury:
         self.network_handler = Network(is_server=True, bind_addr=self.connect_ip, port=self.connect_port)
         while self.network_handler.waiting_for_conn:
             time.sleep(0.3)
+            #self.logger.info("Venter på kommunikasjon")
             print("waiting for connection before continuing")
         self.toggle_network()
 
