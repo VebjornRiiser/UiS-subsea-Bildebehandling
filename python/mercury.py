@@ -228,13 +228,15 @@ class Mercury:
 
     def network_callback(self, data: bytes) -> None:
         data:str = bytes.decode(data, "utf-8")
-        for message_org in data.split( json.dumps("*") ):
+        for message in data.split( json.dumps("*") ):
             try:
                 #print(f'Sjekker for heartbeat {data = }, {message = }')
-                if message_org == json.dumps('heartbeat') or message_org == "":
+                if message == json.dumps('heartbeat') or message == "":
+                    if message is None:
+                        message = ""
                     continue
                 else:
-                    message = json.loads(message_org)
+                    message = json.loads(message)
                     for item in message:
                         if item[0] != 70:
                             print(item)
@@ -271,8 +273,9 @@ class Mercury:
                                         self.network_handler.send(to_json("Invalid camera")) # Not possible to send this in theroy
                                     if not answ:
                                         self.network_handler.send(to_json("Could not find front camera"))
-                                elif key.lower() == "bildebehandligsmodus":
+                                elif key.lower() == "bildebehandlingsmodus":
                                     if item[0] == 200:
+                                        print(f'{item}\n')
                                         if item[1][key] == 6: # Toggles on/off videofile creation
                                             self.thei.host_cam_front.send('video')
                                         elif item[1][key] != 0:
@@ -282,6 +285,7 @@ class Mercury:
                                         else:
                                             self.thei.camera_function['front'] = False
                                         if self.thei.camera_status['front'] and item[1][key] !=6:
+                                            print("MerK:278: Change camer function")
                                             self.thei.host_cam_front.send(item[1][key])
                                         elif item[1][key] !=6:
                                             pass
@@ -301,7 +305,7 @@ class Mercury:
                         else:
                             self.network_handler.send(to_json("This ID is not handled"))
             except Exception as e:
-                print(f'Feilkode i network_callback, feilmelding: {e}\n\t{message_org = }\n\t{message = }\n')
+                print(f'Feilkode i network_callback, feilmelding: {e}\n\t{message = }')
 
 
     def toggle_network(self):
