@@ -407,7 +407,7 @@ class Theia():
         self.camera_status = {'front':[0,0], 'back':[0,0]}
         #self.camera_status = [0, 0] #Index 0 = Camera front, Index 1 = Camera under/back
         self.camera_function = {'front': False, 'back':False} # Bool = Pircutre prossesing status
-        self.autonom = False # If true will send feedback on ROV postion related to red line etc.
+        self.autonom = False # If true will send feedback on ROV postion related to red line etc. #TODO muligens at denne blir endret litt
         self.port_camback_feed = 6888
         self.port_camfront_feed = 6889
         self.cam_front_name = 'mats'
@@ -423,18 +423,19 @@ class Theia():
         self.cam_front_id = self.find_cam(".7") # Checks if a camera is connected on this port
         self.cam_back_id = self.find_cam("3-2")
         if not self.cam_front_id:
-            print(f'Did no find front camera')
+            self.logger.warning(f'Did no find front camera')
             self.camera_status['front'][1] = 0
         else:
-            print(f'Found front camera')
+            self.logger.info(f'Found front camera')
             self.camera_status['front'][1] = 1
         if not self.cam_back_id:
-            print(f'Did no find back camera')
+            self.logger.warning(f'Did no find back camera')
             self.camera_status['back'][1] = 0
         else:
-            print(f'Found back camera')
+            self.logger.info(f'Found back camera')
             self.camera_status['back'][1] = 1
 
+        
     def find_cam(self, cam):
         cmd = ["/usr/bin/v4l2-ctl", "--list-devices"]
         out, err = Popen(cmd, stdout=PIPE, stderr=PIPE).communicate()
@@ -446,6 +447,7 @@ class Theia():
 
     def toggle_front(self, cam_id: int=0):
         #print(f"{self.camera_status['front'] = }")
+        
         if self.camera_status['front'][0] == 1:
             self.host_cam_front.send('stop')
             self.camera_status['front'][0] = 0
@@ -476,7 +478,7 @@ class Theia():
                 send_back_pic, recive_back_pic = Pipe()
                 send_IA2, recive_IA2 = Pipe()
                 self.back_camera_prosess = Process(target=camera_thread, daemon=True, args=(self.cam_back_id, self.client_cam2, send_back_pic, send_IA2)).start()
-                self.front_cam_com_thread = threading.Thread(name="COM_cam_2",target=pipe_com, daemon=True, args=(self.host_back, self.camera_com_callback, self.cam_front_name)).start()
+                self.front_cam_com_thread = threading.Thread(name="COM_cam_2",target=pipe_com, daemon=True, args=(self.host_back, self.camera_com_callback, self.cam_front_name)).start() #WARNING skal denne variabelen hete front?
                 self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_back_pic, self.port_camback_feed)).start()
                 self.camera_status['back'][0] = 1
                 self.image_AQ_process2 = Process(target=image_aqusition_thread, daemon=True, args=(recive_IA2, True, self.logger.getChild("Bak|Under"))) #TODO Må også sende logger som argument
