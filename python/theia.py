@@ -403,6 +403,9 @@ def pipe_com(connection, callback=None, name=None, list=None):
 
 class Theia():
     def __init__(self,logger: Logger=None) -> None:
+        self.logger = logger.getChild("Theia")
+        self.logger.setLevel(1)
+        
         # Index 0 = id, index 1 = is running
         self.camera_status = {'front':[0,0], 'back':[0,0]}
         #self.camera_status = [0, 0] #Index 0 = Camera front, Index 1 = Camera under/back
@@ -416,8 +419,7 @@ class Theia():
         self.set_back_zero = [201, {"tilt": 0}]
         self.check_hw_id_cam()
         
-        self.logger = logger.getChild("Theia")
-        self.logger.setLevel(1)
+        
 
     def check_hw_id_cam(self):
         self.cam_front_id = self.find_cam(".7") # Checks if a camera is connected on this port
