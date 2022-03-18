@@ -10,8 +10,8 @@ import logging
 
 class Autonom:
     
-    def __init__(self, logger: logging.Logger=None) -> None:
-        self.logger = logger.getChild("Autonom")
+    def __init__(self, logger: logging.Logger=None, ID: str|int=None) -> None:
+        self.logger = logger.getChild(f"Autonom")
         self.logger.setLevel(1)
     
     def dock(self) -> None:

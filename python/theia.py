@@ -9,6 +9,7 @@ from subprocess import Popen, PIPE
 import time
 from sys import platform
 import pickle as p
+import autonomkjøring
 #from distance import contour_img, calc_size, calc_distance
 
 class Object(): # Used in functions to draw on image, find distance to objects etc, refers to objects in pictures
@@ -217,12 +218,15 @@ def find_calc_shapes(pic1, pic2):
     return mached_list
 
 
-def image_aqusition_thread(connection, boli):
+def image_aqusition_thread(connection, boli, logger):
     mode = 1 # 1: Find fish, 2: mosaikk 3:TBA 
     #TODO Her skal autonom kjøring legges inn
     old_list = []
+    autonomkjøring.Autonom(logger=logger)
+    
+    
     while boli:
-        mess = connection.recv()
+        mess = connection.recv() # bilde eller melding
         if isinstance(mess, str):
             if mess.lower() == 'stop':
                 break
@@ -455,7 +459,7 @@ class Theia():
                 self.front_cam_com_thread = threading.Thread(name="COM_cam_1",target=pipe_com, daemon=True, args=(self.host_cam_front, self.camera_com_callback, self.cam_front_name)).start()
                 self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_front_pic, self.port_camfront_feed)).start()
                 self.camera_status['front'][0] = 1
-                self.image_AQ_process = Process(target=image_aqusition_thread, daemon=True, args=(recive_IA, True))
+                self.image_AQ_process = Process(target=image_aqusition_thread, daemon=True, args=(recive_IA, True, self.logger.getChild("Foran"))) #TODO Må også sende logger som argument
                 self.image_AQ_process.start()
                 return True
             else:
@@ -475,7 +479,7 @@ class Theia():
                 self.front_cam_com_thread = threading.Thread(name="COM_cam_2",target=pipe_com, daemon=True, args=(self.host_back, self.camera_com_callback, self.cam_front_name)).start()
                 self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_back_pic, self.port_camback_feed)).start()
                 self.camera_status['back'][0] = 1
-                self.image_AQ_process2 = Process(target=image_aqusition_thread, daemon=True, args=(recive_IA2, True))
+                self.image_AQ_process2 = Process(target=image_aqusition_thread, daemon=True, args=(recive_IA2, True, self.logger.getChild("Bak|Under"))) #TODO Må også sende logger som argument
                 self.image_AQ_process2.start()
                 return True
             else:
