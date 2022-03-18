@@ -81,24 +81,44 @@ class Object(): #WARNING Denne klassen er endret fra distance.py så dropin komp
         self._true_width = true_width
 
 ##--------------------------------------VP kode--------------------------------------##
-def vp_dock():
+def vp_dock(stereosyn: bool=True):
     #Algoritme for å docke autonomt
+    if stereosyn:
+        pass
+    else:
+        return "Kode for singel kamera ikke implementert"
     pass
 
 
-def vp_merd():
+def vp_merd(stereosyn: bool=True):
     #Algoritme for å inspisere merd, 
-    pass
+    
+    # Lete etter hull og gi de en ID
+    # holes = {"ID": cv2.rect data type} eller som en liste i samme format
+    # navigation = {"direction": int, "v_cor": int|float, "h_cor": int|float, "angle_cor": int|float} eller som en liste i samme format
+    holes = {}
+    navigation = {}
+    
+    # Finn hull og sorter ut på areal
+    if stereosyn:
+        pass
+    else:
+        return "Kode for singel kamera ikke implementert"
+    # Gi data for navigasjonene langs en linje
+    
+    return holes, navigation
 
 def vp_distance():
     #Algoritme for å regne ut avstand og størrelse
     pass
 
 
-def vp_mosaic():
+def vp_mosaic(stereosyn: bool=True):
     #Algoritme for å lage en mosaikk
-    pass
-
+    if stereosyn:
+        pass
+    else:
+        return "Kode for singel kamera ikke implementert"
 
 def vp_operator_tools():
     #Algoritme for styring av opperatør verktøy

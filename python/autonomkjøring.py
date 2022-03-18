@@ -21,6 +21,12 @@ class Autonom:
         # Henter bilde
         # PREPROSSES bilder
         # VP kode for docking -- Posisjon osv
+        vp_dock_feedback = vp.vp_merd()
+        if isinstance(vp_dock_feedback,str):
+            self.logger.error(vp_dock_feedback)
+        else:
+            #kode for å gjøre noe med VP data
+            pass
         # HENT regulator verdier med data fra VP kode
         # SEND kjøredata til CAN (hermes)
         # SEND bilde og evt data opp til TOPSIDE
@@ -32,6 +38,12 @@ class Autonom:
         # Henter bilde
         # PREPROSSES bilder
         # VP kode for merd inspeksjon -- Leter etter hull i merden (blob detection med et gitt areal, oppgaven oppgir minimums og maksimums), kunne vise hvor den tror at hullet er og lagre info om hull (ID, størrelse og posisjon)
+        vp_merd_feedback = vp.vp_merd()
+        if isinstance(vp_merd_feedback,str):
+            self.logger.error(vp_merd_feedback)
+        else:
+            #kode for å gjøre noe med VP data
+            pass
         # HENT regulator verdier med data fra VP kode
         # SEND kjøredata til CAN (hermes)
         # SEND bilde og evt data opp til TOPSIDE        
@@ -43,6 +55,14 @@ class Autonom:
         
         # Henter bilde -- gir bilde en ID og en plass i rutenettet som det skal plasseres i
         # VP kode for navigasjon -- Navigere seg etter etter rutenettet
+        vp_mosaic_feedback = vp.vp_mosaic()
+        if isinstance(vp_mosaic_feedback, str):
+            self.logger.error(vp_mosaic_feedback)
+        else:
+            #kode for å gjøre no med VP data
+            pass
+        
+        
         # HENT regulator verdier med data fra VP kode
         # SEND kjøredata til CAN (hermes)
         # SEND bilde og evt data opp til topside
