@@ -409,7 +409,13 @@ class Theia():
         self.cam_back_name =  'tage'
         self.set_front_zero = [200, {"tilt": 0}]
         self.set_back_zero = [201, {"tilt": 0}]
-        self.check_hw_id_cam()
+        #self.check_hw_id_cam()
+        # Test med virtual camera frå obs
+        self.cam_front_id = "4"
+        self.cam_back_id = "7"
+        self.camera_status['front'][1] = 1
+        self.camera_status['back'][1] = 1
+        # Test med virtual camera frå obs
 
     def check_hw_id_cam(self):
         self.cam_front_id = self.find_cam(".7") # Checks if a camera is connected on this port
