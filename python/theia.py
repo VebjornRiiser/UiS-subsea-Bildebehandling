@@ -223,7 +223,7 @@ def image_aqusition_thread(connection, boli, logger):
     mode = 1 # 1: Find fish, 2: mosaikk 3:TBA 
     #TODO Her skal autonom kjøring legges inn
     old_list = []
-    autonomkjøring.Autonom(logger=logger)
+    autonom_handler = autonomkjøring.Autonom(logger=logger)
     
     
     while boli:

@@ -90,7 +90,7 @@ def vp_dock(stereosyn: bool=True):
     pass
 
 
-def vp_merd(stereosyn: bool=True):
+def vp_merd(bilde ,stereosyn: bool=True):
     #Algoritme for å inspisere merd, 
     
     # Lete etter hull og gi de en ID
@@ -103,7 +103,23 @@ def vp_merd(stereosyn: bool=True):
     if stereosyn:
         pass
     else:
-        return "Kode for singel kamera ikke implementert"
+        params = cv2.SimpleBlobDetector_Params
+        #Thresholds
+        params.minThreshold = 10
+        params.makThreshold = 200
+        # Inertia
+        params.filterByInertia = True
+        params.minInertiaRatio = 0.01
+        
+        
+        ver = (cv2.__version__).split('.')
+        if int(ver[0]) < 3:
+            detetctor = cv2.SimpleBlobDetector(params)
+        else:
+            detetctor = cv2.SimpleBlobDetector_create(params)
+        
+        
+        #return "Kode for singel kamera ikke implementert"
     # Gi data for navigasjonene langs en linje
     
     return holes, navigation
