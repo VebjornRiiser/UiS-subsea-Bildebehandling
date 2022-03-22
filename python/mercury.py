@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from doctest import ELLIPSIS_MARKER
 import struct
+import argparse
 import threading
 import time
 import serial
@@ -336,10 +337,26 @@ class Mercury:
             
 
 if __name__ == "__main__":
+    # Oppsett av argumentparser
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--cam', default='both', type=str.lower, choices=["front","back","none","both"], help='Velg kamera som skal brukes')
+    args = parser.parse_args()
+
     print(f'Mercury')
     a = Mercury()
-    a.thei.toggle_front()
-    a.thei.toggle_back()
+    
+    # Starte kamera?
+    match args.cam:
+        case "front":
+            a.thei.toggle_front()
+        case "back":
+            a.thei.toggle_back()
+        case "both":
+            a.thei.toggle_back()
+            a.thei.toggle_front()
+        case "none":
+            pass
+
     #dictionary = {"CAN":1, "camera": 1}
     #ip = "127.0.0.1"
     #port = 6900
