@@ -152,5 +152,7 @@ cython_debug/
 
 
 # Video filer
-.m4v
-.mp4
+*.m4v
+*.mp4
+*.png
+
