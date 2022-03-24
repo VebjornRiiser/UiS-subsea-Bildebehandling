@@ -82,11 +82,21 @@ class Object(): #WARNING Denne klassen er endret fra distance.py så dropin komp
         self._true_width = true_width
 
 ##--------------------------------------VP kode--------------------------------------##
-def vp_dock(bilde, stereosyn: bool=True):
-    #Algoritme for å docke autonomt
-    if stereosyn:
-        #Finn sirkel knapp og posisjoner i forhold til den
+def vp_dock(bilder, stereosyn: bool=True):
+    """_summary_
+
+    Args:
+        bilder (list): et eller to bilder som brukes til å docke
+        stereosyn (bool, optional): Sier om det er brukt stereosyn eller ikke, blir nok fjernet etterhvert da den ikke er helt opp til standarden vår/min. Defaults to True.
+
+    Returns:
+        Any: Info som brukes til å navigere til/inn i docken
         
+    """
+    #Algoritme for å docke autonomt
+    for bilde in bilder: 
+        #Finn sirkel knapp og posisjoner i forhold til den
+        sirkler = cv2.HoughCircles(bilde,cv2.HOUGH_GRADIENT,1,100,param1=50,param2=30,minRadius=0,maxRadius=0)
         
         #Finn avstand og størrelse
         
@@ -96,10 +106,9 @@ def vp_dock(bilde, stereosyn: bool=True):
         
         
         
-        pass
-    else:
-        return "Kode for singel kamera ikke implementert"
-    pass
+ 
+    "Kode for singel kamera ikke implementert"
+
 
 
 def vp_merd(bilde ,stereosyn: bool=True):
@@ -117,8 +126,8 @@ def vp_merd(bilde ,stereosyn: bool=True):
     else:
         #blur
         output = np.copy(bilde)
-        #bilde = cv2.cvtColor(bilde, cv2.COLOR_)
-        blur_bilde = cv2.medianBlur(bilde,5)
+        bilde = cv2.cvtColor(bilde, cv2.COLOR_BGR2GRAY)
+        blur_bilde = cv2.medianBlur(bilde,11)
         ret, thresh = cv2.threshold(blur_bilde, 150,255, cv2.THRESH_BINARY_INV)
         # Color mask av en farge som ser ut som rød
         
@@ -131,8 +140,8 @@ def vp_merd(bilde ,stereosyn: bool=True):
                 cx = int(M['m10']/M['m00'])
                 cy = int(M['m01']/M['m00'])
             #Markerer senter av konturene
-            cv2.circle(output, (cx, cy), 7, (255, 255, 255), -1)
-            print(math.degrees(math.atan2(cy,cx)+math.pi))
+                cv2.circle(output, (cx, cy), 7, (255, 255, 255), -1)
+                print(math.degrees(math.atan2(cy,cx)))
         cv2.drawContours(output,contours,-1,(0,255,0),3)
         #return "Kode for singel kamera ikke implementert"
     # Gi data for navigasjonene langs en linje
@@ -165,6 +174,7 @@ def vp_operator_tools():
 
 if __name__ == "__main__":
     filename = f".\\video_test_merd.mp4" #WARNING Windows spesifikt??
+    filename = ".\\merdtesting_1.png"
     cap = cv2.VideoCapture(filename)
     
     
@@ -172,8 +182,8 @@ if __name__ == "__main__":
     while cap.isOpened():
         ret, frame = cap.read()
         if ret:
-            #ut_bilde = vp_merd(ret,False)
-            cv2.imshow("regulering",ret)
+            ut_bilde = vp_merd(frame,False)
+            cv2.imshow("regulering",ut_bilde)
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 break
         else:
