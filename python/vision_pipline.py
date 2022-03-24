@@ -1,7 +1,10 @@
+from re import M
 import cv2
 from sys import platform
 import numpy as np
 import math
+
+from scipy.fft import skip_backend
 
 ##------------------------Klasser------------------------------------##
 class Object(): #WARNING Denne klassen er endret fra distance.py så dropin kompabilitet er ikke garantert
@@ -93,18 +96,25 @@ def vp_dock(bilder, stereosyn: bool=True):
         Any: Info som brukes til å navigere til/inn i docken
         
     """
+    output = [np.copy(bilde) for bilde in bilder]
     #Algoritme for å docke autonomt
     for bilde in bilder: 
         #Finn sirkel knapp og posisjoner i forhold til den
+        bilde = cv2.cvtColor(bilde,cv2.COLOR_RGB2GRAY)
         sirkler = cv2.HoughCircles(bilde,cv2.HOUGH_GRADIENT,1,100,param1=50,param2=30,minRadius=0,maxRadius=0)
+        sirkler = np.uint16(np.around(sirkler))
+        
+        for sirkel in sirkler[0,:]:
+            cv2.circle(output, (sirkel[0],sirkel[1]),sirkel[2],(0,255,0),2)
+            
+        
         
         #Finn avstand og størrelse
         
         
         #Returner Posisjon, avstand og rotasjon(skew?)
         
-        
-        
+        return output 
         
  
     "Kode for singel kamera ikke implementert"
@@ -173,8 +183,18 @@ def vp_operator_tools():
 
 
 if __name__ == "__main__":
-    filename = f".\\video_test_merd.mp4" #WARNING Windows spesifikt??
-    filename = ".\\merdtesting_1.png"
+    mode = "merd"
+    
+    
+    
+    
+    
+    match mode:
+        case "merd":
+            filename = f".\\video_test_merd.mp4" #WARNING Windows spesifikt??
+        case "dock":
+            filename = 0        
+    #filename = ".\\merdtesting_1.png"
     cap = cv2.VideoCapture(filename)
     
     
@@ -182,8 +202,9 @@ if __name__ == "__main__":
     while cap.isOpened():
         ret, frame = cap.read()
         if ret:
-            ut_bilde = vp_merd(frame,False)
-            cv2.imshow("regulering",ut_bilde)
+            #ut_bilde = vp_merd(frame,False)
+            ut_bilde = vp_dock([frame])
+            cv2.imshow("regulering",ut_bilde[0])
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 break
         else:
