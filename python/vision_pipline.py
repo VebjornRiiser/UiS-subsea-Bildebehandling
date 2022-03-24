@@ -96,28 +96,36 @@ def vp_dock(bilder, stereosyn: bool=True):
         Any: Info som brukes til å navigere til/inn i docken
         
     """
-    output = [np.copy(bilde) for bilde in bilder]
+    output = bilder.copy()
     #Algoritme for å docke autonomt
-    for bilde in bilder: 
-        #Finn sirkel knapp og posisjoner i forhold til den
-        bilde = cv2.cvtColor(bilde,cv2.COLOR_RGB2GRAY)
-        sirkler = cv2.HoughCircles(bilde,cv2.HOUGH_GRADIENT,1,100,param1=50,param2=30,minRadius=0,maxRadius=0)
-        sirkler = np.uint16(np.around(sirkler))
-        
-        for sirkel in sirkler[0,:]:
-            cv2.circle(output, (sirkel[0],sirkel[1]),sirkel[2],(0,255,0),2)
-            
-        
-        
-        #Finn avstand og størrelse
-        
-        
-        #Returner Posisjon, avstand og rotasjon(skew?)
-        
-        return output 
+
+    #Finn sirkel knapp og posisjoner i forhold til den
+    gray = cv2.cvtColor(bilder,cv2.COLOR_RGB2GRAY)
+    gray = cv2.GaussianBlur(gray,(5,5),0)
+    gray = cv2.medianBlur(gray,5)
+    gray = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,3.5)
+    
+    #kernel = np.ones((3,3),np.uint8)
+    #gray = cv2.erode(gray,kernel,iterations = 1)
+    
+    #gray = cv2.dilate(gray,kernel,iterations=1)
+    
+    sirkler = cv2.HoughCircles(gray,cv2.HOUGH_GRADIENT,1,260,param1=30,param2=65,minRadius=0,maxRadius=0)
+    
+    if sirkler is not None:
+        sirkler = np.round(sirkler[0,:]).astype("int")
+        for x,y,r in sirkler:
+            cv2.circle(output, (x,y), r, (0,255,0),4)
+            cv2.rectangle(output, (x - 5, y - 5), (x + 5, y + 5), (0, 128, 255), -1)
+    #Finn avstand og størrelse
+    
+    
+    #Returner Posisjon, avstand og rotasjon(skew?)
+    
+    return output 
         
  
-    "Kode for singel kamera ikke implementert"
+    
 
 
 
@@ -137,7 +145,7 @@ def vp_merd(bilde ,stereosyn: bool=True):
         #blur
         output = np.copy(bilde)
         bilde = cv2.cvtColor(bilde, cv2.COLOR_BGR2GRAY)
-        blur_bilde = cv2.medianBlur(bilde,11)
+        blur_bilde = cv2.medianBlur(bilde,5)
         ret, thresh = cv2.threshold(blur_bilde, 150,255, cv2.THRESH_BINARY_INV)
         # Color mask av en farge som ser ut som rød
         
@@ -183,27 +191,22 @@ def vp_operator_tools():
 
 
 if __name__ == "__main__":
-    mode = "merd"
-    
-    
-    
-    
-    
+    mode = "dock"
     match mode:
         case "merd":
             filename = f".\\video_test_merd.mp4" #WARNING Windows spesifikt??
         case "dock":
             filename = 0        
     #filename = ".\\merdtesting_1.png"
-    cap = cv2.VideoCapture(filename)
+    cap = cv2.VideoCapture(0)
     
     
     
     while cap.isOpened():
         ret, frame = cap.read()
-        if ret:
+        if frame is not None:
             #ut_bilde = vp_merd(frame,False)
-            ut_bilde = vp_dock([frame])
+            ut_bilde = vp_dock(frame)
             cv2.imshow("regulering",ut_bilde[0])
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 break
