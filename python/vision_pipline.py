@@ -1,6 +1,7 @@
 import cv2
 from sys import platform
 import numpy as np
+import math
 
 ##------------------------Klasser------------------------------------##
 class Object(): #WARNING Denne klassen er endret fra distance.py så dropin kompabilitet er ikke garantert
@@ -81,9 +82,20 @@ class Object(): #WARNING Denne klassen er endret fra distance.py så dropin komp
         self._true_width = true_width
 
 ##--------------------------------------VP kode--------------------------------------##
-def vp_dock(stereosyn: bool=True):
+def vp_dock(bilde, stereosyn: bool=True):
     #Algoritme for å docke autonomt
     if stereosyn:
+        #Finn sirkel knapp og posisjoner i forhold til den
+        
+        
+        #Finn avstand og størrelse
+        
+        
+        #Returner Posisjon, avstand og rotasjon(skew?)
+        
+        
+        
+        
         pass
     else:
         return "Kode for singel kamera ikke implementert"
@@ -103,26 +115,29 @@ def vp_merd(bilde ,stereosyn: bool=True):
     if stereosyn:
         pass
     else:
-        params = cv2.SimpleBlobDetector_Params
-        #Thresholds
-        params.minThreshold = 10
-        params.makThreshold = 200
-        # Inertia
-        params.filterByInertia = True
-        params.minInertiaRatio = 0.01
+        #blur
+        output = np.copy(bilde)
+        #bilde = cv2.cvtColor(bilde, cv2.COLOR_)
+        blur_bilde = cv2.medianBlur(bilde,5)
+        ret, thresh = cv2.threshold(blur_bilde, 150,255, cv2.THRESH_BINARY_INV)
+        # Color mask av en farge som ser ut som rød
+        
+        contours, hierarchy = cv2.findContours(thresh,cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         
         
-        ver = (cv2.__version__).split('.')
-        if int(ver[0]) < 3:
-            detetctor = cv2.SimpleBlobDetector(params)
-        else:
-            detetctor = cv2.SimpleBlobDetector_create(params)
-        
-        
+        for contour in contours:
+            M = cv2.moments(contour)
+            if M['m00'] != 0:
+                cx = int(M['m10']/M['m00'])
+                cy = int(M['m01']/M['m00'])
+            #Markerer senter av konturene
+            cv2.circle(output, (cx, cy), 7, (255, 255, 255), -1)
+            print(math.degrees(math.atan2(cy,cx)+math.pi))
+        cv2.drawContours(output,contours,-1,(0,255,0),3)
         #return "Kode for singel kamera ikke implementert"
     # Gi data for navigasjonene langs en linje
     
-    return holes, navigation
+    return output
 
 def vp_distance():
     #Algoritme for å regne ut avstand og størrelse
@@ -149,4 +164,19 @@ def vp_operator_tools():
 
 
 if __name__ == "__main__":
-    pass
+    filename = f".\\video_test_merd.mp4" #WARNING Windows spesifikt??
+    cap = cv2.VideoCapture(filename)
+    
+    
+    
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if ret:
+            #ut_bilde = vp_merd(ret,False)
+            cv2.imshow("regulering",ret)
+            if cv2.waitKey(25) & 0xFF == ord('q'):
+                break
+        else:
+            break
+    cap.release()
+    cv2.destroyAllWindows()
