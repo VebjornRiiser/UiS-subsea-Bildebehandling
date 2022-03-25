@@ -17,6 +17,7 @@ from utils.augmentations import letterbox
 class Yolo(): # 
     def __init__(self, resol, name:str = 'Rubberfish') -> None:
         self.device = select_device('') # Finds possible hardware to use
+        print(self.device)
         self.weights = 'models/best.pt' # Used machine learning
         self.data = 'data/coco128.yaml' 
         self.conf_trees = 0.80 # How high confedence we want for a match
@@ -171,4 +172,4 @@ class Object(): # Used in functions to draw on image, find distance to objects e
         self._true_width = newwidth
 
 if __name__ == "__main__":
-    camera(0)
+    camera(2)
