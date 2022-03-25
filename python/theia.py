@@ -228,9 +228,8 @@ def image_aqusition_thread(connection, boli):
         if isinstance(mess, list):
             if first:
                 first = False
-                s = mess[0].shape 
-                print(f'{s[0]},{s[1]}')
-                #yal = Yolo((mess[0].width, mess[0].height))
+                s = mess[0].shape
+                yal = Yolo((s[1], s[0]))
         if isinstance(mess, str):
             if mess.lower() == 'stop':
                 break
@@ -241,6 +240,8 @@ def image_aqusition_thread(connection, boli):
         else:
             if mode == 1:
                 if len(mess) == 2:
+                    res1 = yal.yolo_image(mess[0]) # Result from left cam
+                    res2 = yal.yolo_image(mess[1]) # Result from right cam
                     #mached_list = find_calc_shapes(mess[0], mess[1])
                     mached_list = []
                     if old_list != []:
