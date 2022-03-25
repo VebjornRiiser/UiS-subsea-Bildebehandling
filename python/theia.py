@@ -222,12 +222,15 @@ def image_aqusition_thread(connection, boli):
     #TODO Her skal autonom kjøring legges inn
     old_list = []
     first = True
+    width = 1280
     while boli:
         mess = connection.recv()
         if isinstance(mess, list):
             if first:
                 first = False
-                print(mess[0].shape)
+                height = mess[0].shape[1]  
+                width = mess[0].shape[1]
+                print(f'{height},{width}')
                 #yal = Yolo((mess[0].width, mess[0].height))
         if isinstance(mess, str):
             if mess.lower() == 'stop':
