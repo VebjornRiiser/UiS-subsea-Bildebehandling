@@ -5,7 +5,6 @@ from sys import platform
 import numpy as np
 import time
 import torch
-from zmq import device
 from models.common import DetectMultiBackend
 from utils.datasets import IMG_FORMATS, VID_FORMATS, LoadImages, LoadStreams
 from utils.general import (LOGGER, check_file, check_img_size, check_imshow, check_requirements, colorstr,
