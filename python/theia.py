@@ -8,6 +8,7 @@ from subprocess import Popen, PIPE
 import time
 from sys import platform
 import pickle as p
+from yolo_detect import Yolo
 #from distance import contour_img, calc_size, calc_distance
 
 class Object(): # Used in functions to draw on image, find distance to objects etc, refers to objects in pictures
@@ -217,11 +218,18 @@ def find_calc_shapes(pic1, pic2):
 
 
 def image_aqusition_thread(connection, boli):
-    mode = 1 # 1: Find fish, 2: mosaikk 3:TBA 
+    mode = 1 # 1: Find rubberfish, 2: mosaikk 3:TBA 
     #TODO Her skal autonom kjøring legges inn
     old_list = []
+    first = True
+    width = 1280
     while boli:
         mess = connection.recv()
+        if isinstance(mess, list):
+            if first:
+                first = False
+                s = mess[0].shape
+                yal = Yolo((s[1], s[0]))
         if isinstance(mess, str):
             if mess.lower() == 'stop':
                 break
@@ -232,12 +240,14 @@ def image_aqusition_thread(connection, boli):
         else:
             if mode == 1:
                 if len(mess) == 2:
-                    mached_list = find_calc_shapes(mess[0], mess[1])
+                    res1 = yal.yolo_image(mess[0]) # Result from left cam
+                    #res2 = yal.yolo_image(mess[1]) # Result from right cam
+                    #mached_list = find_calc_shapes(mess[0], mess[1])
+                    mached_list = []
                     if old_list != []:
                         for a in old_list:
                             for b in mached_list:
-                                if (cv2.matchShapes(a.contour, b.contour, cv2.CONTOURS_MATCH_I1, 0.0)) < 0.3:
-                                    a.dept = 0.9*b.dept+0.1*a.dept
+                                print('test')
                     old_list = mached_list
                     connection.send(mached_list)
             elif mode == 2:
@@ -412,8 +422,10 @@ class Theia():
         self.check_hw_id_cam()
 
     def check_hw_id_cam(self):
-        self.cam_front_id = self.find_cam(".7") # Checks if a camera is connected on this port
-        self.cam_back_id = self.find_cam("3-2")
+        self.cam_front_id = self.find_cam("3-2.7") # Checks if a camera is connected on this port
+        self.cam_back_id = self.find_cam(".5")
+        #self.cam_front_id = self.find_cam("004")
+        #self.cam_back_id = self.find_cam("007")
         if not self.cam_front_id:
             print(f'Did no find front camera')
             self.camera_status['front'][1] = 0

@@ -5,7 +5,6 @@ from sys import platform
 import numpy as np
 import time
 import torch
-from zmq import device
 from models.common import DetectMultiBackend
 from utils.datasets import IMG_FORMATS, VID_FORMATS, LoadImages, LoadStreams
 from utils.general import (LOGGER, check_file, check_img_size, check_imshow, check_requirements, colorstr,
@@ -121,12 +120,12 @@ class Object(): # Used in functions to draw on image, find distance to objects e
     def __init__(self, xyxy:list, name:str, colour:tuple, confidence:float) -> None:
         self.rectangle = [(int(xyxy[0]), int(xyxy[1])), (int(xyxy[2]), int(xyxy[3]))]
         self.angle = 0
-        self.box = 0#[np.int0(cv2.boxPoints(self.rectanlge))] # Added into a list due to easier use in draw contours
-        self.position = 0#(int(self.rectanlge[0][0]), int(self.rectanlge[0][1]))
-        self.width = 0#int(self.rectanlge[1][0])
-        self.height = 0#int(self.rectanlge[1][1])
-        self.true_width = 0
-        self.areal = 0#self.width*self.height
+        self.box = 0 #[np.int0(cv2.boxPoints(self.rectanlge))] # Added into a list due to easier use in draw contours
+        self.width = (self.rectangle[0][1] - self.rectangle[0][0])/2 # Calulates and set width
+        self.height = (self.rectangle[1][1] - self.rectangle[1][0])/2 # Calulates and set height
+        self.position = (self.rectangle[0][0] + self.width, self.rectangle[1][0] + self.height) # Calulates and set center
+        self.true_width = 0 # Needs to be calulated using another picture and compare positions
+        self.areal = self.width*self.height
         self.dept = 0
         self.name = f'{name}, confidence:{round(float(confidence.cpu().numpy()), 2)}'
         self.draw_line_width = 2
