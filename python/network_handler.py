@@ -112,7 +112,7 @@ class Network:
                 self.wait_for_conn()
         try:
             if self.conn is not None:
-                data = self.conn.recv(4096)
+                data = self.conn.recv(1024)
                 if data != None:
                     return data
                 # else:
