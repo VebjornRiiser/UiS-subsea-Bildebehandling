@@ -414,6 +414,8 @@ class Theia():
     def check_hw_id_cam(self):
         self.cam_front_id = self.find_cam("3-2") # Checks if a camera is connected on this port
         self.cam_back_id = self.find_cam(".7")
+        print(self.cam_front_id)
+        print(self.cam_back_id)
         #self.cam_front_id = self.find_cam("004")
         #self.cam_back_id = self.find_cam("007")
         if not self.cam_front_id:
