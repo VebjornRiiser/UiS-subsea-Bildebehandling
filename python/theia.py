@@ -228,9 +228,8 @@ def image_aqusition_thread(connection, boli):
         if isinstance(mess, list):
             if first:
                 first = False
-                height = mess[0].shape[1]  
-                width = mess[0].shape[1]
-                print(f'{height},{width}')
+                s = mess[0].shape 
+                print(f'{s[0]},{s[1]}')
                 #yal = Yolo((mess[0].width, mess[0].height))
         if isinstance(mess, str):
             if mess.lower() == 'stop':
