@@ -24,7 +24,7 @@ class Yolo(): #
         self.color = (255, 0, 0) # Color for frames drawn around object
         self.text = name # Text drawn on picture
         self.model = DetectMultiBackend(self.weights, self.device, False, self.data,)
-        imgsz=(640, 640) # Size of pic samples
+        imgsz=[640, 640] # Size of pic samples
         self.resolution = resol # Image resolution
         self.imgsz = check_img_size(imgsz, s=self.model.stride)
         tride, names, pt, jit, onnx, engine = self.model.stride, self.model.names, self.model.pt, self.model.jit, self.model.onnx, self.model.engine
