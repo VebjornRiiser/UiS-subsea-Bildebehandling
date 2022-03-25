@@ -8,6 +8,7 @@ from subprocess import Popen, PIPE
 import time
 from sys import platform
 import pickle as p
+from yolo_detect import Yolo
 #from distance import contour_img, calc_size, calc_distance
 
 class Object(): # Used in functions to draw on image, find distance to objects etc, refers to objects in pictures
@@ -217,11 +218,16 @@ def find_calc_shapes(pic1, pic2):
 
 
 def image_aqusition_thread(connection, boli):
-    mode = 1 # 1: Find fish, 2: mosaikk 3:TBA 
+    mode = 1 # 1: Find rubberfish, 2: mosaikk 3:TBA 
     #TODO Her skal autonom kjøring legges inn
     old_list = []
+    first = True
     while boli:
         mess = connection.recv()
+        if isinstance(mess, list):
+            if first:
+                first = False
+                yal = Yolo((mess[0].width, mess[0].height))
         if isinstance(mess, str):
             if mess.lower() == 'stop':
                 break
@@ -236,8 +242,7 @@ def image_aqusition_thread(connection, boli):
                     if old_list != []:
                         for a in old_list:
                             for b in mached_list:
-                                if (cv2.matchShapes(a.contour, b.contour, cv2.CONTOURS_MATCH_I1, 0.0)) < 0.3:
-                                    a.dept = 0.9*b.dept+0.1*a.dept
+                                print('test')
                     old_list = mached_list
                     connection.send(mached_list)
             elif mode == 2:
