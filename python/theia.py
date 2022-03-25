@@ -238,7 +238,9 @@ def image_aqusition_thread(connection, boli):
         else:
             if mode == 1:
                 if len(mess) == 2:
-                    mached_list = find_calc_shapes(mess[0], mess[1])
+                    #mached_list = find_calc_shapes(mess[0], mess[1])
+                    print(mess[0].shape)
+                    mached_list = []
                     if old_list != []:
                         for a in old_list:
                             for b in mached_list:
