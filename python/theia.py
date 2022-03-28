@@ -224,6 +224,10 @@ def find_same_objects(obj_list1:list, obj_list2:list):
             if obj1.position[1]-60 <= obj2.position[1] <= obj1.position[1]+60:
                 print(f'Found same object in both pictures')
                 checked_object_list.append(obj1)
+    if len(checked_object_list) > 0:
+        return checked_object_list
+    else:
+        return False
 
 
 
@@ -255,18 +259,23 @@ def image_aqusition_thread(connection, boli):
                     res2 = yal.yolo_image(mess[1]) # Result from right cam
                     if len(res1) > 0 and len(res2) > 0:
                         mached_list = find_same_objects(res1, res2)
+                        if mached_list:
+                            return mached_list
                     #connection.send(mached_list)
             elif mode == 2:
                 pass
         
 
 def draw_on_img(pic, frames):
-    for a in frames:
-        cv2.putText(pic, f'Distance:{a.dept} cm',a.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
-        cv2.putText(pic, f'Distance:{a.dept} cm',a.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
-        cv2.putText(pic, f'Width:{a.true_width} cm',(a.position[0], a.position[1]+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
-        cv2.putText(pic, f'Width:{a.true_width} cm',(a.position[0], a.position[1]+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
-        cv2.drawContours(pic, a.box , -1, (0, 0, 0), 2 )
+    for item in frames:
+        cv2.rectangle(pic, item.rectangle[0], item.rectangle[1], item.colour, item.draw_line_width)
+        cv2.putText(pic, item.name, (item.rectangle[0][0], item.rectangle[0][1]+40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3)
+        cv2.putText(pic, item.name, (item.rectangle[0][0], item.rectangle[0][1]+40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 1)
+        #cv2.putText(pic, f'Distance:{a.dept} cm',a.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
+        #cv2.putText(pic, f'Distance:{a.dept} cm',a.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
+        #cv2.putText(pic, f'Width:{a.true_width} cm',(a.position[0], a.position[1]+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
+        #cv2.putText(pic, f'Width:{a.true_width} cm',(a.position[0], a.position[1]+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
+        #cv2.drawContours(pic, a.box , -1, (0, 0, 0), 2 )
 
 
 def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
