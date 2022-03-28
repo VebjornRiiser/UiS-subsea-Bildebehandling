@@ -127,7 +127,7 @@ class Object(): # Used in functions to draw on image, find distance to objects e
         self.box = 0 #[np.int0(cv2.boxPoints(self.rectanlge))] # Added into a list due to easier use in draw contours
         self.width = (self.rectangle[0][1] - self.rectangle[0][0]) # Calulates and set width
         self.height = (self.rectangle[1][1] - self.rectangle[1][0]) # Calulates and set height
-        self.position = (int(self.rectangle[0][0] + self.width/2), int(self.rectangle[1][0] + self.height/2)) # Calulates and set center
+        self.position = (int(self.rectangle[0][0] + self.height/2), int(self.rectangle[1][0] + self.width/2)) # Calulates and set center
         self.true_width = 0 # Needs to be calulated using another picture and compare positions
         self.areal = self.width*self.height
         self.dept = 0
