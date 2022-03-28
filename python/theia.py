@@ -252,6 +252,7 @@ def image_aqusition_thread(connection, boli):
                 mode = 2
         else:
             if mode == 1:
+                mached_list = []
                 if len(mess) == 2:
                     res1 = yal.yolo_image(mess[0]) # Result from left cam
                     res2 = yal.yolo_image(mess[1]) # Result from right cam
