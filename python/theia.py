@@ -216,6 +216,15 @@ def find_calc_shapes(pic1, pic2):
                         #cv2.putText(pic1, f'Width:{width} cm',(a.position[0], a.position[1]+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
     return mached_list
 
+def find_same_objects(obj_list1:list, obj_list2:list):
+    checked_object_list = []
+    for obj1 in enumerate(obj_list1):
+        for obj2 in obj_list2:
+            if obj1.position[1] == obj2.position[1]:
+                print(f'Found same object in both pictures')
+
+
+
 
 def image_aqusition_thread(connection, boli):
     mode = 1 # 1: Find rubberfish, 2: mosaikk 3:TBA 
@@ -242,8 +251,8 @@ def image_aqusition_thread(connection, boli):
                 if len(mess) == 2:
                     res1 = yal.yolo_image(mess[0]) # Result from left cam
                     res2 = yal.yolo_image(mess[1]) # Result from right cam
-                    #mached_list = find_calc_shapes(mess[0], mess[1])
-                    mached_list = []
+                    mached_list = find_same_objects(res1, res2)
+                    #mached_list = []
                     if old_list != []:
                         for a in old_list:
                             for b in mached_list:
