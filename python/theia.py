@@ -257,8 +257,7 @@ def image_aqusition_thread(connection, boli):
                         mached_list = find_same_objects(res1, res2)
                         if len(mached_list) > 0:
                             print("Found fish")
-                            return mached_list
-                    #connection.send(mached_list)
+                            connection.send(mached_list)
             elif mode == 2:
                 pass
         
