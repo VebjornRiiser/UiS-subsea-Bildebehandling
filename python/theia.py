@@ -164,6 +164,7 @@ class Camera():
         print(f'{self.width}:{self.height}')
         self.crop_width = int(self.width/2)
 
+
     def aq_image(self, double:bool=False):
         #ref, frame = self.feed.read()
         #frame = cv2.rotate(frame, cv2.ROTATE_180)
@@ -216,20 +217,15 @@ def find_calc_shapes(pic1, pic2):
                         #cv2.putText(pic1, f'Width:{width} cm',(a.position[0], a.position[1]+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
     return mached_list
 
+
 def find_same_objects(obj_list1:list, obj_list2:list):
     checked_object_list = []
     print(f'Found fish, y1:{obj_list1[0].width}, y2:{obj_list2[0].width}, len{len(obj_list1)}')
     for obj1 in obj_list1:
         for obj2 in obj_list2:
             if obj1.position[1]-60 <= obj2.position[1] <= obj1.position[1]+60:
-                print(f'Found same object in both pictures')
                 checked_object_list.append(obj1)
-    if len(checked_object_list) > 0:
-        return checked_object_list
-    else:
-        return False
-
-
+    return checked_object_list
 
 
 def image_aqusition_thread(connection, boli):
@@ -259,7 +255,7 @@ def image_aqusition_thread(connection, boli):
                     res2 = yal.yolo_image(mess[1]) # Result from right cam
                     if len(res1) > 0 and len(res2) > 0:
                         mached_list = find_same_objects(res1, res2)
-                        if mached_list:
+                        if len(mached_list) > 0:
                             return mached_list
                     #connection.send(mached_list)
             elif mode == 2:
