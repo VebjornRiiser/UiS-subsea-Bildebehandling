@@ -264,12 +264,14 @@ def image_aqusition_thread(connection, boli):
 def draw_on_img(pic, frames):
     for item in frames:
         cv2.rectangle(pic, item.rectangle[0], item.rectangle[1], item.colour, item.draw_line_width)
-        cv2.putText(pic, item.name, (item.rectangle[0][0], item.rectangle[0][1]+40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3)
-        cv2.putText(pic, item.name, (item.rectangle[0][0], item.rectangle[0][1]+40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 1)
+        pos = (item.rectangle[0][0], item.rectangle[0][1]+40)
+        cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3)
+        cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 1)
         if item.dept != 0:
-            print(item.position)
-            #cv2.putText(pic, f'Distance:{item.dept} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
-            #cv2.putText(pic, f'Distance:{item.dept} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
+            print(f"{item.position=}", end="")
+            print(f"{pos=}")
+            cv2.putText(pic, f'Distance:{item.dept} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
+            cv2.putText(pic, f'Distance:{item.dept} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
         #cv2.putText(pic, f'Distance:{a.dept} cm',a.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
         #cv2.putText(pic, f'Distance:{a.dept} cm',a.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
         #cv2.putText(pic, f'Width:{a.true_width} cm',(a.position[0], a.position[1]+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
