@@ -252,6 +252,7 @@ def image_aqusition_thread(connection, boli):
                     res1 = yal.yolo_image(mess[0]) # Result from left cam
                     res2 = yal.yolo_image(mess[1]) # Result from right cam
                     mached_list = find_same_objects(res1, res2)
+                    print("Found fish")
                     #mached_list = []
                     if old_list != []:
                         for a in old_list:
