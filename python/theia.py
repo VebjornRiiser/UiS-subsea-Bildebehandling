@@ -225,7 +225,6 @@ def find_same_objects(obj_list1:list, obj_list2:list):
         for obj2 in obj_list2:
             if obj1.position[1]-60 <= obj2.position[1] <= obj1.position[1]+60:
                 checked_object_list.append(obj1)
-    print(len(checked_object_list))
     #return checked_object_list
 
 
@@ -257,7 +256,8 @@ def image_aqusition_thread(connection, boli):
                     if len(res1) > 0 and len(res2) > 0:
                         mached_list = find_same_objects(res1, res2)
                         if len(mached_list) > 0:
-                            return mached_list
+                            print("Found fish")
+                            #return mached_list
                     #connection.send(mached_list)
             elif mode == 2:
                 pass
