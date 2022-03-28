@@ -218,7 +218,7 @@ def find_calc_shapes(pic1, pic2):
 
 def find_same_objects(obj_list1:list, obj_list2:list):
     checked_object_list = []
-    print(f'Found fish, y1:{obj_list1[0]}, y2:{obj_list2[0]}, len{len(obj_list1)}')
+    print(f'Found fish, y1:{obj_list1[0].position}, y2:{obj_list2[0].position}, len{len(obj_list1)}')
     for obj1 in obj_list1:
         for obj2 in obj_list2:
             if obj1.position[1]-20 <= obj2.position[1] <= obj1.position[1]+20:
