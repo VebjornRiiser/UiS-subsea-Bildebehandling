@@ -165,7 +165,7 @@ class Object(): # Used in functions to draw on image, find distance to objects e
         return self._dept
 
     def set_dept(self, newdept):
-        self._dept = newdept
+        self._dept = int(newdept)
 
     @property
     def get_true_width(self):
