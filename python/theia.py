@@ -86,7 +86,7 @@ def contour_img(image): # Finds shapes by color and size
             cv2.drawContours(image, object.box , -1, (0, 0, 0), 2 )
     return ny_cont
 
-def calc_distance(centers, focal_len, camera_space): # Calculates distance to object using test data, needs position on object in two pictures
+def calc_distance(centers, focal_len=6, camera_space=60): # Calculates distance to object using test data, needs position on object in two pictures
     dist = abs(centers[0][0]-centers[1][0])
     if dist == 0:
         return 50
