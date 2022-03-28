@@ -223,9 +223,9 @@ def find_same_objects(obj_list1:list, obj_list2:list):
     for obj1 in obj_list1:
         for obj2 in obj_list2:
             if obj1.position[1]-60 <= obj2.position[1] <= obj1.position[1]+60:
-                if obj1.width[1]-100 <= obj2.width[1] <= obj1.width[1]+100:
-                    obj1.dept = calc_distance([obj1.position, obj2.position])
-                    checked_object_list.append(obj1)
+                #if obj1.width[1]-100 <= obj2.width[1] <= obj1.width[1]+100:
+                obj1.dept = calc_distance([obj1.position, obj2.position])
+                checked_object_list.append(obj1)
     return checked_object_list
 
 
