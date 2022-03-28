@@ -268,7 +268,6 @@ def draw_on_img(pic, frames):
         cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3)
         cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 1)
         if item.dept != 0:
-            print(f"{item.rectangle}\n")
             #print(f"{pos=}")
             cv2.putText(pic, f'Distance:{item.dept} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
             cv2.putText(pic, f'Distance:{item.dept} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
