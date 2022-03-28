@@ -5,6 +5,8 @@ from sys import platform
 import numpy as np
 import time
 import torch
+import sys
+sys.path.insert(1, '/home/subsea/yolov5/')
 from models.common import DetectMultiBackend
 from utils.datasets import IMG_FORMATS, VID_FORMATS, LoadImages, LoadStreams
 from utils.general import (LOGGER, check_file, check_img_size, check_imshow, check_requirements, colorstr,
@@ -14,12 +16,13 @@ from utils.torch_utils import select_device, time_sync
 from utils.augmentations import letterbox
 
 
+
 class Yolo(): # 
     def __init__(self, resol, name:str = 'Rubberfish') -> None:
         self.device = select_device('') # Finds possible hardware to use
         print(self.device)
-        self.weights = 'models/best.pt' # Used machine learning
-        self.data = 'data/coco128.yaml' 
+        self.weights = 'yolov5/models/best.pt' # Used machine learning
+        self.data = 'yolov5/data/coco128.yaml' 
         self.conf_trees = 0.80 # How high confedence we want for a match
         self.iou_tres = 0.45 
         self.color = (255, 0, 0) # Color for frames drawn around object
@@ -31,7 +34,7 @@ class Yolo(): #
         tride, names, pt, jit, onnx, engine = self.model.stride, self.model.names, self.model.pt, self.model.jit, self.model.onnx, self.model.engine
         if pt or jit:
             self.model.model.float()
-        self.model.warmup(imgsz=(1, 3, *imgsz), half=False)
+        self.model.warmup(imgsz=(1, 3, *imgsz))
         self.resize = [float(resol[1])/384, float(resol[0])/640]
 
     def yolo_image(self, image, test = False): #Find shapes using YOLO (Mostly fish)
@@ -93,7 +96,7 @@ def camera(camera_id): #Testfunction to get images from camera
     print(frame_width)
     print(frame_height)
     run = True
-    feed.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
+    feed.set(cv2.CAP_PROP_AUTO_EXPOSURE, 3)
     feed.set(cv2.CAP_PROP_EXPOSURE, 600)
     yal = Yolo((frame_width, frame_height))
     if not (feed.isOpened()):
