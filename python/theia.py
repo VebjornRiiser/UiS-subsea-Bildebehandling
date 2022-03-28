@@ -218,6 +218,7 @@ def find_calc_shapes(pic1, pic2):
 
 def find_same_objects(obj_list1:list, obj_list2:list):
     checked_object_list = []
+    print("Found fish")
     for obj1 in enumerate(obj_list1):
         for obj2 in obj_list2:
             if obj1.position[1] == obj2.position[1]:
@@ -252,14 +253,7 @@ def image_aqusition_thread(connection, boli):
                     res1 = yal.yolo_image(mess[0]) # Result from left cam
                     res2 = yal.yolo_image(mess[1]) # Result from right cam
                     mached_list = find_same_objects(res1, res2)
-                    print("Found fish")
-                    #mached_list = []
-                    if old_list != []:
-                        for a in old_list:
-                            for b in mached_list:
-                                print('test')
-                    old_list = mached_list
-                    connection.send(mached_list)
+                    #connection.send(mached_list)
             elif mode == 2:
                 pass
         
