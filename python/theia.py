@@ -148,9 +148,9 @@ class Camera():
             self.feed = cv2.VideoCapture(self.id)
         self.set_picture_size(self.width, self.height)
         #self.feed.set(cv2.CAP_PROP_FPS, framerate)
-        #self.feed.set(cv2.CAP_PROP_AUTOFOCUS, 1)
+        self.feed.set(cv2.CAP_PROP_AUTOFOCUS, 3)
         #self.feed.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0)
-        #self.feed.set(cv2.CAP_PROP_EXPOSURE, 600)
+        self.feed.set(cv2.CAP_PROP_EXPOSURE, 500)
         #self.feed.set(cv2.CAP_PROP_AUTO_WB, 1)
         print(self.feed.get(cv2.CAP_PROP_FPS))
 
