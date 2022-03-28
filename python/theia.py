@@ -189,7 +189,7 @@ class Camera():
         crop2 = frame[:self.height,self.crop_width:]
         if double:
             crop2 = frame[:self.height,self.crop_width:]
-            return crop2, crop
+            return crop, crop2
         else:
             #crop = white_balance(crop)
             return crop
