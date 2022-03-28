@@ -220,11 +220,11 @@ def find_calc_shapes(pic1, pic2):
 
 def find_same_objects(obj_list1:list, obj_list2:list):
     checked_object_list = []
-    print(f'Found fish, y1:{obj_list1[0].width}, y2:{obj_list2[0].width}, len{len(obj_list1)}')
     for obj1 in obj_list1:
         for obj2 in obj_list2:
             if obj1.position[1]-60 <= obj2.position[1] <= obj1.position[1]+60:
-                checked_object_list.append(obj1)
+                if obj1.width[1]-100 <= obj2.width[1] <= obj1.width[1]+100:
+                    checked_object_list.append(obj1)
     return checked_object_list
 
 
@@ -250,14 +250,14 @@ def image_aqusition_thread(connection, boli):
                 mode = 2
         else:
             if mode == 1:
+                mached_list = []
                 if len(mess) == 2:
                     res1 = yal.yolo_image(mess[0]) # Result from left cam
                     res2 = yal.yolo_image(mess[1]) # Result from right cam
                     if len(res1) > 0 and len(res2) > 0:
-                        mached_list = find_same_objects(res1, res2)
                         if len(mached_list) > 0:
-                            print("Found fish")
-                            connection.send(mached_list)
+                            mached_list.append(find_same_objects(res1, res2))
+                connection.send(mached_list)
             elif mode == 2:
                 pass
         
