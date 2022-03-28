@@ -1,10 +1,10 @@
-from re import M
+
 import cv2
 from sys import platform
 import numpy as np
 import math
+from ROV import Rov
 
-from scipy.fft import skip_backend
 
 ##------------------------Klasser------------------------------------##
 class Object(): #WARNING Denne klassen er endret fra distance.py så dropin kompabilitet er ikke garantert
@@ -85,7 +85,7 @@ class Object(): #WARNING Denne klassen er endret fra distance.py så dropin komp
         self._true_width = true_width
 
 ##--------------------------------------VP kode--------------------------------------##
-def vp_dock(bilder, stereosyn: bool=True):
+def vp_dock(bilder, rov_config: Rov=None, stereosyn: bool=True , return_pic: bool=True):
     """_summary_
 
     Args:
@@ -96,7 +96,24 @@ def vp_dock(bilder, stereosyn: bool=True):
         Any: Info som brukes til å navigere til/inn i docken
         
     """
-    output = bilder.copy()
+    #Fysiske konstanter
+    #TODO Oppdatert til rele tall'
+    if not rov_config:
+        rov_height = 100
+        rov_width = 100
+        rov_depth = 100
+        x_area = rov_height*rov_width
+        y_area = rov_depth*rov_height
+        z_area = rov_depth*rov_width
+    else:
+        print(f"Bruker ikke ROV konfig per nå") #TODO Implementere dette som en return i forbindelse med logging
+        return False
+    
+    
+
+    #Letter etter en firkant (dock) som roven passer inn i
+    
+    
     #Algoritme for å docke autonomt
 
     #Finn sirkel knapp og posisjoner i forhold til den
@@ -137,33 +154,24 @@ def vp_merd(bilde ,stereosyn: bool=True):
     # navigation = {"direction": int, "v_cor": int|float, "h_cor": int|float, "angle_cor": int|float} eller som en liste i samme format
     holes = {}
     navigation = {}
+    threshold_area = 75 # cm
+    threshold_error_toleranse = 0.1 #prosent
+    
     
     # Finn hull og sorter ut på areal
     if stereosyn:
         pass
     else:
-        #blur
-        output = np.copy(bilde)
-        bilde = cv2.cvtColor(bilde, cv2.COLOR_BGR2GRAY)
-        blur_bilde = cv2.medianBlur(bilde,5)
-        ret, thresh = cv2.threshold(blur_bilde, 150,255, cv2.THRESH_BINARY_INV)
-        # Color mask av en farge som ser ut som rød
+        gray = cv2.cvtColor(bilde,cv2.COLOR_RGB2GRAY)
+        gray = cv2.GaussianBlur(gray,(5,5),0)
+        gray = cv2.medianBlur(gray,5)
+        gray = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,3.5)
         
-        contours, hierarchy = cv2.findContours(thresh,cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, hierarchy = cv2.findContours(gray,cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         
-        
-        for contour in contours:
-            M = cv2.moments(contour)
-            if M['m00'] != 0:
-                cx = int(M['m10']/M['m00'])
-                cy = int(M['m01']/M['m00'])
-            #Markerer senter av konturene
-                cv2.circle(output, (cx, cy), 7, (255, 255, 255), -1)
-                print(math.degrees(math.atan2(cy,cx)))
-        cv2.drawContours(output,contours,-1,(0,255,0),3)
-        #return "Kode for singel kamera ikke implementert"
-    # Gi data for navigasjonene langs en linje
-    
+        contour_area = np.array([cv2.contourArea(i) for i in contours])
+        contour_area = contour_area[(contour_area >= threshold_area)]
+
     return output
 
 def vp_distance():
@@ -188,6 +196,25 @@ def vp_operator_tools():
 
 
 ##--------------------------------------------------------------------------------------##
+
+##----------------------------------Hjelpe funksjoner-----------------------------------##
+def angle_vector(pt1: tuple, pt2: tuple, pt0: tuple):
+    """Regner ut cosinus mellom to vektorer med samme utgangspunkt
+    source: https://docs.opencv.org/3.4/db/d00/samples_2cpp_2squares_8cpp-example.html
+
+    Args:
+        pt1 (cv2.Point): vektor 1
+        pt2 (cv2.Point): vektor 2
+        pt0 (cv2.Point): Origo 
+
+    Returns:
+        float: Consinus mellom to vinkelr
+    """
+    dx1 = pt1[0] - pt0[0]
+    dy1 = pt1[1] - pt0[1]
+    dx2 = pt2[0] - pt0[0]
+    dy2 = pt2[1] - pt0[1]
+    return (dx1*dx2+dy1*dy2)/math.sqrt((dx1**2+dy1**2)*(dx2**2 + dy2**2) + 1e-10)
 
 
 if __name__ == "__main__":

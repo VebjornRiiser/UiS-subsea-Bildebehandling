@@ -1,3 +1,4 @@
+from typing import Tuple
 from regulator import PID
 import cv2
 import vision_pipline as vp
@@ -69,8 +70,8 @@ class Autonom:
         
         # VP kode for mosaic -- utfører sammenslåing av bilde som er blitt tatt, med utgangspunkt i ID og rutenett posisjon
 
-    
-    
+
+        
 if __name__ == "__main__":
     from logging_init import generate_logging
     
