@@ -172,4 +172,4 @@ class Object(): # Used in functions to draw on image, find distance to objects e
         self._true_width = newwidth
 
 if __name__ == "__main__":
-    camera(2)
+    camera(0)
