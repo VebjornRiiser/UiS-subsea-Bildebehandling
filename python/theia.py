@@ -225,7 +225,8 @@ def find_same_objects(obj_list1:list, obj_list2:list):
         for obj2 in obj_list2:
             if obj1.position[1]-60 <= obj2.position[1] <= obj1.position[1]+60:
                 checked_object_list.append(obj1)
-    return checked_object_list
+    print(len(checked_object_list))
+    #return checked_object_list
 
 
 def image_aqusition_thread(connection, boli):
