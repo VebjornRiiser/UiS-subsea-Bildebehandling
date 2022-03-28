@@ -88,6 +88,7 @@ def contour_img(image): # Finds shapes by color and size
 
 def calc_distance(centers, focal_len=6, camera_space=60): # Calculates distance to object using test data, needs position on object in two pictures
     dist = abs(centers[0][0]-centers[1][0])
+    print(dist)
     if dist == 0:
         return 50
     #return int((3.631e-6 * (dist**4)) - (0.003035 * (dist**3)) + (0.9672 * (dist**2)) - (139.9 * dist) + 7862)
