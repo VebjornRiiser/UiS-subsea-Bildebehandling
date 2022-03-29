@@ -140,7 +140,7 @@ def vp_dock(bilder, rov_config: Rov=None, stereosyn: bool=True , return_pic: boo
         cnt_len = cv2.arcLength(cnt, True)
         cnt = cv2.approxPolyDP(cnt, 0.02*cnt_len, True)
         area = cv2.contourArea(cnt)
-        if len(cnt) == 4 and cv2.contourArea(cnt) > 10 and cv2.isContourConvex(cnt):
+        if len(cnt) == 4 and cv2.contourArea(cnt) > 1000 and cv2.isContourConvex(cnt): #TODO port fra pixler til cm
             for j in range(2,5):
                 #msg = f"{j=} --> {cnt[j%4][0]=},{cnt[j-2][0]=},{cnt[j-1][0]=}"
                 #logger.debug(msg)
