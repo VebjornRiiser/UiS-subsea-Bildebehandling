@@ -7,6 +7,7 @@ from ROV import Rov
 from logging_init import generate_logging
 
 
+
 ##------------------------Klasser------------------------------------##
 class Object(): #WARNING Denne klassen er endret fra distance.py så dropin kompabilitet er ikke garantert
     def __init__(self, contour  ) -> None:
@@ -119,6 +120,7 @@ def vp_dock(bilder, rov_config: Rov=None, stereosyn: bool=True , return_pic: boo
     #Letter etter en firkant (dock) som roven passer inn i
     #gray = cv2.cvtColor(bilder,cv2.COLOR_RGB2GRAY)
     #img = cv2.GaussianBlur(bilder,(5,5),0)
+    #img = kontrast_boost(bilder)
     img = cv2.bilateralFilter(bilder, 15, 75, 75)
     #gray = cv2.medianBlur(gray,5)
     #thresholded_pic = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,3.5)
@@ -126,13 +128,14 @@ def vp_dock(bilder, rov_config: Rov=None, stereosyn: bool=True , return_pic: boo
     squares = []
     max_cos = 0
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    gray = cv2.split(img)[0]
-    cv2.imwrite("gray.png", gray)
+   
+    for name, color in zip(["Blue_channel","Green_channel","Red_channel"],cv2.split(img)): #WARNING Unødvendig for endelig versjon
+        cv2.imwrite(name+".png", color) 
     retval, thres_pic = cv2.threshold(gray, 180, 255, cv2.THRESH_BINARY)
     thres_pic = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
     contours, hirarchy = cv2.findContours(thres_pic, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     cv2.imwrite("adaptiv_threshold.png", thres_pic)
-    kernel = np.ones((3,5),np.uint8)
+    kernel = np.ones((3,3),np.uint8)
     dilate = cv2.morphologyEx(thres_pic, cv2.MORPH_ERODE, kernel)
     cv2.imwrite("erosion.png", dilate)
     
@@ -200,6 +203,17 @@ def vp_operator_tools():
     pass
 
 ##----------------------------------Bilde operasjoner-----------------------------------##
+def kontrast_boost(bilde):
+    # Konverter bilde til LAB color space
+    lab = cv2.cvtColor(bilde, cv2.COLOR_BGR2LAB)
+    l,a,b = cv2.split(lab)
+    
+    clahe = cv2.createCLAHE(clipLimit=3, tileGridSize=(8,8))
+    cl = clahe.apply(l)
+    
+    limg = cv2.merge((cl,a,b))
+    final = cv2.cvtColor(limg, cv2.COLOR_LAB2BGR)
+    return final
 
 
 
@@ -241,6 +255,28 @@ def angle_cos(p0, p1, p2):
     """
     d1, d2 = (p0-p1).astype('float'), (p2-p1).astype('float')
     return abs( np.dot(d1, d2) / np.sqrt( np.dot(d1, d1)*np.dot(d2, d2) ) )
+
+def calc_distance(centers, focal_len=2060, camera_space=60, int_float: int=0): # Calculates distance to object using test data, needs position on object in two pictures
+    """Regner ut distansen til et objekt. for stereo kamera
+
+    Args:
+        centers (_type_): Senterkoortdinat til objektet i begge bildene
+        focal_len (float, optional): Focallength oppgitt i pixler. Defaults to 33.2.
+        camera_space (int, optional): Distansen mellom kameraene i mm. Defaults to 60.
+        int_float (int, optional): Bestemmer om funksjonen skal returnere tall i INT->(0) eller FLOAT->(1). Defaults to 0
+    Returns:
+        int|float: Avstand i mm
+    """
+    dist = abs(centers[0][0]-centers[1][0])
+    print(dist)
+    if dist == 0:
+        return 50
+    #return int((3.631e-6 * (dist**4)) - (0.003035 * (dist**3)) + (0.9672 * (dist**2)) - (139.9 * dist) + 7862)
+    if int_float:
+        return float(((focal_len*camera_space)/dist))
+    else:
+        return int(((focal_len*camera_space)/dist)) #TODO trenger det å være INT her??
+
 
 if __name__ == "__main__":
     main_logger = generate_logging(log_name="VP_main_test",log_file_name="VP_main.log")
