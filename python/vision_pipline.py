@@ -87,7 +87,7 @@ class Object(): #WARNING Denne klassen er endret fra distance.py så dropin komp
         self._true_width = true_width
 
 ##--------------------------------------VP kode--------------------------------------##
-def vp_dock(bilder, rov_config: Rov=None, stereosyn: bool=True , return_pic: bool=True, logger = None):
+def vp_dock_st(bilder, rov_config: Rov=None , return_pic: bool=True, logger = None):
     """_summary_
 
     Args:
@@ -112,34 +112,34 @@ def vp_dock(bilder, rov_config: Rov=None, stereosyn: bool=True , return_pic: boo
         z_area = rov_depth*rov_width
         #logger.info("Fysisk ROv størrelse oppdatert og i bruk")
     else:
-        
-        #logger.warning("bruker ikke ROV konfig per nå")
         return False
-    
-    thrs_param_1 = (0,255,26) # Settings tuple for threshold range, vet ikke om en utpakket tuple er det beste valget da.
-    #Letter etter en firkant (dock) som roven passer inn i
-    #gray = cv2.cvtColor(bilder,cv2.COLOR_RGB2GRAY)
-    #img = cv2.GaussianBlur(bilder,(5,5),0)
-    #img = kontrast_boost(bilder)
-    img = cv2.bilateralFilter(bilder, 15, 75, 75)
-    #gray = cv2.medianBlur(gray,5)
-    #thresholded_pic = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,3.5)
-    # cv2.bilateralFilter Kan også være en mulighet for filtrering
+    ##-----inital variabler----------##
     squares = []
     max_cos = 0
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-   
-    for name, color in zip(["Blue_channel","Green_channel","Red_channel"],cv2.split(img)): #WARNING Unødvendig for endelig versjon
-        cv2.imwrite(name+".png", color) 
-    retval, thres_pic = cv2.threshold(gray, 180, 255, cv2.THRESH_BINARY)
-    thres_pic = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
-    contours, hirarchy = cv2.findContours(thres_pic, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-    cv2.imwrite("adaptiv_threshold.png", thres_pic)
     kernel = np.ones((3,3),np.uint8)
-    dilate = cv2.morphologyEx(thres_pic, cv2.MORPH_ERODE, kernel)
-    cv2.imwrite("erosion.png", dilate)
+   
     
-    for cnt in contours:
+    #TODO --> Støy og preprosses portes til en egen funkson og brukes sammen med denne 
+    filtrerte_bilder = [cv2.GaussianBlur(bilde, (5,5), 0) for bilde in bilder] # støyredusering som tar vare på kanter
+    gray_bilder = [cv2.cvtColor(bilde, cv2.COLOR_BGR2GRAY) for bilde in bilder] # Gjør om til grått
+    #---------------------------------------------------------------------------
+    
+    threshold_bilder = [cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2) for gray in gray_bilder]
+    
+    
+    
+    contours_l, hirarchy = cv2.findContours(threshold_bilder[0], cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    if not contours_l:
+        logger.warning("Fant ingen conturer i venstre bilde, antar at det ikke finnes noe i høyre.")
+        return None
+    contours_r, hirarchy = cv2.findContours(threshold_bilder[1], cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    if len(contours_l) != len(contours_r): #TODO mulig det blir feil å ikke sortere disse listene før man gjør dette
+        #prioriterer contrours_l
+        logger.info("Fant ulik mengde konturer i venstre og høyre bilde, bruker antall konturer funnet i venstre bilde")
+        contours_r = contours_r[:len(contours_l)]
+    
+    
+    for L_cnt, r_cnt in zip(contours_l, contours_r):
         cnt_len = cv2.arcLength(cnt, True)
         cnt = cv2.approxPolyDP(cnt, 0.02*cnt_len, True)
         area = cv2.contourArea(cnt)
@@ -256,7 +256,7 @@ def angle_cos(p0, p1, p2):
     d1, d2 = (p0-p1).astype('float'), (p2-p1).astype('float')
     return abs( np.dot(d1, d2) / np.sqrt( np.dot(d1, d1)*np.dot(d2, d2) ) )
 
-def calc_distance(centers, focal_len=2060, camera_space=60, int_float: int=0): # Calculates distance to object using test data, needs position on object in two pictures
+def calc_distance(centers, focal_len=2098, camera_space=60, int_float: int=0): # Calculates distance to object using test data, needs position on object in two pictures
     """Regner ut distansen til et objekt. for stereo kamera
 
     Args:
@@ -292,9 +292,15 @@ if __name__ == "__main__":
     
     while True:
         ret, frame = vid.read()
-        squares = vp_dock(frame,logger=main_logger)
-        cv2.drawContours(frame, squares, -1, (0,255,0), 3, cv2.LINE_AA)
-        cv2.imshow("conturer", frame)
+        split_line = int(2560/2)
+        frame = frame[:,:split_line], frame[:,split_line:]
+     
+        
+        
+        squares = vp_dock_st(frame,logger=main_logger)
+        #cv2.drawContours(frame, squares, -1, (0,255,0), 3, cv2.LINE_AA)
+        for name, i in zip(["Left","Right"],frame):
+            cv2.imshow(name, i)
         if cv2.waitKey(3) == 27:
             break
     cv2.destroyAllWindows() 
