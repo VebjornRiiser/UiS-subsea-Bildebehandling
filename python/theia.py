@@ -88,12 +88,26 @@ def contour_img(image): # Finds shapes by color and size
             cv2.drawContours(image, object.box , -1, (0, 0, 0), 2 )
     return ny_cont
 
-def calc_distance(centers, focal_len, camera_space): # Calculates distance to object using test data, needs position on object in two pictures
+def calc_distance(centers, focal_len=2060, camera_space=60, int_float: int=0): # Calculates distance to object using test data, needs position on object in two pictures
+    """Regner ut distansen til et objekt. for stereo kamera
+
+    Args:
+        centers (_type_): Senterkoortdinat til objektet i begge bildene
+        focal_len (float, optional): Focallength oppgitt i pixler. Defaults to 33.2.
+        camera_space (int, optional): Distansen mellom kameraene i mm. Defaults to 60.
+        int_float (int, optional): Bestemmer om funksjonen skal returnere tall i INT->(0) eller FLOAT->(1). Defaults to 0
+    Returns:
+        int|float: Avstand i mm
+    """
     dist = abs(centers[0][0]-centers[1][0])
+    print(dist)
     if dist == 0:
         return 50
-    return int((3.631e-6 * (dist**4)) - (0.003035 * (dist**3)) + (0.9672 * (dist**2)) - (139.9 * dist) + 7862)
-    #return int(((focal_len*camera_space)/dist)*100)
+    #return int((3.631e-6 * (dist**4)) - (0.003035 * (dist**3)) + (0.9672 * (dist**2)) - (139.9 * dist) + 7862)
+    if int_float:
+        return float(((focal_len*camera_space)/dist))
+    else:
+        return int(((focal_len*camera_space)/dist)) #TODO trenger det å være INT her??
 
 
 def calc_size(num_pixels:int, centers, axis:int=0): # Calulates size of objects in picture
