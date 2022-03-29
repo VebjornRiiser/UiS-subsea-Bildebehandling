@@ -1,7 +1,12 @@
 import logging
 
 
-def generate_logging(log_name: str = "Hovedlogger", log_file_name: str="Hovedlogg.log"):
+def generate_logging(log_name: str = "Hovedlogger", log_file_name: str=None):
+    if log_file_name:
+        pass
+    else:
+        log_file_name = f"{log_name}.log"
+    
     logging.basicConfig(level=logging.DEBUG, filename=log_file_name, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%d/%m/%Y %H:%M:%S' ) #setter hovedloggeren til det laveste nivået
     main_logger = logging.getLogger(log_name)
     # Setter opp fil logging med format som vist under
@@ -20,3 +25,7 @@ def generate_logging(log_name: str = "Hovedlogger", log_file_name: str="Hovedlog
     
 
     return main_logger
+
+if __name__ == "__main__":
+    
+    logger = generate_logging(log_file_name="Test.log")

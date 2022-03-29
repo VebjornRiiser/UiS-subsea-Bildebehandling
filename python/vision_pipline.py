@@ -4,6 +4,7 @@ from sys import platform
 import numpy as np
 import math
 from ROV import Rov
+from logging_init import generate_logging
 
 
 ##------------------------Klasser------------------------------------##
@@ -85,7 +86,7 @@ class Object(): #WARNING Denne klassen er endret fra distance.py så dropin komp
         self._true_width = true_width
 
 ##--------------------------------------VP kode--------------------------------------##
-def vp_dock(bilder, rov_config: Rov=None, stereosyn: bool=True , return_pic: bool=True):
+def vp_dock(bilder, rov_config: Rov=None, stereosyn: bool=True , return_pic: bool=True, logger = None):
     """_summary_
 
     Args:
@@ -96,6 +97,9 @@ def vp_dock(bilder, rov_config: Rov=None, stereosyn: bool=True , return_pic: boo
         Any: Info som brukes til å navigere til/inn i docken
         
     """
+    if not logger: #WARNING Kan medføre performance loss hvis kalt opp hver gang funksjonene må kjøre
+        logger = generate_logging(log_name="vp_dock",log_file_name="vp_dock.log")
+    
     #Fysiske konstanter
     #TODO Oppdatert til rele tall'
     if not rov_config:
@@ -105,43 +109,48 @@ def vp_dock(bilder, rov_config: Rov=None, stereosyn: bool=True , return_pic: boo
         x_area = rov_height*rov_width
         y_area = rov_depth*rov_height
         z_area = rov_depth*rov_width
+        #logger.info("Fysisk ROv størrelse oppdatert og i bruk")
     else:
-        print(f"Bruker ikke ROV konfig per nå") #TODO Implementere dette som en return i forbindelse med logging
+        
+        #logger.warning("bruker ikke ROV konfig per nå")
         return False
     
-    
-
+    thrs_param_1 = (0,255,26) # Settings tuple for threshold range, vet ikke om en utpakket tuple er det beste valget da.
     #Letter etter en firkant (dock) som roven passer inn i
+    #gray = cv2.cvtColor(bilder,cv2.COLOR_RGB2GRAY)
+    #img = cv2.GaussianBlur(bilder,(5,5),0)
+    img = cv2.bilateralFilter(bilder, 15, 75, 75)
+    #gray = cv2.medianBlur(gray,5)
+    #thresholded_pic = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,3.5)
+    # cv2.bilateralFilter Kan også være en mulighet for filtrering
+    squares = []
+    max_cos = 0
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.split(img)[0]
+    cv2.imwrite("gray.png", gray)
+    retval, thres_pic = cv2.threshold(gray, 180, 255, cv2.THRESH_BINARY)
+    thres_pic = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
+    contours, hirarchy = cv2.findContours(thres_pic, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    cv2.imwrite("adaptiv_threshold.png", thres_pic)
+    kernel = np.ones((3,5),np.uint8)
+    dilate = cv2.morphologyEx(thres_pic, cv2.MORPH_ERODE, kernel)
+    cv2.imwrite("erosion.png", dilate)
     
-    
-    #Algoritme for å docke autonomt
+    for cnt in contours:
+        cnt_len = cv2.arcLength(cnt, True)
+        cnt = cv2.approxPolyDP(cnt, 0.02*cnt_len, True)
+        area = cv2.contourArea(cnt)
+        if len(cnt) == 4 and cv2.contourArea(cnt) > 10 and cv2.isContourConvex(cnt):
+            for j in range(2,5):
+                #msg = f"{j=} --> {cnt[j%4][0]=},{cnt[j-2][0]=},{cnt[j-1][0]=}"
+                #logger.debug(msg)
+                max_cos = max(max_cos, angle_vector(cnt[j%4][0], cnt[j-2][0],cnt[j-1][0]))
+            if max_cos < 0.3:
+                squares.append(cnt)
+                logger.info(f"Found square with area: --> {area} pixel^2")
+                # Her har vi funnet en stor firkant så da kan vi lete etter sirkler i det hirarikitet ??
+    return squares
 
-    #Finn sirkel knapp og posisjoner i forhold til den
-    gray = cv2.cvtColor(bilder,cv2.COLOR_RGB2GRAY)
-    gray = cv2.GaussianBlur(gray,(5,5),0)
-    gray = cv2.medianBlur(gray,5)
-    gray = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,3.5)
-    
-    #kernel = np.ones((3,3),np.uint8)
-    #gray = cv2.erode(gray,kernel,iterations = 1)
-    
-    #gray = cv2.dilate(gray,kernel,iterations=1)
-    
-    sirkler = cv2.HoughCircles(gray,cv2.HOUGH_GRADIENT,1,260,param1=30,param2=65,minRadius=0,maxRadius=0)
-    
-    if sirkler is not None:
-        sirkler = np.round(sirkler[0,:]).astype("int")
-        for x,y,r in sirkler:
-            cv2.circle(output, (x,y), r, (0,255,0),4)
-            cv2.rectangle(output, (x - 5, y - 5), (x + 5, y + 5), (0, 128, 255), -1)
-    #Finn avstand og størrelse
-    
-    
-    #Returner Posisjon, avstand og rotasjon(skew?)
-    
-    return output 
-        
- 
     
 
 
@@ -169,8 +178,8 @@ def vp_merd(bilde ,stereosyn: bool=True):
         
         contours, hierarchy = cv2.findContours(gray,cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         
-        contour_area = np.array([cv2.contourArea(i) for i in contours])
-        contour_area = contour_area[(contour_area >= threshold_area)]
+        # Finne størrelsen på hullet i cm^3 slik at man kan skjekk det mot en threshold
+        
 
     return output
 
@@ -199,8 +208,8 @@ def vp_operator_tools():
 
 ##----------------------------------Hjelpe funksjoner-----------------------------------##
 def angle_vector(pt1: tuple, pt2: tuple, pt0: tuple):
-    """Regner ut cosinus mellom to vektorer med samme utgangspunkt
-    source: https://docs.opencv.org/3.4/db/d00/samples_2cpp_2squares_8cpp-example.html
+    """Regner ut cosinus mellom to vektorer
+        source: https://docs.opencv.org/3.4/db/d00/samples_2cpp_2squares_8cpp-example.html
 
     Args:
         pt1 (cv2.Point): vektor 1
@@ -210,34 +219,47 @@ def angle_vector(pt1: tuple, pt2: tuple, pt0: tuple):
     Returns:
         float: Consinus mellom to vinkelr
     """
+    pt1 = pt1.astype(np.float32)
+    pt2 = pt2.astype(np.float32)
+    pt0 = pt0.astype(np.float32)
     dx1 = pt1[0] - pt0[0]
     dy1 = pt1[1] - pt0[1]
     dx2 = pt2[0] - pt0[0]
     dy2 = pt2[1] - pt0[1]
     return (dx1*dx2+dy1*dy2)/math.sqrt((dx1**2+dy1**2)*(dx2**2 + dy2**2) + 1e-10)
 
+def angle_cos(p0, p1, p2): 
+    """Regner ut cosinus mellom to vektorer
+        Soruce: https://github.com/opencv/opencv/blob/3.2.0/samples/python/squares.py
+    Args:
+        p0 (_type_): _description_
+        p1 (_type_): _description_
+        p2 (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    d1, d2 = (p0-p1).astype('float'), (p2-p1).astype('float')
+    return abs( np.dot(d1, d2) / np.sqrt( np.dot(d1, d1)*np.dot(d2, d2) ) )
 
 if __name__ == "__main__":
-    mode = "dock"
-    match mode:
-        case "merd":
-            filename = f".\\video_test_merd.mp4" #WARNING Windows spesifikt??
-        case "dock":
-            filename = 0        
-    #filename = ".\\merdtesting_1.png"
-    cap = cv2.VideoCapture(0)
+    main_logger = generate_logging(log_name="VP_main_test",log_file_name="VP_main.log")
+    vid = cv2.VideoCapture(0)
+    vid.set(cv2.CAP_PROP_FRAME_HEIGHT, 960)
+    vid.set(cv2.CAP_PROP_FRAME_WIDTH, 2560)
+    main_logger.info(f"Kamera HW-ACC satt til: --> {vid.get(cv2.CAP_PROP_HW_ACCELERATION)}")
+    main_logger.info(f"Bilde høyde er satt til: --> {vid.get(cv2.CAP_PROP_FRAME_HEIGHT)}")
+    main_logger.info(f"Bilde bredde er satt til: --> {vid.get(cv2.CAP_PROP_FRAME_WIDTH)}")
     
     
     
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if frame is not None:
-            #ut_bilde = vp_merd(frame,False)
-            ut_bilde = vp_dock(frame)
-            cv2.imshow("regulering",ut_bilde[0])
-            if cv2.waitKey(25) & 0xFF == ord('q'):
-                break
-        else:
+    
+    while True:
+        ret, frame = vid.read()
+        squares = vp_dock(frame,logger=main_logger)
+        cv2.drawContours(frame, squares, -1, (0,255,0), 3, cv2.LINE_AA)
+        cv2.imshow("conturer", frame)
+        if cv2.waitKey(3) == 27:
             break
-    cap.release()
-    cv2.destroyAllWindows()
+    cv2.destroyAllWindows() 
+    cv2.VideoCapture(0).release()
