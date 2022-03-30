@@ -352,7 +352,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
                 cv2.destroyAllWindows()
                 cam = Camera(camera_id)
             frame_count += 1
-            if frame_count > 2:
+            if frame_count > 9:
                 frame_count = 0
                 if picture_IA_pipe.poll():
                     draw_frames = picture_IA_pipe.recv()
