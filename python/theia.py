@@ -254,8 +254,8 @@ def image_aqusition_thread(connection, boli):
     old_list = []
     first = True
     width = 1280
-    stereo = cv2.StereoBM_create(numDisparities=16, blockSize=9)
-    #sift = cv2.SIFT_create()
+    #stereo = cv2.StereoBM_create(numDisparities=16, blockSize=9)
+    sift = cv2.SIFT_create()
     while boli:
         mess = connection.recv()
         if isinstance(mess, list):
@@ -276,11 +276,12 @@ def image_aqusition_thread(connection, boli):
                 mached_list = []
                 if len(mess) == 2:
                     gray = [cv2.cvtColor(mess[0], cv2.COLOR_BGR2GRAY), cv2.cvtColor(mess[1], cv2.COLOR_BGR2GRAY)]
-                    #points = sift.detectAndCompute(gray[1], None)
-                    #img=cv2.drawKeypoints(gray,points,mess[0])
-                    disp = stereo.compute(gray[0], gray[1])
-                    plt.imshow(disp, 'gray')
-                    plt.show()
+                    points = sift.detect(gray[1], None)
+                    img=cv2.drawKeypoints(gray[1], points ,mess[0])
+                    #disp = stereo.compute(gray[0], gray[1])
+                    #plt.imshow(disp, 'gray')
+                    #plt.show()
+                    cv2.imshow('text', img)
                     if cv2.waitKey(1) & 0xFF == ord('q'):
                         break
                     res1 = yal.yolo_image(mess[0]) # Result from left cam
