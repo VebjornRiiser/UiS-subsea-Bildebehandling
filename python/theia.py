@@ -234,7 +234,8 @@ def find_calc_shapes(pic1, pic2):
 
 def find_same_objects(obj_list1:list, obj_list2:list, images):
     stereo = cv2.StereoBM_create(numDisparities=16, blockSize=15)
-    disp = stereo.compute(images[0], images[1])
+    gray = [cv2.cvtColor(images[0], cv2.COLOR_BGR2GRAY), cv2.cvtColor(images[1], cv2.COLOR_BGR2GRAY)]
+    disp = stereo.compute(gray[0], gray[1])	
     plt.imshow(disp, 'gray')
     plt.show()
     checked_object_list = []
