@@ -233,10 +233,6 @@ def find_calc_shapes(pic1, pic2):
 
 
 def find_same_objects(obj_list1:list, obj_list2:list, images):
-    stereo = cv2.StereoBM_create(numDisparities=16, blockSize=15)
-    gray = [cv2.cvtColor(images[0], cv2.COLOR_BGR2GRAY), cv2.cvtColor(images[1], cv2.COLOR_BGR2GRAY)]
-    disp = stereo.compute(gray[0], gray[1])
-    print(disp)
     #plt.imshow(disp, 'gray')
     #plt.show()
     checked_object_list = []
@@ -256,6 +252,7 @@ def image_aqusition_thread(connection, boli):
     old_list = []
     first = True
     width = 1280
+    stereo = cv2.StereoBM_create(numDisparities=16, blockSize=15)
     while boli:
         mess = connection.recv()
         if isinstance(mess, list):
@@ -275,6 +272,11 @@ def image_aqusition_thread(connection, boli):
                 start = time.time()
                 mached_list = []
                 if len(mess) == 2:
+                    gray = [cv2.cvtColor(mess[0], cv2.COLOR_BGR2GRAY), cv2.cvtColor(mess[1], cv2.COLOR_BGR2GRAY)]
+                    disp = stereo.compute(gray[0], gray[1])
+                    cv2.imshow('FishCam', disp)
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        break
                     res1 = yal.yolo_image(mess[0]) # Result from left cam
                     res2 = yal.yolo_image(mess[1]) # Result from right cam
                     if len(res1) > 0 and len(res2) > 0:
