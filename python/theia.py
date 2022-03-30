@@ -78,7 +78,7 @@ def contour_img(image): # Finds shapes by color and size
     ny_cont = []
     liste_paa_Sizes = list(map(cv2.contourArea , cont))
     for index, areal in enumerate(liste_paa_Sizes):
-        if areal > 5000 and areal < 500000:
+        if 5000 < areal < 500000:
             ny_cont.append(Object(cont[index]))
     if len(ny_cont) > 0:
         for object in ny_cont:
