@@ -252,7 +252,7 @@ def image_aqusition_thread(connection, boli):
     old_list = []
     first = True
     width = 1280
-    stereo = cv2.StereoBM_create(numDisparities=16, blockSize=15)
+    stereo = cv2.StereoBM_create(numDisparities=8, blockSize=100)
     #sift = cv2.SIFT_create()
     while boli:
         mess = connection.recv()
