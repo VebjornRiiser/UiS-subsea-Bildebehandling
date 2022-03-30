@@ -277,7 +277,7 @@ def image_aqusition_thread(connection, boli):
                     #points = sift.detectAndCompute(gray[1], None)
                     #img=cv2.drawKeypoints(gray,points,mess[0])
                     disp = stereo.compute(gray[0], gray[1])
-                    plt.imshow(disp, 'test')
+                    plt.imshow(disp, 'gray')
                     plt.show()
                     if cv2.waitKey(1) & 0xFF == ord('q'):
                         break
