@@ -5,3 +5,4 @@ parser.add_argument('--cam', default='both', type=str.lower, choices=["front","b
 args = parser.parse_args()
 
 print(args)
+print("Test av git på rov")

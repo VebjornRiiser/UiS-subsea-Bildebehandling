@@ -32,6 +32,9 @@ def get_byte(c_format:str, number):
 def get_num(c_format:str, byt):
     return struct.unpack(c_types[c_format], byt)[0]
 
+def get_bit(num, bit_nr):
+    return True if (num >> bit_nr) & 1 else False
+
 
 def serial_package_builder(data, can=True):
     package = []
@@ -148,26 +151,32 @@ def create_json(can_id:int, data:str):
         stamp = get_num("int16", data_b[2:4])
         hiv = get_num("int16", data_b[4:6])
         gir = get_num("int16", data_b[6:])
-        json_dict = {"gyro": [rull, stamp, hiv, gir]}
+        json_dict = {"gyro": (rull, stamp, hiv, gir)}
 
     # Akselerometer
     elif can_id == 81:
         accel_x = get_num("int16", data_b[0:2])
         accel_y = get_num("int16", data_b[2:4])
         accel_z = get_num("int16", data_b[4:6])
-        json_dict = {"accel": [accel_x, accel_y, accel_z]}
+        json_dict = {"accel": (accel_x, accel_y, accel_z)}
 
     # Straumforbruk
     elif can_id in [90, 91, 92]:
-        json_dict = {f"power_consumption{can_id - 90}": [ get_num("uint16", data_b[0:]) ]}
+        pwr1 = get_num("uint16", data_b[0:2])
+        pwr2 = get_num("uint16", data_b[2:4])
+        pwr3 = get_num("uint16", data_b[4:6])
+        json_dict = {f"power_consumption{can_id - 90}": ( pwr1, pwr2, pwr3 )}
 
     # Leak detection and temperature
     elif can_id == 140:
-        lekk = data_b[0]
+        lekk_byte = get_num("uint8", data_b[0])
+        lekk1 = get_bit(lekk_byte, 0)
+        lekk2 = get_bit(lekk_byte, 1)
+        lekk3 = get_bit(lekk_byte, 2)
         temp1 = get_num("int16", data_b[1:3]) / 10 # -100.0°C -> 100.0°C
         temp2 = get_num("int16", data_b[3:5]) / 10
         temp3 = get_num("int16", data_b[5:7]) / 10
-        json_dict = {"lekk_temp": [lekk, temp1, temp2, temp3]}
+        json_dict = {"lekk_temp": ( (lekk1, lekk2, lekk3), (temp1, temp2, temp3) )}
 
     # Thrusterpådrag
     elif can_id == 170:
