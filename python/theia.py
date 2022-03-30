@@ -9,6 +9,7 @@ import time
 from sys import platform
 import pickle as p
 from yolo_detect import Yolo
+import statistics
 #from distance import contour_img, calc_size, calc_distance
 
 class Object(): # Used in functions to draw on image, find distance to objects etc, refers to objects in pictures
@@ -241,12 +242,14 @@ def find_same_objects(obj_list1:list, obj_list2:list):
 
 
 def image_aqusition_thread(connection, boli):
+    time_list = []
     mode = 1 # 1: Find rubberfish, 2: mosaikk 3:TBA 
     #TODO Her skal autonom kjøring legges inn
     old_list = []
     first = True
     width = 1280
     while boli:
+        start = time.time()
         mess = connection.recv()
         if isinstance(mess, list):
             if first:
@@ -271,6 +274,10 @@ def image_aqusition_thread(connection, boli):
                 connection.send(mached_list)
             elif mode == 2:
                 pass
+        time_list.append(time.time()-start)
+        if len(time_list) > 20:
+            print(statistics.mean(time_list))
+            time_list = []
         
 
 def draw_on_img(pic, frames):
