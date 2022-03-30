@@ -256,7 +256,7 @@ def image_aqusition_thread(connection, boli):
     width = 1280
     #stereo = cv2.StereoBM_create(numDisparities=16, blockSize=9)
     sift = cv2.SIFT_create()
-    cv2.FlannBasedMatcher(index_paralgorithm = FLANN_INDEX_KDTREE, trees = 5ams, checks = 50)
+    cv2.FlannBasedMatcher(index_paralgorithm = cv2.FLANN_INDEX_KDTREE, trees = 5, checks = 50)
     while boli:
         mess = connection.recv()
         if isinstance(mess, list):
