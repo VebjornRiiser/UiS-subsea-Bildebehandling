@@ -36,6 +36,7 @@ class Yolo(): #
             self.model.model.float()
         self.model.warmup(imgsz=(1, 3, *imgsz))
         self.resize = [float(resol[1])/384, float(resol[0])/640]
+        
 
     def yolo_image(self, image, test = False): #Find shapes using YOLO (Mostly fish)
         shape = image.shape

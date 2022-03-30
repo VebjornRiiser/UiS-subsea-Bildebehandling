@@ -10,6 +10,7 @@ from sys import platform
 import pickle as p
 from yolo_detect import Yolo
 import statistics
+from matplotlib import pyplot as plt
 #from distance import contour_img, calc_size, calc_distance
 
 class Object(): # Used in functions to draw on image, find distance to objects etc, refers to objects in pictures
@@ -86,6 +87,7 @@ def contour_img(image): # Finds shapes by color and size
         for object in ny_cont:
             cv2.drawContours(image, object.box , -1, (0, 0, 0), 2 )
     return ny_cont
+
 
 def calc_distance(centers, focal_len=33.2, camera_space=60): # Calculates distance to object using test data, needs position on object in two pictures
     """Regner ut distansen til et objekt. for stereo kamera
@@ -230,7 +232,11 @@ def find_calc_shapes(pic1, pic2):
     return mached_list
 
 
-def find_same_objects(obj_list1:list, obj_list2:list):
+def find_same_objects(obj_list1:list, obj_list2:list, images):
+    stereo = cv2.StereoBM_create(numDisparities=16, blockSize=15)
+    disp = stereo.compute()
+    plt.imshow(disp, 'gray')
+    plt.show()
     checked_object_list = []
     for obj1 in obj_list1:
         for obj2 in obj_list2:
@@ -270,7 +276,7 @@ def image_aqusition_thread(connection, boli):
                     res1 = yal.yolo_image(mess[0]) # Result from left cam
                     res2 = yal.yolo_image(mess[1]) # Result from right cam
                     if len(res1) > 0 and len(res2) > 0:
-                        mached_list = find_same_objects(res1, res2)
+                        mached_list = find_same_objects(res1, res2, mess)
                 time_list.append(time.time()-start)
                 connection.send(mached_list)
             elif mode == 2:
