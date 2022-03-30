@@ -13,8 +13,8 @@ parser.add_argument('--MODE',)
 parser.add_argument('-cid','--CAMID', type=int)
 parser.add_argument('-gs','--GRAB_SPLIT', action="store_true" )
 parser.add_argument('-g','--GRAB',action="store_true")
-parser.add_argument('-r','--ROWS',default=5, type=int)
-parser.add_argument('-col','--COLUMNS',default=8, type=int)
+parser.add_argument('-r','--ROWS',default=6, type=int)
+parser.add_argument('-col','--COLUMNS',default=7, type=int)
 parser.add_argument('-num','--NUMBER', default=10, type=int)
 
 def grab_split_frames_from_folder(camid):
@@ -70,7 +70,6 @@ if argumenter.MODE.lower() in ('cal'):
         height = left_pic[0].shape[0]
         
         impoints = []
-        
         objpoints = []
         
         for side in [left_pic,right_pic]:
