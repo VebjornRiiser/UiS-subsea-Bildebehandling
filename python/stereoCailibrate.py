@@ -1,4 +1,5 @@
 
+import os
 import cv2
 import numpy as np
 import glob
@@ -55,7 +56,7 @@ argumenter = parser.parse_args()
 if argumenter.MODE.lower() in ('cal'):
     if argumenter.GRAB_SPLIT:
         left_pic,right_pic = grab_split_frames_from_folder(argumenter.CAMID)
-        kriterium = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 0.02)
+        kriterium = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 35, 0.001)
         
         rows = argumenter.ROWS
         columns = argumenter.COLUMNS
@@ -102,17 +103,26 @@ if argumenter.MODE.lower() in ('cal'):
             print('Ts:\n', tvecs)
         
 elif argumenter.MODE == 'pic':
+    os.system('mkdir Calibrate_camera_1')
+    os.system('mkdir Calibrate_camera_2')
     vid = cv2.VideoCapture(0)
     vid.set(cv2.CAP_PROP_FRAME_HEIGHT, 960)
     vid.set(cv2.CAP_PROP_FRAME_WIDTH, 2560)
     bildenummer = 0
+    total_tid = 5
     while bildenummer < argumenter.NUMBER:
         winsound.PlaySound("SystemExclamation", winsound.SND_ALIAS)
-        time.sleep(2)
+        for tid in range(total_tid):
+            time.sleep(1)
+            print(f'Ventet i {tid+1} av {total_tid}')
+            
+            
         ret, frame = vid.read()
         cv2.imwrite(f'.\\Calibrate_camera_{argumenter.CAMID}\\{bildenummer}_cal_bilde.png', frame)
         bildenummer += 1
         
+    cv2.destroyAllWindows() 
+    vid.release()
 
 
 
