@@ -108,7 +108,7 @@ elif argumenter.MODE == 'pic':
     bildenummer = 0
     while bildenummer < argumenter.NUMBER:
         winsound.PlaySound("SystemExclamation", winsound.SND_ALIAS)
-        time.sleep(5)
+        time.sleep(2)
         ret, frame = vid.read()
         cv2.imwrite(f'.\\Calibrate_camera_{argumenter.CAMID}\\{bildenummer}_cal_bilde.png', frame)
         bildenummer += 1

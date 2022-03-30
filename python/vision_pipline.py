@@ -5,7 +5,7 @@ import numpy as np
 import math
 from ROV import Rov
 from logging_init import generate_logging
-
+import timeit
 
 
 ##------------------------Klasser------------------------------------##
@@ -132,11 +132,18 @@ def vp_dock_st(bilder, rov_config: Rov=None , return_pic: bool=True, logger = No
     if not contours_l:
         logger.warning("Fant ingen conturer i venstre bilde, antar at det ikke finnes noe i høyre.")
         return None
+    
+    
+    
+    
     contours_r, hirarchy = cv2.findContours(threshold_bilder[1], cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     if len(contours_l) != len(contours_r): #TODO mulig det blir feil å ikke sortere disse listene før man gjør dette
         #prioriterer contrours_l
         logger.info("Fant ulik mengde konturer i venstre og høyre bilde, bruker antall konturer funnet i venstre bilde")
         contours_r = contours_r[:len(contours_l)]
+    
+    
+    
     
     
     for L_cnt, r_cnt in zip(contours_l, contours_r):
