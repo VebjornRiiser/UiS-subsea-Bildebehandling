@@ -99,7 +99,7 @@ def calc_distance(centers, focal_len=33.2, camera_space=60): # Calculates distan
         int: Avstand i mm
     """
     dist = abs(centers[0][0]-centers[1][0])
-    print(dist)
+    #print(dist)
     if dist == 0:
         return 50
     #return int((3.631e-6 * (dist**4)) - (0.003035 * (dist**3)) + (0.9672 * (dist**2)) - (139.9 * dist) + 7862)
@@ -249,8 +249,8 @@ def image_aqusition_thread(connection, boli):
     first = True
     width = 1280
     while boli:
-        start = time.time()
         mess = connection.recv()
+        start = time.time()
         if isinstance(mess, list):
             if first:
                 first = False
