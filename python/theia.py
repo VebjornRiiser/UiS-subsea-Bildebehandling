@@ -274,7 +274,7 @@ def image_aqusition_thread(connection, boli):
                 mached_list = []
                 if len(mess) == 2:
                     gray = [cv2.cvtColor(mess[0], cv2.COLOR_BGR2GRAY), cv2.cvtColor(mess[1], cv2.COLOR_BGR2GRAY)]
-                    points = sift.detectAndCompute(gray[1], None)
+                    #points = sift.detectAndCompute(gray[1], None)
                     #img=cv2.drawKeypoints(gray,points,mess[0])
                     disp = stereo.compute(gray[0], gray[1])
                     plt.imshow(disp, 'test')
