@@ -8,6 +8,8 @@ from subprocess import Popen, PIPE
 import time
 from sys import platform
 import pickle as p
+from yolo_detect import Yolo
+import statistics
 #from distance import contour_img, calc_size, calc_distance
 
 class Object(): # Used in functions to draw on image, find distance to objects etc, refers to objects in pictures
@@ -85,12 +87,23 @@ def contour_img(image): # Finds shapes by color and size
             cv2.drawContours(image, object.box , -1, (0, 0, 0), 2 )
     return ny_cont
 
-def calc_distance(centers, focal_len, camera_space): # Calculates distance to object using test data, needs position on object in two pictures
+def calc_distance(centers, focal_len=33.2, camera_space=60): # Calculates distance to object using test data, needs position on object in two pictures
+    """Regner ut distansen til et objekt. for stereo kamera
+
+    Args:
+        centers (_type_): Senterkoortdinat til objektet i begge bildene
+        focal_len (float, optional): Focallength oppgitt i pixler. Defaults to 33.2.
+        camera_space (int, optional): Distansen mellom kameraene i mm. Defaults to 60.
+
+    Returns:
+        int: Avstand i mm
+    """
     dist = abs(centers[0][0]-centers[1][0])
+    #print(dist)
     if dist == 0:
         return 50
-    return int((3.631e-6 * (dist**4)) - (0.003035 * (dist**3)) + (0.9672 * (dist**2)) - (139.9 * dist) + 7862)
-    #return int(((focal_len*camera_space)/dist)*100)
+    #return int((3.631e-6 * (dist**4)) - (0.003035 * (dist**3)) + (0.9672 * (dist**2)) - (139.9 * dist) + 7862)
+    return int(((focal_len*camera_space)/dist))
 
 
 def calc_size(num_pixels:int, centers, axis:int=0): # Calulates size of objects in picture
@@ -147,9 +160,9 @@ class Camera():
             self.feed = cv2.VideoCapture(self.id)
         self.set_picture_size(self.width, self.height)
         #self.feed.set(cv2.CAP_PROP_FPS, framerate)
-        #self.feed.set(cv2.CAP_PROP_AUTOFOCUS, 1)
+        self.feed.set(cv2.CAP_PROP_AUTOFOCUS, 3)
         #self.feed.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0)
-        #self.feed.set(cv2.CAP_PROP_EXPOSURE, 600)
+        self.feed.set(cv2.CAP_PROP_EXPOSURE, 500)
         #self.feed.set(cv2.CAP_PROP_AUTO_WB, 1)
         print(self.feed.get(cv2.CAP_PROP_FPS))
 
@@ -162,6 +175,7 @@ class Camera():
         self.width = int(self.feed.get(cv2.CAP_PROP_FRAME_WIDTH))
         print(f'{self.width}:{self.height}')
         self.crop_width = int(self.width/2)
+
 
     def aq_image(self, double:bool=False):
         #ref, frame = self.feed.read()
@@ -216,12 +230,31 @@ def find_calc_shapes(pic1, pic2):
     return mached_list
 
 
+def find_same_objects(obj_list1:list, obj_list2:list):
+    checked_object_list = []
+    for obj1 in obj_list1:
+        for obj2 in obj_list2:
+            if obj1.position[1]-100 <= obj2.position[1] <= obj1.position[1]+100:
+                #if obj1.width[1]-100 <= obj2.width[1] <= obj1.width[1]+100:
+                obj1.dept = calc_distance([obj1.position, obj2.position])
+                checked_object_list.append(obj1)
+    return checked_object_list
+
+
 def image_aqusition_thread(connection, boli):
-    mode = 1 # 1: Find fish, 2: mosaikk 3:TBA 
+    time_list = []
+    mode = 1 # 1: Find rubberfish, 2: mosaikk 3:TBA 
     #TODO Her skal autonom kjøring legges inn
     old_list = []
+    first = True
+    width = 1280
     while boli:
         mess = connection.recv()
+        if isinstance(mess, list):
+            if first:
+                first = False
+                s = mess[0].shape
+                yal = Yolo((s[1], s[0]))
         if isinstance(mess, str):
             if mess.lower() == 'stop':
                 break
@@ -231,26 +264,37 @@ def image_aqusition_thread(connection, boli):
                 mode = 2
         else:
             if mode == 1:
+                start = time.time()
+                mached_list = []
                 if len(mess) == 2:
-                    mached_list = find_calc_shapes(mess[0], mess[1])
-                    if old_list != []:
-                        for a in old_list:
-                            for b in mached_list:
-                                if (cv2.matchShapes(a.contour, b.contour, cv2.CONTOURS_MATCH_I1, 0.0)) < 0.3:
-                                    a.dept = 0.9*b.dept+0.1*a.dept
-                    old_list = mached_list
-                    connection.send(mached_list)
+                    res1 = yal.yolo_image(mess[0]) # Result from left cam
+                    res2 = yal.yolo_image(mess[1]) # Result from right cam
+                    if len(res1) > 0 and len(res2) > 0:
+                        mached_list = find_same_objects(res1, res2)
+                time_list.append(time.time()-start)
+                connection.send(mached_list)
             elif mode == 2:
                 pass
+        if len(time_list) > 20:
+            print(statistics.mean(time_list))
+            time_list = []
         
 
 def draw_on_img(pic, frames):
-    for a in frames:
-        cv2.putText(pic, f'Distance:{a.dept} cm',a.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
-        cv2.putText(pic, f'Distance:{a.dept} cm',a.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
-        cv2.putText(pic, f'Width:{a.true_width} cm',(a.position[0], a.position[1]+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
-        cv2.putText(pic, f'Width:{a.true_width} cm',(a.position[0], a.position[1]+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
-        cv2.drawContours(pic, a.box , -1, (0, 0, 0), 2 )
+    for item in frames:
+        cv2.rectangle(pic, item.rectangle[0], item.rectangle[1], item.colour, item.draw_line_width)
+        pos = (item.rectangle[0][0], item.rectangle[0][1]+40)
+        cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3)
+        cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 1)
+        if item.dept != 0:
+            #print(f"{pos=}")
+            cv2.putText(pic, f'Distance:{item.dept} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
+            cv2.putText(pic, f'Distance:{item.dept} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
+        #cv2.putText(pic, f'Distance:{a.dept} cm',a.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
+        #cv2.putText(pic, f'Distance:{a.dept} cm',a.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
+        #cv2.putText(pic, f'Width:{a.true_width} cm',(a.position[0], a.position[1]+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
+        #cv2.putText(pic, f'Width:{a.true_width} cm',(a.position[0], a.position[1]+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
+        #cv2.drawContours(pic, a.box , -1, (0, 0, 0), 2 )
 
 
 def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
@@ -308,7 +352,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
                 cv2.destroyAllWindows()
                 cam = Camera(camera_id)
             frame_count += 1
-            if frame_count > 2:
+            if frame_count > 9:
                 frame_count = 0
                 if picture_IA_pipe.poll():
                     draw_frames = picture_IA_pipe.recv()
@@ -414,8 +458,6 @@ class Theia():
     def check_hw_id_cam(self):
         self.cam_front_id = self.find_cam("3-2.7") # Checks if a camera is connected on this port
         self.cam_back_id = self.find_cam(".5")
-        print(self.cam_front_id)
-        print(self.cam_back_id)
         #self.cam_front_id = self.find_cam("004")
         #self.cam_back_id = self.find_cam("007")
         if not self.cam_front_id:

@@ -5,7 +5,8 @@ from sys import platform
 import numpy as np
 import time
 import torch
-from zmq import device
+import sys
+sys.path.insert(1, '/home/subsea/yolov5/')
 from models.common import DetectMultiBackend
 from utils.datasets import IMG_FORMATS, VID_FORMATS, LoadImages, LoadStreams
 from utils.general import (LOGGER, check_file, check_img_size, check_imshow, check_requirements, colorstr,
@@ -15,23 +16,25 @@ from utils.torch_utils import select_device, time_sync
 from utils.augmentations import letterbox
 
 
+
 class Yolo(): # 
     def __init__(self, resol, name:str = 'Rubberfish') -> None:
         self.device = select_device('') # Finds possible hardware to use
-        self.weights = 'models/best.pt' # Used machine learning
-        self.data = 'data/coco128.yaml' 
+        print(self.device)
+        self.weights = 'yolov5/models/best.pt' # Used machine learning
+        self.data = 'yolov5/data/coco128.yaml' 
         self.conf_trees = 0.80 # How high confedence we want for a match
         self.iou_tres = 0.45 
         self.color = (255, 0, 0) # Color for frames drawn around object
         self.text = name # Text drawn on picture
         self.model = DetectMultiBackend(self.weights, self.device, False, self.data,)
-        imgsz=(640, 640) # Size of pic samples
+        imgsz=[640, 640] # Size of pic samples
         self.resolution = resol # Image resolution
         self.imgsz = check_img_size(imgsz, s=self.model.stride)
         tride, names, pt, jit, onnx, engine = self.model.stride, self.model.names, self.model.pt, self.model.jit, self.model.onnx, self.model.engine
         if pt or jit:
             self.model.model.float()
-        self.model.warmup(imgsz=(1, 3, *imgsz), half=False)
+        self.model.warmup(imgsz=(1, 3, *imgsz))
         self.resize = [float(resol[1])/384, float(resol[0])/640]
 
     def yolo_image(self, image, test = False): #Find shapes using YOLO (Mostly fish)
@@ -93,7 +96,7 @@ def camera(camera_id): #Testfunction to get images from camera
     print(frame_width)
     print(frame_height)
     run = True
-    feed.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
+    feed.set(cv2.CAP_PROP_AUTO_EXPOSURE, 3)
     feed.set(cv2.CAP_PROP_EXPOSURE, 600)
     yal = Yolo((frame_width, frame_height))
     if not (feed.isOpened()):
@@ -122,9 +125,9 @@ class Object(): # Used in functions to draw on image, find distance to objects e
         self.rectangle = [(int(xyxy[0]), int(xyxy[1])), (int(xyxy[2]), int(xyxy[3]))]
         self.angle = 0
         self.box = 0 #[np.int0(cv2.boxPoints(self.rectanlge))] # Added into a list due to easier use in draw contours
-        self.width = (self.rectangle[0][1] - self.rectangle[0][0])/2 # Calulates and set width
-        self.height = (self.rectangle[1][1] - self.rectangle[1][0])/2 # Calulates and set height
-        self.position = (self.rectangle[0][0] + self.width, self.rectangle[1][0] + self.height) # Calulates and set center
+        self.width = (self.rectangle[1][0] - self.rectangle[0][0]) # Calulates and set width
+        self.height = (self.rectangle[1][1] - self.rectangle[0][1]) # Calulates and set height
+        self.position = (int(self.rectangle[0][0] + self.width/2), int(self.rectangle[0][1] + self.height/2)) # Calulates and set center
         self.true_width = 0 # Needs to be calulated using another picture and compare positions
         self.areal = self.width*self.height
         self.dept = 0
@@ -162,7 +165,7 @@ class Object(): # Used in functions to draw on image, find distance to objects e
         return self._dept
 
     def set_dept(self, newdept):
-        self._dept = newdept
+        self._dept = int(newdept)
 
     @property
     def get_true_width(self):

@@ -241,8 +241,8 @@ class Mercury:
                 else:
                     message = json.loads(message)
                     for item in message:
-                        if item[0] != 70:
-                            print(item)
+                        #if item[0] != 70: # Vær grei å fjern testprints etter test!
+                            #print(item)
                         if item[0] < 200:
                             if self.status['USB']:
                                 self.serial.write(serial_package_builder(item))
@@ -278,7 +278,7 @@ class Mercury:
                                         self.network_handler.send(to_json("Could not find front camera"))
                                 elif key.lower() == "bildebehandlingsmodus":
                                     if item[0] == 200:
-                                        print(f'{item}\n')
+                                        #print(f'{item}\n')
                                         if item[1][key] == 6: # Toggles on/off videofile creation
                                             self.thei.host_cam_front.send('video')
                                         elif item[1][key] != 0:
