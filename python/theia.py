@@ -264,8 +264,8 @@ class Athena():
                     crop2 = gray[1][obj2.rectangle[0][1]+20:obj2.rectangle[0][1]+obj1.height-20, obj2.rectangle[0][0]+20:obj2.rectangle[0][0]+obj1.width-20]
                     offset = obj1.rectangle[0][0]- obj2.rectangle[0][0]
                     print(f'Offset:{offset}')
-                    print(f'Width1{obj1.width}')
-                    print(f'Width2{obj2.width}')
+                    print(f'Width1:{obj1.width}, height1:{obj1.height}')
+                    print(f'Width2:{obj2.width}, height2:{obj2.height}')
                     #cv2.imshow('text', crop1)
                     kp1, des1 = self.orb.detectAndCompute(crop1 ,None)
                     kp2, des2 = self.orb.detectAndCompute(crop2 ,None)
