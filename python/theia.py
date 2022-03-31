@@ -259,8 +259,8 @@ class Athena():
         for obj1 in object_list1:
             for obj2 in object_list2:
                 if obj1.position[1]-100 <= obj2.position[1] <= obj1.position[1]+100:
-                    crop1 = gray[0][obj1.rectangle[0][1]+20:obj1.rectangle[1][1]-20, obj1.rectangle[0][0]+20:obj1.rectangle[1][0]-20]
-                    crop2 = gray[1][obj1.rectangle[0][1]+20:obj1.rectangle[1][1]-20, obj1.rectangle[0][0]+20:obj1.rectangle[1][0]-20]
+                    crop1 = gray[0][obj1.rectangle[0][1]+20:obj2.rectangle[1][1]-20, obj1.rectangle[0][0]+20:obj2.rectangle[1][0]-20]
+                    crop2 = gray[1][obj1.rectangle[0][1]+20:obj2.rectangle[1][1]-20, obj1.rectangle[0][0]+20:obj2.rectangle[1][0]-20]
                     #cv2.imshow('text', crop1)
                     kp1, des1 = self.orb.detectAndCompute(crop1 ,None)
                     kp2, des2 = self.orb.detectAndCompute(crop2 ,None)
