@@ -262,7 +262,8 @@ def image_aqusition_thread(connection, boli):
     
     # 2
     orb = cv2.ORB_create()
-    bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+    #bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True) # OLD VERSION, THX OPENCV
+    bf = cv2.BFMatcher.create(cv2.NORM_HAMMING, crossCheck=True )
 
     # 3
     #cv2.FlannBasedMatcher(index_paralgorithm = 1, trees = 5, checks = 50) # index_paralgorithm = FLANN_INDEX_KDTREE = 1
@@ -293,7 +294,12 @@ def image_aqusition_thread(connection, boli):
                     kp1, des1 = orb.detectAndCompute(gray[0] ,None)
                     kp2, des2 = orb.detectAndCompute(gray[1] ,None)
                     mached_pixels = bf.match(des1, des2)
-                    print(len(mached_pixels))
+
+                    #print(len(mached_pixels))
+                    for a in mached_pixels:
+                        print(type(a))
+
+
                     #disp = stereo.compute(gray[0], gray[1])
                     #plt.imshow(disp, 'gray')
                     
