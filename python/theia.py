@@ -271,7 +271,7 @@ class Athena():
                         mached_pixels = sorted(mached_pixels, key = lambda x:x.distance)
                         new_list = []
                         for a in mached_pixels:
-                            if a.distance < 0.2:
+                            if a.distance < 0.5:
                                 new_list.append(a)
                     except Exception as i:
                         print(i)
