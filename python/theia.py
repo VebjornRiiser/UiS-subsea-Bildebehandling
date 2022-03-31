@@ -268,10 +268,15 @@ class Athena():
                     kp2, des2 = self.orb.detectAndCompute(crop2 ,None)
                     try:
                         mached_pixels = self.bf.match(des1, des2)
+                        mached_pixels = sorted(mached_pixels, key = lambda x:x.distance)
+                        new_list = []
+                        for a in mached_pixels:
+                            if a.distance < 0.2:
+                                new_list.append(a)
                     except Exception as i:
                         print(i)
                         return
-
+                    mached_pixels = new_list
                     #imgDummy = np.zeros((1,1))
                     #img = cv2.drawMatches(crop1,kp1,crop2,kp2,mached_pixels[:10], imgDummy, flags=2)
                     #cv2.imshow("TAGE1!!!!", img)
