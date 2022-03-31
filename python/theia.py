@@ -270,8 +270,8 @@ class Athena():
                     cv2.imshow("TAGE1!!!!", img)
                     dif = 0
                     for a in mached_pixels:
-                        print(abs(kp1[a.queryIdx].pt[0] - kp1[a.trainIdx].pt[0]))
-                        dif += abs(kp1[a.queryIdx].pt[0] - kp1[a.trainIdx].pt[0])
+                        print(abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0]))
+                        dif += abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0])
                     dif /= len(mached_pixels)
                     #plt.imshow(img),plt.show()
                     #cv2.imshow("TAGE2!!!!", crop2)
