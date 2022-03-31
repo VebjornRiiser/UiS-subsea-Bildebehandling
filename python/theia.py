@@ -261,6 +261,7 @@ class Athena():
                 if obj1.position[1]-100 <= obj2.position[1] <= obj1.position[1]+100:
                     crop1 = gray[0][obj1.rectangle[0][1]+20:obj1.rectangle[1][1]-20, obj1.rectangle[0][0]+20:obj1.rectangle[1][0]-20]
                     crop2 = gray[1][obj2.rectangle[0][1]+20:obj2.rectangle[1][1]-20, obj2.rectangle[0][0]+20:obj2.rectangle[1][0]-20]
+                    offset = obj1.position[0]- obj2.position[0]
                     #cv2.imshow('text', crop1)
                     kp1, des1 = self.orb.detectAndCompute(crop1 ,None)
                     kp2, des2 = self.orb.detectAndCompute(crop2 ,None)
@@ -270,8 +271,8 @@ class Athena():
                     cv2.imshow("TAGE1!!!!", img)
                     dif = 0
                     for a in mached_pixels:
-                        print(abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0]))
-                        dif += abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0])
+                        print(abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0]+offset))
+                        dif += abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0]+offset)
                     dif /= len(mached_pixels)
                     #plt.imshow(img),plt.show()
                     #cv2.imshow("TAGE2!!!!", crop2)
