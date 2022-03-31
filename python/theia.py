@@ -262,7 +262,7 @@ class Athena():
                     print(type(crop1))
                     #crop2 = gray[0][obj1.rectangle[0][0]-40:obj1.rectangle[0][1]-40, obj1.rectangle[1][0]+40:obj1.rectangle[1][1]+40]
                     #cv2.imshow('text', crop1)
-                    plt.imshow(crop1, 'gray')
+                    plt.imshow(crop1),plt.show()
                     #if cv2.waitKey(1) & 0xFF == ord('q'):
                     #    break
                     #kp1, des1 = orb.detectAndCompute(gray[0] ,None)
