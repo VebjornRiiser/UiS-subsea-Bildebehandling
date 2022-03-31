@@ -294,7 +294,7 @@ def image_aqusition_thread(connection, boli):
                     new_list = []
                     kp1, des1 = orb.detectAndCompute(gray[0] ,None)
                     kp2, des2 = orb.detectAndCompute(gray[1] ,None)
-                    mached_pixels = bf.match(des1, des2)
+                    mached_pixels = bf.knnmatch(des1, des2)
 
                     #print(len(mached_pixels))
                     for a, b in mached_pixels:
