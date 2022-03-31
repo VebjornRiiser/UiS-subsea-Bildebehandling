@@ -254,9 +254,20 @@ def image_aqusition_thread(connection, boli):
     old_list = []
     first = True
     width = 1280
+
+    # Diffrent methods to compare pixels in multiple pictures
     #stereo = cv2.StereoBM_create(numDisparities=16, blockSize=9)
-    sift = cv2.SIFT_create()
-    cv2.FlannBasedMatcher(index_paralgorithm = FLANN_INDEX_KDTREE, trees = 5, checks = 50)
+    # 1
+    #sift = cv2.SIFT_create()
+    
+    # 2
+    orb = cv2.ORB_create()
+    bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+
+    # 3
+    #cv2.FlannBasedMatcher(index_paralgorithm = 1, trees = 5, checks = 50) # index_paralgorithm = FLANN_INDEX_KDTREE = 1
+
+
     while boli:
         mess = connection.recv()
         if isinstance(mess, list):
@@ -277,14 +288,21 @@ def image_aqusition_thread(connection, boli):
                 mached_list = []
                 if len(mess) == 2:
                     gray = [cv2.cvtColor(mess[0], cv2.COLOR_BGR2GRAY), cv2.cvtColor(mess[1], cv2.COLOR_BGR2GRAY)]
-                    points = sift.detect(gray[1], None)
-                    img=cv2.drawKeypoints(gray[1], points ,mess[0])
+                    #points = sift.detect(gray[1], None)
+                    #img=cv2.drawKeypoints(gray[1], points ,mess[0])
+                    kp1, des1 = orb.detectAndCompute(gray[0] ,None)
+                    kp2, des2 = orb.detectAndCompute(gray[1] ,None)
+                    mached_pixels = bf.matcH(des1, des2)
+                    print(len(mached_pixels))
                     #disp = stereo.compute(gray[0], gray[1])
                     #plt.imshow(disp, 'gray')
+                    
+                    # IMSHOWS FOR TEST
                     #plt.show()
-                    cv2.imshow('text', img)
-                    if cv2.waitKey(1) & 0xFF == ord('q'):
-                        break
+                    #cv2.imshow('text', img)
+                    #if cv2.waitKey(1) & 0xFF == ord('q'):
+                    #    break
+                    
                     res1 = yal.yolo_image(mess[0]) # Result from left cam
                     res2 = yal.yolo_image(mess[1]) # Result from right cam
                     if len(res1) > 0 and len(res2) > 0:
