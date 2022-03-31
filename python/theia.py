@@ -253,16 +253,16 @@ class Athena():
         self.bf = cv2.BFMatcher.create(cv2.NORM_HAMMING, crossCheck=True )
 
     def compare_pixles(self, object_list1, object_list2, pic):
-        print("Line 256")
         gray = [cv2.cvtColor(pic[0], cv2.COLOR_BGR2GRAY), cv2.cvtColor(pic[1], cv2.COLOR_BGR2GRAY)]
         for obj1 in object_list1:
             for obj2 in object_list2:
                 if obj1.position[1]-100 <= obj2.position[1] <= obj1.position[1]+100:
                     crop1 = gray[0][obj1.rectangle[0][0]-40:obj1.rectangle[0][1]-40, obj1.rectangle[1][0]+40:obj1.rectangle[1][1]+40]
-                    crop2 = gray[0][obj1.rectangle[0][0]-40:obj1.rectangle[0][1]-40, obj1.rectangle[1][0]+40:obj1.rectangle[1][1]+40]
-                    cv2.imshow('text', crop1)
-                    if cv2.waitKey(1) & 0xFF == ord('q'):
-                        break
+                    print(type(crop1))
+                    #crop2 = gray[0][obj1.rectangle[0][0]-40:obj1.rectangle[0][1]-40, obj1.rectangle[1][0]+40:obj1.rectangle[1][1]+40]
+                    #cv2.imshow('text', crop1)
+                    #if cv2.waitKey(1) & 0xFF == ord('q'):
+                    #    break
                     #kp1, des1 = orb.detectAndCompute(gray[0] ,None)
                     #kp2, des2 = orb.detectAndCompute(gray[1] ,None)
 
