@@ -270,10 +270,14 @@ class Athena():
                     img = cv2.drawMatches(crop1,kp1,crop2,kp2,mached_pixels[:10], imgDummy, flags=2)
                     cv2.imshow("TAGE1!!!!", img)
                     dif = 0
+                    dif_list = []
                     for a in mached_pixels:
-                        print(abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0]+offset))
-                        dif += abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0]+offset)
-                    dif /= len(mached_pixels)
+                        #print(abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0]+offset))
+                        dif_list.append(abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0]+offset))
+                    dif_list.sort()
+                    dif_list.pop(-1)
+                    dif_list.pop(0)
+                    print(statistics.mean(dif_list))
                     #plt.imshow(img),plt.show()
                     #cv2.imshow("TAGE2!!!!", crop2)
                     if cv2.waitKey(1) & 0xFF == ord('q'):
