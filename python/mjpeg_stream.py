@@ -13,13 +13,9 @@ import time
 capture=None
 
 class CamHandler(BaseHTTPRequestHandler):
-    #def __init__(self):
-    #    try:
-    #        blank = cv2.imread("blank.jpg")
-    #    except:
-    #        pass
-        #pass
-        #selasf.pipe = pipe
+    #def __init__(self, requests, client_address, server):
+    #    BaseHTTPRequestHandler.__init__(self, requests, client_address, server)
+    #    self.blank = cv2.imencode(".jpg", cv2.imread("blank.jpg"))
 
     def do_GET(self):
         if self.path.endswith('.mjpg'):
@@ -52,15 +48,15 @@ class CamHandler(BaseHTTPRequestHandler):
                             #time.sleep(0.016)
                     else:
                         try:
-                            blank = cv2.imread("blank.jpg")
+                            self.blank
                         except:
-                            pass
-                        _, jpg = cv2.imencode(".jpg", blank)
+                            self.blank = cv2.imread("blank.jpg")
+                            _, self.blankjpg = cv2.imencode(".jpg", self.blank)
                         self.wfile.write(b"--frame\n")
                         self.send_header('Content-type','image/jpeg')
-                        self.send_header('Content-length',str(len(jpg)))
+                        self.send_header('Content-length',str(len(self.blankjpg)))
                         self.end_headers()
-                        self.wfile.write(bytes(jpg))
+                        self.wfile.write(bytes(self.blankjpg))
                 except KeyboardInterrupt:
                     break
             return
