@@ -259,6 +259,7 @@ class Athena():
         for obj1 in object_list1:
             for obj2 in object_list2:
                 if obj1.position[1]-100 <= obj2.position[1] <= obj1.position[1]+100:
+                    print(obj1.position)
                     crop1 = gray[0][obj1.rectangle[0][1]+20:obj1.rectangle[1][1]-20, obj1.rectangle[0][0]+20:obj1.rectangle[1][0]-20]
                     crop2 = gray[1][obj2.rectangle[0][1]+20:obj2.rectangle[1][1]-20, obj2.rectangle[0][0]+20:obj2.rectangle[1][0]-20]
                     offset = obj1.position[0]- obj2.position[0]
@@ -281,8 +282,9 @@ class Athena():
                             if abs(kp1[a.queryIdx].pt[1] - kp2[a.trainIdx].pt[1]) < 10:
                                 dif_list.append(abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0]+offset))
                             if len(dif_list) > 2:
-                                print(f'Mean:{statistics.mean(dif_list)}')
-                                print(f'Median:{statistics.median(dif_list)}')
+                                pass
+                                #print(f'Mean:{statistics.mean(dif_list)}')
+                                #print(f'Median:{statistics.median(dif_list)}')
                     #plt.imshow(img),plt.show()
                     #cv2.imshow("TAGE2!!!!", crop2)
                     #if cv2.waitKey(1) & 0xFF == ord('q'):
