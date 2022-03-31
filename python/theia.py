@@ -13,6 +13,7 @@ import statistics
 import matplotlib
 matplotlib.use('tkAgg')
 from matplotlib import pyplot as plt
+from common import *
 #from distance import contour_img, calc_size, calc_distance
 
 class Object(): # Used in functions to draw on image, find distance to objects etc, refers to objects in pictures
