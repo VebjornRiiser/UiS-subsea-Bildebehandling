@@ -275,13 +275,12 @@ class Athena():
                     #imgDummy = np.zeros((1,1))
                     #img = cv2.drawMatches(crop1,kp1,crop2,kp2,mached_pixels[:10], imgDummy, flags=2)
                     #cv2.imshow("TAGE1!!!!", img)
-
                     dif_list = []
                     if len(mached_pixels) > 2:
                         for a in mached_pixels:
                             if abs(kp1[a.queryIdx].pt[1] - kp2[a.trainIdx].pt[1]) < 10:
-                                crop1 = cv2.circle(crop1, (kp1[a.queryIdx].pt[0], kp1[a.queryIdx].pt[1]), 4, (255,0,0), -1)
-                                crop2 = cv2.circle(crop2, (kp2[a.trainIdx].pt[0], kp2[a.trainIdx].pt[1]), 4, (255,0,0), -1)
+                                crop1 = cv2.circle(crop1, (int(kp1[a.queryIdx].pt[0]), int(kp1[a.queryIdx].pt[1])), 4, (255,0,0), -1)
+                                crop2 = cv2.circle(crop2, (int(i) for i in kp2[a.trainIdx].pt) , 4, (255,0,0), -1)
                                 dif_list.append(abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0]+offset))
                             if len(dif_list) > 2:
                                 cv2.imshow("TAGE2!!!!", crop1)
