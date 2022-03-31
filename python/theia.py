@@ -270,16 +270,13 @@ class Athena():
                         mached_pixels = self.bf.match(des1, des2)
                         mached_pixels = sorted(mached_pixels, key = lambda x:x.distance)
                         new_list = []
-                        print(len(mached_pixels))
                         for a in mached_pixels:
-                            print(a.distance)
                             if a.distance < 30:
                                 new_list.append(a)
                     except Exception as i:
                         print(i)
                         return
                     mached_pixels = new_list
-                    print(len(mached_pixels))
                     #imgDummy = np.zeros((1,1))
                     #img = cv2.drawMatches(crop1,kp1,crop2,kp2,mached_pixels[:10], imgDummy, flags=2)
                     #cv2.imshow("TAGE1!!!!", img)
@@ -296,8 +293,8 @@ class Athena():
                                 if cv2.waitKey(1) & 0xFF == ord('q'):
                                     break
                                 pass
-                                #print(f'Mean:{statistics.mean(dif_list)}')
-                                #print(f'Median:{statistics.median(dif_list)}')
+                                print(f'Mean:{statistics.mean(dif_list)}')
+                                print(f'Median:{statistics.median(dif_list)}')
                     #plt.imshow(img),plt.show()
                     #cv2.imshow("TAGE2!!!!", crop2)
                     #if cv2.waitKey(1) & 0xFF == ord('q'):
