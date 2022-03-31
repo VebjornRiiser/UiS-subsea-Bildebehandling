@@ -298,7 +298,7 @@ def image_aqusition_thread(connection, boli):
 
                     #print(len(mached_pixels))
                     for a in kp1:
-                        print(type(a.pt))
+                        print(a.pt)
 
 
                     #disp = stereo.compute(gray[0], gray[1])
