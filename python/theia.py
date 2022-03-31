@@ -258,8 +258,8 @@ class Athena():
         for obj1 in object_list1:
             for obj2 in object_list2:
                 if obj1.position[1]-100 <= obj2.position[1] <= obj1.position[1]+100:
-                    crop1 = gray[0][obj1.rectangle[0][1]+10:obj1.rectangle[1][1]-10, obj1.rectangle[0][0]+20:obj1.rectangle[1][0]-20]
-                    crop2 = gray[0][obj1.rectangle[0][1]+10:obj1.rectangle[1][1]-10, obj1.rectangle[0][0]+20:obj1.rectangle[1][0]-20]
+                    crop1 = gray[0][obj1.rectangle[0][1]+20:obj1.rectangle[1][1]-20, obj1.rectangle[0][0]+20:obj1.rectangle[1][0]-20]
+                    crop2 = gray[0][obj1.rectangle[0][1]+20:obj1.rectangle[1][1]-20, obj1.rectangle[0][0]+20:obj1.rectangle[1][0]-20]
                     #cv2.imshow('text', crop1)
                     cv2.imshow("TAGE1!!!!", crop1)
                     cv2.imshow("TAGE2!!!!", crop2)
