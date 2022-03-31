@@ -291,14 +291,17 @@ def image_aqusition_thread(connection, boli):
                     gray = [cv2.cvtColor(mess[0], cv2.COLOR_BGR2GRAY), cv2.cvtColor(mess[1], cv2.COLOR_BGR2GRAY)]
                     #points = sift.detect(gray[1], None)
                     #img=cv2.drawKeypoints(gray[1], points ,mess[0])
+                    new_list = []
                     kp1, des1 = orb.detectAndCompute(gray[0] ,None)
                     kp2, des2 = orb.detectAndCompute(gray[1] ,None)
                     mached_pixels = bf.match(des1, des2)
 
                     #print(len(mached_pixels))
-                    for a in mached_pixels:
-                        print(a.distance)
-                        print(a.imgIdx)
+                    for a, b in mached_pixels:
+                        if a.distance < 0.8 * b.distance:
+                            new_list.append([a])
+                    print(len(new_list))
+
 
                     #disp = stereo.compute(gray[0], gray[1])
                     #plt.imshow(disp, 'gray')
