@@ -266,8 +266,9 @@ class Athena():
                     kp2, des2 = self.orb.detectAndCompute(crop2 ,None)
                     mached_pixels = self.bf.match(des1, des2)
                     img = np.array([ 1.,  2.,  3.])
-                    cv2.drawMatches(crop1,kp1,crop2,kp2,mached_pixels[:10], img, flags=2)
+                    img = cv2.drawMatches(crop1,kp1,crop2,kp2,mached_pixels[:10], img, flags=2)
                     cv2.imshow("TAGE1!!!!", img)
+                    #plt.imshow(img),plt.show()
                     #cv2.imshow("TAGE2!!!!", crop2)
                     if cv2.waitKey(1) & 0xFF == ord('q'):
                         break
