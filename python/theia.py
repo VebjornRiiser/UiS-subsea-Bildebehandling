@@ -289,7 +289,7 @@ def image_aqusition_thread(connection, boli):
     # 3
     #cv2.FlannBasedMatcher(index_paralgorithm = 1, trees = 5, checks = 50) # index_paralgorithm = FLANN_INDEX_KDTREE = 1
 
-    ath = Athena()
+    #ath = Athena()
     while boli:
         mess = connection.recv()
         if isinstance(mess, list):
@@ -343,7 +343,7 @@ def image_aqusition_thread(connection, boli):
                     if len(res1) > 0 and len(res2) > 0:
                         print("line 343")
                         mached_list = find_same_objects(res1, res2, mess)
-                        ath.compare_pixles(res1, res2, mess)
+                        #ath.compare_pixles(res1, res2, mess)
 
                 time_list.append(time.time()-start)
                 connection.send(mached_list)
