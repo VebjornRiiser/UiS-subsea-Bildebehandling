@@ -270,6 +270,7 @@ class Athena():
                         mached_pixels = self.bf.match(des1, des2)
                         mached_pixels = sorted(mached_pixels, key = lambda x:x.distance)
                         new_list = []
+                        print(len(mached_pixels))
                         for a in mached_pixels:
                             if a.distance < 0.5:
                                 new_list.append(a)
@@ -277,6 +278,7 @@ class Athena():
                         print(i)
                         return
                     mached_pixels = new_list
+                    print(len(mached_pixels))
                     #imgDummy = np.zeros((1,1))
                     #img = cv2.drawMatches(crop1,kp1,crop2,kp2,mached_pixels[:10], imgDummy, flags=2)
                     #cv2.imshow("TAGE1!!!!", img)
