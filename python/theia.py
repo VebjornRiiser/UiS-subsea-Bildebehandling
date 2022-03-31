@@ -280,7 +280,7 @@ class Athena():
                         for a in mached_pixels:
                             if abs(kp1[a.queryIdx].pt[1] - kp2[a.trainIdx].pt[1]) < 10:
                                 dif_list.append(abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0]+offset))
-                            if dif_list > 2:
+                            if len(dif_list) > 2:
                                 print(f'Mean:{statistics.mean(dif_list)}')
                                 print(f'Median:{statistics.median(dif_list)}')
                     #plt.imshow(img),plt.show()
