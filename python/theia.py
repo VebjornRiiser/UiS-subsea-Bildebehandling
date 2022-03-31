@@ -297,8 +297,12 @@ def image_aqusition_thread(connection, boli):
                     mached_pixels = bf.match(des1, des2)
 
                     #print(len(mached_pixels))
-                    for a in kp1:
-                        print(a.pt)
+                    #for a in kp1:
+                    #    print(a.pt)
+                    
+                    ### Some type of id from a list
+                    #for a in mached_pixels:
+                    #    print(kp1[a.trainIdx].pt)
 
 
                     #disp = stereo.compute(gray[0], gray[1])
