@@ -1,6 +1,6 @@
-from inspect import currentframe
+from inspect import currentframe, getframeinfo
 
 # Print info om nåværende linje.
-def ln():
+def ln(melding:str=""):
     cf = currentframe()
-    print(f"Linjenummer: {cf.f_back.f_lineno} er nådd")
+    print(f"Linjenummer: {cf.f_back.f_lineno}, {melding + ', ' if melding != '' else ''}fil: { getframeinfo(cf.f_back).filename.split('/')[-1] }")
