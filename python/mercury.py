@@ -241,8 +241,8 @@ class Mercury:
                 else:
                     message = json.loads(message)
                     for item in message:
-                        #if item[0] != 70: # Vær grei å fjern testprints etter test!
-                            #print(item)
+                        if item[0] != 70: # Vær grei å fjern testprints etter test!
+                            print(item)
                         if item[0] < 200:
                             if self.status['USB']:
                                 self.serial.write(serial_package_builder(item))
