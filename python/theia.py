@@ -277,7 +277,8 @@ class Athena():
                     dif_list.sort()
                     dif_list.pop(-1)
                     dif_list.pop(0)
-                    print(statistics.mean(dif_list))
+                    print(f'Mean:{statistics.mean(dif_list)}')
+                    print(f'Median:{statistics.median(dif_list)}')
                     #plt.imshow(img),plt.show()
                     #cv2.imshow("TAGE2!!!!", crop2)
                     if cv2.waitKey(1) & 0xFF == ord('q'):
