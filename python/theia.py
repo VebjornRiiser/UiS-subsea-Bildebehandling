@@ -280,8 +280,8 @@ class Athena():
                     if len(mached_pixels) > 2:
                         for a in mached_pixels:
                             if abs(kp1[a.queryIdx].pt[1] - kp2[a.trainIdx].pt[1]) < 10:
-                                crop1 = cv2.circle(crop1, kp1[a.queryIdx].pt, 4, (255,0,0), -1)
-                                crop2 = cv2.circle(crop2, kp2[a.trainIdx].pt, 4, (255,0,0), -1)
+                                crop1 = cv2.circle(crop1, (kp1[a.queryIdx].pt[0], kp1[a.queryIdx].pt[1]), 4, (255,0,0), -1)
+                                crop2 = cv2.circle(crop2, (kp2[a.trainIdx].pt[0], kp2[a.trainIdx].pt[1]), 4, (255,0,0), -1)
                                 dif_list.append(abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0]+offset))
                             if len(dif_list) > 2:
                                 cv2.imshow("TAGE2!!!!", crop1)
