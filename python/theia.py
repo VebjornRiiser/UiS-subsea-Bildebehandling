@@ -182,7 +182,7 @@ class Camera():
         self.crop_width = int(self.width/2)
 
 
-    def aq_image(self, double:bool=False):
+    def aq_image(self, double:bool=False, store_img:bool=False):
         #ref, frame = self.feed.read()
         #frame = cv2.rotate(frame, cv2.ROTATE_180)
         #ref, frame = self.feed.read()
@@ -204,11 +204,13 @@ class Camera():
         frame = cv2.rotate(frame, cv2.ROTATE_180)
         crop = frame[:self.height, :self.crop_width]
         crop2 = frame[:self.height,self.crop_width:]
+        if store_img:
+            cv2.imwrite(f'pic_left{1}.jpg',crop)
+            cv2.imwrite(f'pic_right{1}', crop2)
         if double:
             crop2 = frame[:self.height,self.crop_width:]
             return crop, crop2
         else:
-            #crop = white_balance(crop)
             return crop
 
 
@@ -247,7 +249,6 @@ def find_same_objects(obj_list1:list, obj_list2:list, images):
                 checked_object_list.append(obj1)
     return checked_object_list
 
-
 class Athena():
     def __init__(self) -> None:
         self.orb = cv2.ORB_create()
@@ -261,14 +262,14 @@ class Athena():
                     crop1 = gray[0][obj1.rectangle[0][1]+20:obj1.rectangle[1][1]-20, obj1.rectangle[0][0]+20:obj1.rectangle[1][0]-20]
                     crop2 = gray[0][obj1.rectangle[0][1]+20:obj1.rectangle[1][1]-20, obj1.rectangle[0][0]+20:obj1.rectangle[1][0]-20]
                     #cv2.imshow('text', crop1)
-                    cv2.imshow("TAGE1!!!!", crop1)
-                    cv2.imshow("TAGE2!!!!", crop2)
-                    if cv2.waitKey(1) & 0xFF == ord('q'):
-                        break
                     kp1, des1 = self.orb.detectAndCompute(crop1 ,None)
                     kp2, des2 = self.orb.detectAndCompute(crop2 ,None)
                     mached_pixels = self.bf.match(des1, des2)
-
+                    img3 = cv2.drawMatches(crop1,kp1,crop2,kp2,mached_pixels[:10], flags=2)
+                    cv2.imshow("TAGE1!!!!", img3)
+                    #cv2.imshow("TAGE2!!!!", crop2)
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        break
 
 
 def image_aqusition_thread(connection, boli):
@@ -382,6 +383,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
     run = True
     video_feed = True
     video_capture = False
+    take_pic = False
     mode = shared_list[2] # Camera modes: 0: Default no image processing, 1: Find shapes and calculate distance to shapes, 2: ??, 3 ?? 
     if not (cam.feed.isOpened()):
         print('Could not open video device')
@@ -401,6 +403,8 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
                     print("Video finished")
                     video_write.release()
                 shared_list[1] = 0
+            elif shared_list[2] == "picture":
+                take_pic = True
             else:
                 mode = shared_list[2]
                 shared_list[1] = 0
@@ -518,9 +522,7 @@ def pipe_com(connection, callback=None, name=None, list=None):
 
 class Theia():
     def __init__(self) -> None:
-        # Index 0 = id, index 1 = is running
-        self.camera_status = {'front':[0,0], 'back':[0,0]}
-        #self.camera_status = [0, 0] #Index 0 = Camera front, Index 1 = Camera under/back
+        self.camera_status = {'front':[0,0], 'back':[0,0]} # Camera status, index 0 : Availability, index 1: Status
         self.camera_function = {'front': False, 'back':False} # Bool = Pircutre prossesing status
         self.autonom = False # If true will send feedback on ROV postion related to red line etc.
         self.port_camback_feed = 6888
