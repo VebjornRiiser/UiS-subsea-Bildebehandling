@@ -260,8 +260,8 @@ class Athena():
             for obj2 in object_list2:
                 if obj1.position[1]-100 <= obj2.position[1] <= obj1.position[1]+100:
                     print(obj1.position)
-                    crop1 = gray[0][int(obj1.rectangle[0][1]+obj1.height*0.2):int(obj1.rectangle[0][1]+obj1.height*0.8), obj1.rectangle[0][0]+20:obj1.rectangle[0][0]+obj1.width-20]
-                    crop2 = gray[1][int(obj2.rectangle[0][1]+obj1.height*0.2):int(obj2.rectangle[0][1]+obj1.height*0.8), obj2.rectangle[0][0]+20:obj2.rectangle[0][0]+obj1.width-20]
+                    crop1 = gray[0][int(obj1.rectangle[0][1]+obj1.height*0.2):int(obj1.rectangle[0][1]+obj1.height*0.8), int(obj1.rectangle[0][0]+obj1.width*0.2):int(obj1.rectangle[0][0]+obj1.width*0.8)]
+                    crop2 = gray[1][int(obj2.rectangle[0][1]+obj1.height*0.2):int(obj2.rectangle[0][1]+obj1.height*0.8), int(obj2.rectangle[0][0]+obj1.width*0.2):int(obj2.rectangle[0][0]+obj1.width*0.8)]
                     offset = obj1.rectangle[0][0]- obj2.rectangle[0][0]
                     print(f'Offset:{offset}')
                     print(f'Width1:{obj1.width}, height1:{obj1.height}')
