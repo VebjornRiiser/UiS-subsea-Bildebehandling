@@ -269,6 +269,7 @@ class Athena():
                         mached_pixels = self.bf.match(des1, des2)
                     except Exception as i:
                         print(i)
+                        return
 
                     #imgDummy = np.zeros((1,1))
                     #img = cv2.drawMatches(crop1,kp1,crop2,kp2,mached_pixels[:10], imgDummy, flags=2)
