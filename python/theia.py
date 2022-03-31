@@ -287,14 +287,14 @@ class Athena():
                                 crop1 = cv2.circle(crop1, (int(kp1[a.queryIdx].pt[0]), int(kp1[a.queryIdx].pt[1])), 4, (255,0,0), -1)
                                 crop2 = cv2.circle(crop2, (int(kp2[a.trainIdx].pt[0]), int(kp2[a.trainIdx].pt[1])) , 4, (255,0,0), -1)
                                 dif_list.append(abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0]+offset))
-                            if len(dif_list) > 2:
-                                cv2.imshow("TAGE1!!!!", crop1)
-                                cv2.imshow("TAGE2!!!!", crop2)
-                                if cv2.waitKey(1) & 0xFF == ord('q'):
-                                    break
-                                pass
-                                print(f'Mean:{statistics.mean(dif_list)}')
-                                print(f'Median:{statistics.median(dif_list)}')
+                        if len(dif_list) > 2:
+                            cv2.imshow("TAGE1!!!!", crop1)
+                            cv2.imshow("TAGE2!!!!", crop2)
+                            if cv2.waitKey(1) & 0xFF == ord('q'):
+                                break
+                            pass
+                            print(f'Mean:{statistics.mean(dif_list)}')
+                            print(f'Median:{statistics.median(dif_list)}')
                     #plt.imshow(img),plt.show()
                     #cv2.imshow("TAGE2!!!!", crop2)
                     #if cv2.waitKey(1) & 0xFF == ord('q'):
