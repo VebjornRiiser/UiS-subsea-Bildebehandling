@@ -253,6 +253,7 @@ class Athena():
         self.bf = cv2.BFMatcher.create(cv2.NORM_HAMMING, crossCheck=True )
 
     def compare_pixles(self, object_list1, object_list2, pic):
+        print("Line 256")
         gray = [cv2.cvtColor(pic[0], cv2.COLOR_BGR2GRAY), cv2.cvtColor(pic[1], cv2.COLOR_BGR2GRAY)]
         for obj1 in object_list1:
             for obj2 in object_list2:
