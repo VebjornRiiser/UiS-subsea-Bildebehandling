@@ -262,8 +262,8 @@ def image_aqusition_thread(connection, boli):
     
     # 2
     orb = cv2.ORB_create()
-    bf = cv2.BFMatcher()# OLD VERSION, THX OPENCV
-    #bf = cv2.BFMatcher.create(cv2.NORM_HAMMING, crossCheck=True )
+    #bf = cv2.BFMatcher()# OLD VERSION, THX OPENCV
+    bf = cv2.BFMatcher.create(cv2.NORM_HAMMING, crossCheck=True )
 
     # 3
     #cv2.FlannBasedMatcher(index_paralgorithm = 1, trees = 5, checks = 50) # index_paralgorithm = FLANN_INDEX_KDTREE = 1
@@ -294,13 +294,11 @@ def image_aqusition_thread(connection, boli):
                     new_list = []
                     kp1, des1 = orb.detectAndCompute(gray[0] ,None)
                     kp2, des2 = orb.detectAndCompute(gray[1] ,None)
-                    mached_pixels = bf.knnMatch(des1, des2, k=2)
+                    mached_pixels = bf.Match(des1, des2, k=2)
 
                     #print(len(mached_pixels))
-                    for a, b in mached_pixels:
-                        if a.distance < 0.8 * b.distance:
-                            new_list.append([a])
-                    print(len(new_list))
+                    for a in kp1:
+                        print(type(a))
 
 
                     #disp = stereo.compute(gray[0], gray[1])
