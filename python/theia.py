@@ -265,7 +265,7 @@ class Athena():
                     kp1, des1 = self.orb.detectAndCompute(crop1 ,None)
                     kp2, des2 = self.orb.detectAndCompute(crop2 ,None)
                     mached_pixels = self.bf.match(des1, des2)
-                    img = np.array()
+                    img = np.array([ 1.,  2.,  3.])
                     cv2.drawMatches(crop1,kp1,crop2,kp2,mached_pixels[:10], img, flags=2)
                     cv2.imshow("TAGE1!!!!", img)
                     #cv2.imshow("TAGE2!!!!", crop2)
