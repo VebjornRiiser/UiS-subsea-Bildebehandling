@@ -297,8 +297,8 @@ def image_aqusition_thread(connection, boli):
 
                     #print(len(mached_pixels))
                     for a in mached_pixels:
-                        print(type(a))
-
+                        print(a.distance)
+                        print(a.imgIdx)
 
                     #disp = stereo.compute(gray[0], gray[1])
                     #plt.imshow(disp, 'gray')
