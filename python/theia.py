@@ -273,7 +273,7 @@ class Athena():
                     dif_list = []
                     for a in mached_pixels:
                         #print(abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0]+offset))
-                        if abs(kp1[a.queryIdx].pt[1] - kp2[a.trainIdx].pt[1]+offset) < 10:
+                        if abs(kp1[a.queryIdx].pt[1] - kp2[a.trainIdx].pt[1]) < 10:
                             dif_list.append(abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0]+offset))
                     dif_list.sort()
                     dif_list.pop(-1)
