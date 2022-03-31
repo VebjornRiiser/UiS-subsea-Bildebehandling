@@ -273,7 +273,7 @@ class Athena():
                         print(len(mached_pixels))
                         for a in mached_pixels:
                             print(a.distance)
-                            if a.distance < 0.5:
+                            if a.distance < 30:
                                 new_list.append(a)
                     except Exception as i:
                         print(i)
@@ -409,7 +409,7 @@ def draw_on_img(pic, frames):
 def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
     print(f'Camera:{camera_id} started')
     cam = Camera(camera_id)
-    shared_list = [1, 0, 0, 0]
+    shared_list = [1, 0, 1, 0]
     threading.Thread(name="Camera_con", target=pipe_com, daemon=True, args=(connection, None, None, shared_list)).start()
     fourcc = cv2.VideoWriter_fourcc(*'MPEG')
     run = True
