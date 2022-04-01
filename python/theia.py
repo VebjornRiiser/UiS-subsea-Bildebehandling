@@ -92,7 +92,7 @@ def contour_img(image): # Finds shapes by color and size
     return ny_cont
 
 
-def calc_distance(centers, focal_len=33.2, camera_space=60): # Calculates distance to object using test data, needs position on object in two pictures
+def calc_distance(dist, focal_len=4000, camera_space=60): # Calculates distance to object using test data, needs position on object in two pictures
     """Regner ut distansen til et objekt. for stereo kamera
 
     Args:
@@ -103,7 +103,7 @@ def calc_distance(centers, focal_len=33.2, camera_space=60): # Calculates distan
     Returns:
         int: Avstand i mm
     """
-    dist = abs(centers[0][0]-centers[1][0])
+    #dist = abs(centers[0][0]-centers[1][0])
     #print(dist)
     if dist == 0:
         return 50
@@ -237,7 +237,7 @@ def find_calc_shapes(pic1, pic2):
     return mached_list
 
 
-def find_same_objects(obj_list1:list, obj_list2:list, images):
+def find_same_objects(obj_list1:list, obj_list2:list, images): # This code will now brake Christoffer 1/4 -2022, calc distance is changed
     #plt.imshow(disp, 'gray')
     #plt.show()
     checked_object_list = []
@@ -276,58 +276,60 @@ class Athena():
         for obj1 in object_list1:
             for obj2 in object_list2:
                 if obj1.position[1]-100 <= obj2.position[1] <= obj1.position[1]+100:
-                    crop1 = gray[0][int(obj1.rectangle[0][1]+obj1.height*0.2):int(obj1.rectangle[0][1]+obj1.height*0.8), int(obj1.rectangle[0][0]+obj1.width*0.2):int(obj1.rectangle[0][0]+obj1.width*0.8)]
-                    crop2 = gray[1][int(obj2.rectangle[0][1]+obj1.height*0.2):int(obj2.rectangle[0][1]+obj1.height*0.8), int(obj2.rectangle[0][0]+obj1.width*0.2):int(obj2.rectangle[0][0]+obj1.width*0.8)]
-                    offset = obj1.rectangle[0][0]- obj2.rectangle[0][0]
-                    
-                    
-                    # Testprints
-                    #print(f'pos0:{int(obj1.rectangle[0][0])}')
-                    #print(f'pos1:{int(obj1.rectangle[0][1])}')
-                    #a = int(obj1.rectangle[0][0]+obj1.height*0.2)-int(obj2.rectangle[0][0]+obj1.height*0.2)
-                    #b = obj1.rectangle[0][0]- obj2.rectangle[0][0]
-                    #print(f'{(a==b)}')
-                    #print(f'Offset:{offset}')
-                    #print(f'Width1:{obj1.width}, height1:{obj1.height}')
-                    #print(f'Width2:{obj2.width}, height2:{obj2.height}')
-                    
-                    kp1, des1 = self.orb.detectAndCompute(crop1 ,None)
-                    kp2, des2 = self.orb.detectAndCompute(crop2 ,None)
-                    try:
-                        mached_pixels = self.bf.match(des1, des2)
-                        mached_pixels = sorted(mached_pixels, key = lambda x:x.distance)
-                        new_list = []
-                        for a in mached_pixels:
-                            if a.distance < 70:
-                                new_list.append(a)
-                    except Exception as i:
-                        print(i)
-                        return
-                    mached_pixels = new_list
-                    #imgDummy = np.zeros((1,1))
-                    #img = cv2.drawMatches(crop1,kp1,crop2,kp2,mached_pixels[:10], imgDummy, flags=2)
-                    #cv2.imshow("TAGE1!!!!", img)
-                    dif_list = []
-                    if len(mached_pixels) > 2:
-                        for a in mached_pixels:
-                            if abs(kp1[a.queryIdx].pt[1] - kp2[a.trainIdx].pt[1]) < 10:
-                                crop1 = cv2.circle(crop1, (int(kp1[a.queryIdx].pt[0]), int(kp1[a.queryIdx].pt[1])), 4, (255,0,0), -1)
-                                crop2 = cv2.circle(crop2, (int(kp2[a.trainIdx].pt[0]), int(kp2[a.trainIdx].pt[1])) , 4, (255,0,0), -1)
-                                dif_list.append(abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0]+offset))
-                        if len(dif_list) > 2:
-                            obj1.dept = statistics.mean(dif_list)
-                            new_object_list.append(obj1)
-                            #cv2.imshow("TAGE1!!!!", crop1)
-                            #cv2.imshow("TAGE2!!!!", crop2)
-                            #if cv2.waitKey(1) & 0xFF == ord('q'):
-                            #    break
-                            #pass
-                            #print(f'Mean:{statistics.mean(dif_list)}')
-                            #print(f'Median:{statistics.median(dif_list)}')
-                    #plt.imshow(img),plt.show()
-                    #cv2.imshow("TAGE2!!!!", crop2)
-                    #if cv2.waitKey(1) & 0xFF == ord('q'):
-                    #    break
+                    if obj1.width-50 <= obj2.width <= obj1.width+50:
+                        crop1 = gray[0][int(obj1.rectangle[0][1]+obj1.height*0.2):int(obj1.rectangle[0][1]+obj1.height*0.8), int(obj1.rectangle[0][0]+obj1.width*0.2):int(obj1.rectangle[0][0]+obj1.width*0.8)]
+                        crop2 = gray[1][int(obj2.rectangle[0][1]+obj1.height*0.2):int(obj2.rectangle[0][1]+obj1.height*0.8), int(obj2.rectangle[0][0]+obj1.width*0.2):int(obj2.rectangle[0][0]+obj1.width*0.8)]
+                        offset = obj1.rectangle[0][0]- obj2.rectangle[0][0]
+                        
+                        
+                        # Testprints
+                        #print(f'pos0:{int(obj1.rectangle[0][0])}')
+                        #print(f'pos1:{int(obj1.rectangle[0][1])}')
+                        #a = int(obj1.rectangle[0][0]+obj1.height*0.2)-int(obj2.rectangle[0][0]+obj1.height*0.2)
+                        #b = obj1.rectangle[0][0]- obj2.rectangle[0][0]
+                        #print(f'{(a==b)}')
+                        #print(f'Offset:{offset}')
+                        #print(f'Width1:{obj1.width}, height1:{obj1.height}')
+                        #print(f'Width2:{obj2.width}, height2:{obj2.height}')
+                        
+                        kp1, des1 = self.orb.detectAndCompute(crop1 ,None)
+                        kp2, des2 = self.orb.detectAndCompute(crop2 ,None)
+                        try:
+                            mached_pixels = self.bf.match(des1, des2)
+                            mached_pixels = sorted(mached_pixels, key = lambda x:x.distance)
+                            new_list = []
+                            for a in mached_pixels:
+                                if a.distance < 70:
+                                    new_list.append(a)
+                        except Exception as i:
+                            print(i)
+                            return
+                        mached_pixels = new_list
+                        #imgDummy = np.zeros((1,1))
+                        #img = cv2.drawMatches(crop1,kp1,crop2,kp2,mached_pixels[:10], imgDummy, flags=2)
+                        #cv2.imshow("TAGE1!!!!", img)
+                        dif_list = []
+                        if len(mached_pixels) > 2:
+                            for a in mached_pixels:
+                                if abs(kp1[a.queryIdx].pt[1] - kp2[a.trainIdx].pt[1]) < 10:
+                                    crop1 = cv2.circle(crop1, (int(kp1[a.queryIdx].pt[0]), int(kp1[a.queryIdx].pt[1])), 4, (255,0,0), -1)
+                                    crop2 = cv2.circle(crop2, (int(kp2[a.trainIdx].pt[0]), int(kp2[a.trainIdx].pt[1])) , 4, (255,0,0), -1)
+                                    dif_list.append(abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0]+offset))
+                            if len(dif_list) > 2:
+                                obj1.dept = calc_distance(statistics.median(dif_list)) 
+                                new_object_list.append(obj1)
+                                #cv2.imshow("TAGE1!!!!", crop1)
+                                #cv2.imshow("TAGE2!!!!", crop2)
+                                #if cv2.waitKey(1) & 0xFF == ord('q'):
+                                #    break
+                                #pass
+                                #print(f'Mean:{statistics.mean(dif_list)}')
+                                #print(f'Median:{statistics.median(dif_list)}')
+                        #plt.imshow(img),plt.show()
+                        #cv2.imshow("TAGE2!!!!", crop2)
+                        #if cv2.waitKey(1) & 0xFF == ord('q'):
+                        #    break
+        new_object_list = check_overlap(new_object_list)          
         return new_object_list
 
 ## Recives images and processes them according to mode returns objects with information to draw, len to objects and positions related to them ##
@@ -528,6 +530,21 @@ def pipe_com(connection, callback=None, name=None, list=None):
             list[2] = connection.recv()
             list[1] = 1
 
+## Checks if object positions overlap ##
+# Returns list without overlap #  
+# Function needs to be tested #
+def check_overlap(obj_list): 
+    del_list = []
+    for a, b in enumerate(obj_list):
+        if a != len(obj_list)-1:
+            for obj in obj_list[a+1:]:
+                if obj.rectangle[0][0] < b.position[0] < obj.rectangle[1][0]:
+                    if obj.rectangle[0][1] < b.position[1] < obj.rectangle[1][1]:
+                        del_list.append(a)
+                        break
+    for a in del_list:
+        obj_list.remove(a)
+    return obj_list
 
 #TODO cli_runtime
 # Funksjon som håndterer en commandline interface for prossesser (slik at man kan styre ting når man tester)
