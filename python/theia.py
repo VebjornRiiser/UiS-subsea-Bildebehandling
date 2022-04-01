@@ -284,7 +284,7 @@ class Athena():
                     print(f'Best fit')
                     print(int(obj1.rectangle[0][1]+obj1.height*0.2)-obj2.rectangle[0][1]+obj1.height*0.2)
                     print(f'Er denne lik?')
-                    print(obj1.rectangle[0][0]- obj2.rectangle[0][0])
+                    print(obj1.rectangle[0][1]- obj2.rectangle[0][1])
                     #print(f'Offset:{offset}')
                     #print(f'Width1:{obj1.width}, height1:{obj1.height}')
                     #print(f'Width2:{obj2.width}, height2:{obj2.height}')
