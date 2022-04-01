@@ -327,6 +327,7 @@ class Athena():
                             else:
                                 if a > 1280:
                                     a = 1280
+                        print(f'{points}\n\n')
                         crop1 = gray[0][points[0]:points[2], points[4]:points[6]]
                         crop2 = gray[1][points[1]:points[3], points[5]:points[7]]
                         offset = obj1.rectangle[0][0]- obj2.rectangle[0][0]
