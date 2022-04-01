@@ -327,7 +327,6 @@ class Athena():
                             else:
                                 if a > 1280:
                                     points[b] = 1280
-                        print(f'{points}\n\n')
                         crop1 = gray[0][points[0]:points[2], points[4]:points[6]]
                         crop2 = gray[1][points[1]:points[3], points[5]:points[7]]
                         offset = obj1.rectangle[0][0]- obj2.rectangle[0][0]
@@ -341,10 +340,10 @@ class Athena():
                         #print(f'Offset:{offset}')
                         #print(f'Width1:{obj1.width}, height1:{obj1.height}')
                         #print(f'Width2:{obj2.width}, height2:{obj2.height}')
-                        cv2.imshow("TAGE1!!!!", crop1)
-                        cv2.imshow("TAGE2!!!!", crop2)
-                        if cv2.waitKey(1) & 0xFF == ord('q'):
-                                break
+                        #cv2.imshow("TAGE1!!!!", crop1)
+                        #cv2.imshow("TAGE2!!!!", crop2)
+                        #if cv2.waitKey(1) & 0xFF == ord('q'):
+                        #        break
                         
                         kp1, des1 = self.orb.detectAndCompute(crop1 ,None)
                         kp2, des2 = self.orb.detectAndCompute(crop2 ,None)
@@ -373,10 +372,10 @@ class Athena():
                             if len(dif_list) > 2:
                                 obj1.dept = calc_distance(statistics.median(dif_list))
                                 print(f'Disparity: {statistics.median(dif_list)}')
-                                #cv2.imshow("TAGE1!!!!", crop1)
-                                #cv2.imshow("TAGE2!!!!", crop2)
-                                #if cv2.waitKey(1) & 0xFF == ord('q'):
-                                #    break
+                                cv2.imshow("TAGE1!!!!", crop1)
+                                cv2.imshow("TAGE2!!!!", crop2)
+                                if cv2.waitKey(1) & 0xFF == ord('q'):
+                                    break
                                 #pass
                                 #print(f'Mean:{statistics.mean(dif_list)}')
                                 #print(f'Median:{statistics.median(dif_list)}')
