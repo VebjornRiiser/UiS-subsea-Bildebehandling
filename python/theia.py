@@ -309,11 +309,16 @@ class Athena():
             for obj2 in object_list2:
                 if obj1.position[1]-100 <= obj2.position[1] <= obj1.position[1]+100:
                     if obj1.width-50 <= obj2.width <= obj1.width+50:
-                        s1 = int(obj1.rectangle[0][1]-obj1.height*0.1)
+                        s11 = int(obj1.rectangle[0][1]-obj1.height*0.1)
+                        s12 = int(obj2.rectangle[0][1]-obj1.height*0.1)
                         s21 = int(obj1.rectangle[0][1]+obj1.height*1.1)
                         s22 = int(obj2.rectangle[0][1]+obj1.height*1.1)
-                        crop1 = gray[0][int(obj1.rectangle[0][1]-obj1.height*0.1):int(obj1.rectangle[0][1]+obj1.height*1.1), int(obj1.rectangle[0][0]+obj1.width*0.2):int(obj1.rectangle[0][0]+obj1.width*0.8)]
-                        crop2 = gray[1][int(obj2.rectangle[0][1]-obj1.height*0.1):int(obj2.rectangle[0][1]+obj1.height*1.1), int(obj2.rectangle[0][0]+obj1.width*0.2):int(obj2.rectangle[0][0]+obj1.width*0.8)]
+                        l11 = int(obj1.rectangle[0][0]-obj1.width*0.1)
+                        l12 = int(obj2.rectangle[0][0]-obj1.width*0.1)
+                        l21 = int(obj1.rectangle[0][0]+obj1.width*1.1)
+                        l22 = int(obj2.rectangle[0][0]+obj1.width*1.1)
+                        crop1 = gray[0][s11:s21, l11:l21]
+                        crop2 = gray[1][s12:s22, l12:l22]
                         offset = obj1.rectangle[0][0]- obj2.rectangle[0][0]
                         
                         
