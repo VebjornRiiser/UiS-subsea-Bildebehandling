@@ -206,6 +206,7 @@ class Camera():
         crop2 = frame[:self.height,self.crop_width:]
         if t_pic:
             t = time.asctime()
+            ln('Took picture')
             cv2.imwrite(f'pic_left{t}.png',crop)
             cv2.imwrite(f'pic_right{t}.png', crop2)
         if double:
