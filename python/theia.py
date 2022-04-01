@@ -546,7 +546,7 @@ def check_overlap(obj_list):
             for obj in obj_list[a+1:]:
                 if obj.rectangle[0][0] < b.position[0] < obj.rectangle[1][0]:
                     if obj.rectangle[0][1] < b.position[1] < obj.rectangle[1][1]:
-                        del_list.append(a)
+                        del_list.append(b)
                         break
     for a in del_list:
         obj_list.remove(a)
