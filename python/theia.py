@@ -171,6 +171,13 @@ class Camera():
         self.feed.set(cv2.CAP_PROP_EXPOSURE, 500)
         #self.feed.set(cv2.CAP_PROP_AUTO_WB, 1)
         print(self.feed.get(cv2.CAP_PROP_FPS))
+        with open('cal_cam.npy', 'rb') as f:
+            self.mtx1 = np.load(f)
+            self.dist1 = np.load(f)
+            self.mtx2 = np.load(f)
+            self.dist2 = np.load(f)
+            self.R = np.load(f)
+            self.T = np.load(f)
 
 
     def set_picture_size(self, width:int=2560, height:int=960):

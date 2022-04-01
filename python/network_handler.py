@@ -178,6 +178,8 @@ if __name__ == "__main__":
             elif a == 'loop':
                 for _ in range(10):
                     asd = [70]
+            elif a == 'pic':
+                asd = [[200, {"bildebehandlingsmodus": int(7)}]]
             mess = bytes(json.dumps("*"), "utf-8") + bytes(json.dumps(asd), "utf-8") + bytes(json.dumps("*"), "utf-8")
             client_conn.send(mess)
             #client_conn.send(bytes('*{"can": [(0, 99)]}*', "utf-8"))
