@@ -281,8 +281,8 @@ class Athena():
                     
                     
                     # Testprints
-                    #print(f'pos0:{int(obj1.rectangle[0][0])}')
-                    #print(f'pos1:{int(obj1.rectangle[0][1])}')
+                    print(f'pos0:{int(obj1.rectangle[0][0])}')
+                    print(f'pos1:{int(obj1.rectangle[0][1])}')
 
                     #print(int(obj1.rectangle[0][1]+obj1.height*0.2)-int(obj2.rectangle[0][1]+obj1.height*0.2))
                     #print(f'Er denne lik?')
