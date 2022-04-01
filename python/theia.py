@@ -429,6 +429,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
     if not video_feed:
         cv2.namedWindow('FishCam', cv2.WINDOW_NORMAL)
     while run:
+        take_pic = False
         if shared_list[1] == 1:
             if shared_list[2] == "video":
                 video_capture ^= True
