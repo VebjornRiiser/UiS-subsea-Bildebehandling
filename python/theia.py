@@ -92,7 +92,7 @@ def contour_img(image): # Finds shapes by color and size
     return ny_cont
 
 
-def calc_distance(dist, focal_len=4000, camera_space=60): # Calculates distance to object using test data, needs position on object in two pictures
+def calc_distance(dist, focal_len=400, camera_space=60): # Calculates distance to object using test data, needs position on object in two pictures
     """Regner ut distansen til et objekt. for stereo kamera
 
     Args:
@@ -256,6 +256,8 @@ class Athena():
     def __init__(self) -> None:
         self.orb = cv2.ORB_create()
         self.bf = cv2.BFMatcher.create(cv2.NORM_HAMMING, crossCheck=True )
+        self.first = True
+        self.old_object_list = []
         
     # Diffrent methods to compare pixels in multiple pictures
     #stereo = cv2.StereoBM_create(numDisparities=16, blockSize=9)
@@ -269,6 +271,9 @@ class Athena():
 
     # 3
     #cv2.FlannBasedMatcher(index_paralgorithm = 1, trees = 5, checks = 50) # index_paralgorithm = FLANN_INDEX_KDTREE = 1
+    def check_last_size(self, new_object_list):
+        pass
+
 
     def compare_pixles(self, object_list1, object_list2, pic):
         gray = [cv2.cvtColor(pic[0], cv2.COLOR_BGR2GRAY), cv2.cvtColor(pic[1], cv2.COLOR_BGR2GRAY)]
