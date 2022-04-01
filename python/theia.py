@@ -207,8 +207,8 @@ class Camera():
         if t_pic:
             t = time.asctime()
             ln('Took picture')
-            cv2.imwrite(f'pic_left{t}.png',crop)
-            cv2.imwrite(f'pic_right{t}.png', crop2)
+            cv2.imwrite(f'~Bilete/rov/pic_left{t}.png',crop)
+            cv2.imwrite(f'~Bilete/rov/pic_right{t}.png', crop2)
         if double:
             crop2 = frame[:self.height,self.crop_width:]
             return crop, crop2
