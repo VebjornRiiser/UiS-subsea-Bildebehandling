@@ -320,13 +320,13 @@ class Athena():
                         points.append(int(obj2.rectangle[0][0]+obj1.width*1.1)) 
                         for b, a in enumerate(points): # Checks that all points are within picture before crop
                             if a < 0:
-                                a = 0
+                                points[b] = 0
                             if b <= 3:
                                 if a > 720:
-                                    a = 720
+                                    points[b] = 720
                             else:
                                 if a > 1280:
-                                    a = 1280
+                                    points[b] = 1280
                         print(f'{points}\n\n')
                         crop1 = gray[0][points[0]:points[2], points[4]:points[6]]
                         crop2 = gray[1][points[1]:points[3], points[5]:points[7]]
