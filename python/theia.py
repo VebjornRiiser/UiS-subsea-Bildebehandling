@@ -329,7 +329,8 @@ class Athena():
                         #cv2.imshow("TAGE2!!!!", crop2)
                         #if cv2.waitKey(1) & 0xFF == ord('q'):
                         #    break
-        new_object_list = check_overlap(new_object_list)          
+        if len(new_object_list) > 1:
+            new_object_list = check_overlap(new_object_list)          
         return new_object_list
 
 ## Recives images and processes them according to mode returns objects with information to draw, len to objects and positions related to them ##
