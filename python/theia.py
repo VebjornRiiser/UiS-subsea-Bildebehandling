@@ -217,8 +217,8 @@ class Camera():
         if t_pic:
             t = time.asctime()
             ln('Took picture')
-            cv2.imwrite(f'pic_left{t}.png',crop)
-            cv2.imwrite(f'pic_right{t}.png', crop2)
+            cv2.imwrite(f'/home/subsea/Bilete/rov/pic_left{t}.png',crop)
+            cv2.imwrite(f'/home/subsea/Bilete/rov/pic_right{t}.png', crop2)
         if double:
             crop2 = frame[:self.height,self.crop_width:]
             return crop, crop2
@@ -452,6 +452,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
                 shared_list[1] = 0
             elif shared_list[2] == "tpic":
                 take_pic = True
+                shared_list[1] = 0
             else:
                 mode = shared_list[2]
                 shared_list[1] = 0
