@@ -281,12 +281,12 @@ class Athena():
                     
                     
                     # Testprints
-                    print(f'pos0:{int(obj1.rectangle[0][0])}')
-                    print(f'pos1:{int(obj1.rectangle[0][1])}')
-
-                    #print(int(obj1.rectangle[0][1]+obj1.height*0.2)-int(obj2.rectangle[0][1]+obj1.height*0.2))
-                    #print(f'Er denne lik?')
-                    #print(obj1.rectangle[0][1]- obj2.rectangle[0][1])
+                    #print(f'pos0:{int(obj1.rectangle[0][0])}')
+                    #print(f'pos1:{int(obj1.rectangle[0][1])}')
+                    print("Best fit")
+                    print(int(obj1.rectangle[0][0]+obj1.height*0.2)-int(obj2.rectangle[0][0]+obj1.height*0.2))
+                    print(f'Er denne lik?')
+                    print(obj1.rectangle[0][0]- obj2.rectangle[0][0])
                     #print(f'Offset:{offset}')
                     #print(f'Width1:{obj1.width}, height1:{obj1.height}')
                     #print(f'Width2:{obj2.width}, height2:{obj2.height}')
