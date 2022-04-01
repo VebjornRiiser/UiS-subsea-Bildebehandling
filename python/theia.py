@@ -323,12 +323,17 @@ class Athena():
                         #print(f'Offset:{offset}')
                         #print(f'Width1:{obj1.width}, height1:{obj1.height}')
                         #print(f'Width2:{obj2.width}, height2:{obj2.height}')
+                        cv2.imshow("TAGE1!!!!", crop1)
+                        cv2.imshow("TAGE2!!!!", crop2)
+                        if cv2.waitKey(1) & 0xFF == ord('q'):
+                                break
                         
                         kp1, des1 = self.orb.detectAndCompute(crop1 ,None)
                         kp2, des2 = self.orb.detectAndCompute(crop2 ,None)
                         try:
                             mached_pixels = self.bf.match(des1, des2)
                             mached_pixels = sorted(mached_pixels, key = lambda x:x.distance)
+                            print(len(mached_pixels))
                             new_list = []
                             for a in mached_pixels:
                                 if a.distance < 100:
@@ -350,10 +355,10 @@ class Athena():
                             if len(dif_list) > 2:
                                 obj1.dept = calc_distance(statistics.median(dif_list))
                                 print(f'Disparity: {statistics.median(dif_list)}')
-                                cv2.imshow("TAGE1!!!!", crop1)
-                                cv2.imshow("TAGE2!!!!", crop2)
-                                if cv2.waitKey(1) & 0xFF == ord('q'):
-                                    break
+                                #cv2.imshow("TAGE1!!!!", crop1)
+                                #cv2.imshow("TAGE2!!!!", crop2)
+                                #if cv2.waitKey(1) & 0xFF == ord('q'):
+                                #    break
                                 #pass
                                 #print(f'Mean:{statistics.mean(dif_list)}')
                                 #print(f'Median:{statistics.median(dif_list)}')
