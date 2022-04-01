@@ -317,7 +317,6 @@ class Athena():
                                     dif_list.append(abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0]+offset))
                             if len(dif_list) > 2:
                                 obj1.dept = calc_distance(statistics.median(dif_list)) 
-                                new_object_list.append(obj1)
                                 #cv2.imshow("TAGE1!!!!", crop1)
                                 #cv2.imshow("TAGE2!!!!", crop2)
                                 #if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -329,6 +328,7 @@ class Athena():
                         #cv2.imshow("TAGE2!!!!", crop2)
                         #if cv2.waitKey(1) & 0xFF == ord('q'):
                         #    break
+            new_object_list.append(obj1)
         if len(new_object_list) > 1:
             new_object_list = check_overlap(new_object_list)          
         return new_object_list
