@@ -347,7 +347,7 @@ class Athena():
             new_object_list.append(obj1)
         if len(new_object_list) > 1:
             new_object_list = check_overlap(new_object_list) # Checks for object overlapping
-        new_object_list(self.check_last_size(new_object_list)) # Filters distances vales, and sets old if new is not found
+        new_object_list = self.check_last_size(new_object_list) # Filters distances vales, and sets old if new is not found
         return new_object_list
 
 ## Recives images and processes them according to mode returns objects with information to draw, len to objects and positions related to them ##
