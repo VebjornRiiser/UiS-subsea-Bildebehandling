@@ -309,19 +309,28 @@ class Athena():
             for obj2 in object_list2:
                 if obj1.position[1]-100 <= obj2.position[1] <= obj1.position[1]+100:
                     if obj1.width-50 <= obj2.width <= obj1.width+50:
-                        s11 = int(obj1.rectangle[0][1]-obj1.height*0.1)
-                        s12 = int(obj2.rectangle[0][1]-obj2.height*0.1)
-                        s21 = int(obj1.rectangle[0][1]+obj1.height*1.1)
-                        s22 = int(obj2.rectangle[0][1]+obj2.height*1.1)
-                        l11 = int(obj1.rectangle[0][0]-obj1.width*0.1)
-                        l12 = int(obj2.rectangle[0][0]-obj1.width*0.1)
-                        l21 = int(obj1.rectangle[0][0]+obj1.width*1.1)
-                        l22 = int(obj2.rectangle[0][0]+obj1.width*1.1)
-                        crop1 = gray[0][s11:s21, l11:l21]
-                        crop2 = gray[1][s12:s22, l12:l22]
+                        points = [] # points to crop
+                        points.append(int(obj1.rectangle[0][1]-obj1.height*0.1)) 
+                        points.append(int(obj2.rectangle[0][1]-obj2.height*0.1)) 
+                        points.append(int(obj1.rectangle[0][1]+obj1.height*1.1)) 
+                        points.append(int(obj2.rectangle[0][1]+obj2.height*1.1)) 
+                        points.append(int(obj1.rectangle[0][0]-obj1.width*0.1)) 
+                        points.append(int(obj2.rectangle[0][0]-obj1.width*0.1)) 
+                        points.append(int(obj1.rectangle[0][0]+obj1.width*1.1)) 
+                        points.append(int(obj2.rectangle[0][0]+obj1.width*1.1)) 
+                        for b, a in enumerate(points): # Checks that all points are within picture before crop
+                            if a < 0:
+                                a = 0
+                            if b <= 3:
+                                if a > 720:
+                                    a = 720
+                            else:
+                                if a > 1280:
+                                    a = 1280
+                        crop1 = gray[0][points[0]:points[2], points[4]:points[6]]
+                        crop2 = gray[1][points[1]:points[3], points[5]:points[7]]
                         offset = obj1.rectangle[0][0]- obj2.rectangle[0][0]
-                        
-                        
+
                         # Testprints
                         #print(f'pos0:{int(obj1.rectangle[0][0])}')
                         #print(f'pos1:{int(obj1.rectangle[0][1])}')
