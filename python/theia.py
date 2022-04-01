@@ -211,7 +211,9 @@ class Camera():
                 return False
         frame = cv2.rotate(frame, cv2.ROTATE_180)
         crop = frame[:self.height, :self.crop_width]
+        crop = cv2.undistort(crop, self.mtx1, self.dist1)
         crop2 = frame[:self.height,self.crop_width:]
+        crop2 = cv2.undistort(crop2, self.mtx2, self.dist2)
         if t_pic:
             t = time.asctime()
             ln('Took picture')
