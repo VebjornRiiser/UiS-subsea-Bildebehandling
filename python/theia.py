@@ -11,7 +11,7 @@ import pickle as p
 from yolo_detect import Yolo
 import statistics
 import matplotlib
-matplotlib.use('tkAgg')
+# matplotlib.use('tkAgg') # This broke the code
 from matplotlib import pyplot as plt
 from common import *
 #from distance import contour_img, calc_size, calc_distance
