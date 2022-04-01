@@ -249,24 +249,46 @@ def find_same_objects(obj_list1:list, obj_list2:list, images):
                 checked_object_list.append(obj1)
     return checked_object_list
 
-class Athena():
+
+## After objects are found this class can compare pictures and objects to determin if they could be the same object with the use of size and positions ##
+## If objects match, will try to determin the diffrence in position theese objects have in the picture. ##
+class Athena(): 
     def __init__(self) -> None:
         self.orb = cv2.ORB_create()
         self.bf = cv2.BFMatcher.create(cv2.NORM_HAMMING, crossCheck=True )
+        
+    # Diffrent methods to compare pixels in multiple pictures
+    #stereo = cv2.StereoBM_create(numDisparities=16, blockSize=9)
+    # 1
+    #sift = cv2.SIFT_create()
+    
+    # 2
+    #orb = cv2.ORB_create()
+    #bf = cv2.BFMatcher()# OLD VERSION, THX OPENCV
+    #bf = cv2.BFMatcher.create(cv2.NORM_HAMMING, crossCheck=True )
+
+    # 3
+    #cv2.FlannBasedMatcher(index_paralgorithm = 1, trees = 5, checks = 50) # index_paralgorithm = FLANN_INDEX_KDTREE = 1
 
     def compare_pixles(self, object_list1, object_list2, pic):
         gray = [cv2.cvtColor(pic[0], cv2.COLOR_BGR2GRAY), cv2.cvtColor(pic[1], cv2.COLOR_BGR2GRAY)]
         for obj1 in object_list1:
             for obj2 in object_list2:
                 if obj1.position[1]-100 <= obj2.position[1] <= obj1.position[1]+100:
-                    print(obj1.position)
                     crop1 = gray[0][int(obj1.rectangle[0][1]+obj1.height*0.2):int(obj1.rectangle[0][1]+obj1.height*0.8), int(obj1.rectangle[0][0]+obj1.width*0.2):int(obj1.rectangle[0][0]+obj1.width*0.8)]
                     crop2 = gray[1][int(obj2.rectangle[0][1]+obj1.height*0.2):int(obj2.rectangle[0][1]+obj1.height*0.8), int(obj2.rectangle[0][0]+obj1.width*0.2):int(obj2.rectangle[0][0]+obj1.width*0.8)]
                     offset = obj1.rectangle[0][0]- obj2.rectangle[0][0]
-                    print(f'Offset:{offset}')
-                    print(f'Width1:{obj1.width}, height1:{obj1.height}')
-                    print(f'Width2:{obj2.width}, height2:{obj2.height}')
-                    #cv2.imshow('text', crop1)
+                    
+                    
+                    # Testprints
+                    print(f'Best fit')
+                    print(int(obj1.rectangle[0][1]+obj1.height*0.2)-obj2.rectangle[0][1]+obj1.height*0.2)
+                    print(f'Er denne lik?')
+                    print(obj1.rectangle[0][0]- obj2.rectangle[0][0])
+                    #print(f'Offset:{offset}')
+                    #print(f'Width1:{obj1.width}, height1:{obj1.height}')
+                    #print(f'Width2:{obj2.width}, height2:{obj2.height}')
+                    
                     kp1, des1 = self.orb.detectAndCompute(crop1 ,None)
                     kp2, des2 = self.orb.detectAndCompute(crop2 ,None)
                     try:
@@ -303,7 +325,7 @@ class Athena():
                     #if cv2.waitKey(1) & 0xFF == ord('q'):
                     #    break
 
-
+## Recives images and processes them according to mode returns objects with information to draw, len to objects and positions related to them ##
 def image_aqusition_thread(connection, boli):
     time_list = []
     mode = 1 # 1: Find rubberfish, 2: mosaikk 3:TBA 
@@ -312,18 +334,6 @@ def image_aqusition_thread(connection, boli):
     first = True
     width = 1280
 
-    # Diffrent methods to compare pixels in multiple pictures
-    #stereo = cv2.StereoBM_create(numDisparities=16, blockSize=9)
-    # 1
-    #sift = cv2.SIFT_create()
-    
-    # 2
-    #orb = cv2.ORB_create()
-    #bf = cv2.BFMatcher()# OLD VERSION, THX OPENCV
-    #bf = cv2.BFMatcher.create(cv2.NORM_HAMMING, crossCheck=True )
-
-    # 3
-    #cv2.FlannBasedMatcher(index_paralgorithm = 1, trees = 5, checks = 50) # index_paralgorithm = FLANN_INDEX_KDTREE = 1
 
     ath = Athena()
     while boli:
@@ -346,33 +356,6 @@ def image_aqusition_thread(connection, boli):
                 start = time.time()
                 mached_list = []
                 if len(mess) == 2:
-                    #gray = [cv2.cvtColor(mess[0], cv2.COLOR_BGR2GRAY), cv2.cvtColor(mess[1], cv2.COLOR_BGR2GRAY)]
-                    #points = sift.detect(gray[1], None)
-                    #img=cv2.drawKeypoints(gray[1], points ,mess[0])
-                    
-                    
-                    #new_list = []
-                    #kp1, des1 = orb.detectAndCompute(gray[0] ,None)
-                    #kp2, des2 = orb.detectAndCompute(gray[1] ,None)
-                    #mached_pixels = bf.match(des1, des2)
-
-                    #print(len(mached_pixels))
-                    #for a in kp1:
-                    #    print(a.pt)
-                    
-                    ### Some type of id from a list
-                    #for a in mached_pixels:
-                    #    print(kp1[a.trainIdx].pt)
-
-
-                    #disp = stereo.compute(gray[0], gray[1])
-                    #plt.imshow(disp, 'gray')
-                    
-                    # IMSHOWS FOR TEST
-                    #plt.show()
-                    #cv2.imshow('text', img)
-                    #if cv2.waitKey(1) & 0xFF == ord('q'):
-                    #    break
                     
                     res1 = yal.yolo_image(mess[0]) # Result from left cam
                     res2 = yal.yolo_image(mess[1]) # Result from right cam
@@ -390,23 +373,18 @@ def image_aqusition_thread(connection, boli):
         
 
 def draw_on_img(pic, frames):
-    for item in frames:
-        cv2.rectangle(pic, item.rectangle[0], item.rectangle[1], item.colour, item.draw_line_width)
-        pos = (item.rectangle[0][0], item.rectangle[0][1]+40)
-        cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3)
-        cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 1)
-        if item.dept != 0:
-            #print(f"{pos=}")
+    for item in frames: # Draws objects on picture
+        cv2.rectangle(pic, item.rectangle[0], item.rectangle[1], item.colour, item.draw_line_width) # Draws rectablge on picture
+        pos = (item.rectangle[0][0], item.rectangle[0][1]+40) # For readability
+        cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3) # Red text
+        cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 1) # White background
+        if item.dept != 0: # Draws dept esitmation if there is one
             cv2.putText(pic, f'Distance:{item.dept} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
             cv2.putText(pic, f'Distance:{item.dept} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
-        #cv2.putText(pic, f'Distance:{a.dept} cm',a.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
-        #cv2.putText(pic, f'Distance:{a.dept} cm',a.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
-        #cv2.putText(pic, f'Width:{a.true_width} cm',(a.position[0], a.position[1]+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
-        #cv2.putText(pic, f'Width:{a.true_width} cm',(a.position[0], a.position[1]+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
-        #cv2.drawContours(pic, a.box , -1, (0, 0, 0), 2 )
 
 
-def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
+## Got access to one camera, can aquire images from camera, communicates with main process and can send picutres to image prossesing and stream ##
+def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):  
     print(f'Camera:{camera_id} started')
     cam = Camera(camera_id)
     shared_list = [1, 0, 1, 0]
@@ -548,7 +526,7 @@ def pipe_com(connection, callback=None, name=None, list=None):
 
 
 #TODO cli_runtime
-#Funksjon som håndterer en commandline interface for prossesser (slik at man kan styre ting når man tester)
+# Funksjon som håndterer en commandline interface for prossesser (slik at man kan styre ting når man tester)
 # Denne skulle kanskje vært en toggle funksjon som man kan enable fra click når man kjører programmet
 
 
@@ -671,3 +649,34 @@ if __name__ == "__main__":
         #s.host_cam_front.send(0)
         #time.sleep(20)
         #s.host_cam_front.send(1)
+
+
+                    # Noen ubrukte bildebehandlingsmetoder
+
+                    #gray = [cv2.cvtColor(mess[0], cv2.COLOR_BGR2GRAY), cv2.cvtColor(mess[1], cv2.COLOR_BGR2GRAY)]
+                    #points = sift.detect(gray[1], None)
+                    #img=cv2.drawKeypoints(gray[1], points ,mess[0])
+                    
+                    
+                    #new_list = []
+                    #kp1, des1 = orb.detectAndCompute(gray[0] ,None)
+                    #kp2, des2 = orb.detectAndCompute(gray[1] ,None)
+                    #mached_pixels = bf.match(des1, des2)
+
+                    #print(len(mached_pixels))
+                    #for a in kp1:
+                    #    print(a.pt)
+                    
+                    ### Some type of id from a list
+                    #for a in mached_pixels:
+                    #    print(kp1[a.trainIdx].pt)
+
+
+                    #disp = stereo.compute(gray[0], gray[1])
+                    #plt.imshow(disp, 'gray')
+                    
+                    # IMSHOWS FOR TEST
+                    #plt.show()
+                    #cv2.imshow('text', img)
+                    #if cv2.waitKey(1) & 0xFF == ord('q'):
+                    #    break
