@@ -71,6 +71,7 @@ class Object(): # Used in functions to draw on image, find distance to objects e
     def set_true_width(self, newwidth):
         self._true_width = newwidth
 
+
 def contour_img(image): # Finds shapes by color and size
     cvt_pic = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     color_lower = np.array([60,100,50])
@@ -430,7 +431,6 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
     if not video_feed:
         cv2.namedWindow('FishCam', cv2.WINDOW_NORMAL)
     while run:
-        take_pic = False
         if shared_list[1] == 1:
             if shared_list[2] == "video":
                 video_capture ^= True
@@ -459,12 +459,14 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
                 
         if mode == 0:
             pic = cam.aq_image(False, take_pic)
+            take_pic = False
             if pic is False:
                 cam.feed.release()
                 cv2.destroyAllWindows()
                 cam = Camera(camera_id)
         elif mode == 1:
             pic, pic2 = cam.aq_image(True, take_pic)
+            take_pic = False
             if pic is False:
                 cam.feed.release()
                 cv2.destroyAllWindows()
