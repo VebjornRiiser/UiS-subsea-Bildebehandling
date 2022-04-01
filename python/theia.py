@@ -272,6 +272,7 @@ class Athena():
 
     def compare_pixles(self, object_list1, object_list2, pic):
         gray = [cv2.cvtColor(pic[0], cv2.COLOR_BGR2GRAY), cv2.cvtColor(pic[1], cv2.COLOR_BGR2GRAY)]
+        new_object_list = []
         for obj1 in object_list1:
             for obj2 in object_list2:
                 if obj1.position[1]-100 <= obj2.position[1] <= obj1.position[1]+100:
@@ -283,10 +284,9 @@ class Athena():
                     # Testprints
                     #print(f'pos0:{int(obj1.rectangle[0][0])}')
                     #print(f'pos1:{int(obj1.rectangle[0][1])}')
-                    a = int(obj1.rectangle[0][0]+obj1.height*0.2)-int(obj2.rectangle[0][0]+obj1.height*0.2)
-                    b = obj1.rectangle[0][0]- obj2.rectangle[0][0]
-                    print(f'{(a==b)}')
-
+                    #a = int(obj1.rectangle[0][0]+obj1.height*0.2)-int(obj2.rectangle[0][0]+obj1.height*0.2)
+                    #b = obj1.rectangle[0][0]- obj2.rectangle[0][0]
+                    #print(f'{(a==b)}')
                     #print(f'Offset:{offset}')
                     #print(f'Width1:{obj1.width}, height1:{obj1.height}')
                     #print(f'Width2:{obj2.width}, height2:{obj2.height}')
@@ -315,17 +315,20 @@ class Athena():
                                 crop2 = cv2.circle(crop2, (int(kp2[a.trainIdx].pt[0]), int(kp2[a.trainIdx].pt[1])) , 4, (255,0,0), -1)
                                 dif_list.append(abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0]+offset))
                         if len(dif_list) > 2:
+                            obj1.dept = statistics.mean(dif_list)
+                            new_object_list.append(obj1)
                             #cv2.imshow("TAGE1!!!!", crop1)
                             #cv2.imshow("TAGE2!!!!", crop2)
-                            if cv2.waitKey(1) & 0xFF == ord('q'):
-                                break
-                            pass
-                            print(f'Mean:{statistics.mean(dif_list)}')
-                            print(f'Median:{statistics.median(dif_list)}')
+                            #if cv2.waitKey(1) & 0xFF == ord('q'):
+                            #    break
+                            #pass
+                            #print(f'Mean:{statistics.mean(dif_list)}')
+                            #print(f'Median:{statistics.median(dif_list)}')
                     #plt.imshow(img),plt.show()
                     #cv2.imshow("TAGE2!!!!", crop2)
                     #if cv2.waitKey(1) & 0xFF == ord('q'):
                     #    break
+        return new_object_list
 
 ## Recives images and processes them according to mode returns objects with information to draw, len to objects and positions related to them ##
 def image_aqusition_thread(connection, boli):
@@ -362,9 +365,8 @@ def image_aqusition_thread(connection, boli):
                     res1 = yal.yolo_image(mess[0]) # Result from left cam
                     res2 = yal.yolo_image(mess[1]) # Result from right cam
                     if len(res1) > 0 and len(res2) > 0:
-                        mached_list = find_same_objects(res1, res2, mess)
-                        ath.compare_pixles(res1, res2, mess)
-
+                        #mached_list = find_same_objects(res1, res2, mess)
+                        mached_list = ath.compare_pixles(res1, res2, mess)
                 time_list.append(time.time()-start)
                 connection.send(mached_list)
             elif mode == 2:
