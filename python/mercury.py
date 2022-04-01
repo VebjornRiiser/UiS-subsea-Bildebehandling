@@ -35,6 +35,12 @@ def get_num(c_format:str, byt):
 def get_bit(num, bit_nr):
     return True if (num >> bit_nr) & 1 else False
 
+def set_bit( bits:tuple ):
+    out = int(0)
+    for k, bit in enumerate(bits):
+        out += bit << k
+    return out
+
 
 def serial_package_builder(data, can=True):
     package = []
@@ -74,6 +80,10 @@ def serial_package_builder(data, can=True):
     # Ping
     elif can_id in [95, 127, 159]:
         package += bytes("ping!\n", "latin")
+
+    # Sikring og regulator
+    elif can_id == 139:
+        package += get_byte("uint8", set_bit(can_data[0:4]))
 
     # Lysstyrke
     elif can_id == 142:
@@ -161,11 +171,11 @@ def create_json(can_id:int, data:str):
         json_dict = {"accel": (accel_x, accel_y, accel_z)}
 
     # Straumforbruk
-    elif can_id in [90, 91, 92]:
-        pwr1 = get_num("uint16", data_b[0:2])
-        pwr2 = get_num("uint16", data_b[2:4])
-        pwr3 = get_num("uint16", data_b[4:6])
-        json_dict = {f"power_consumption{can_id - 90}": ( pwr1, pwr2, pwr3 )}
+    elif can_id == 90:
+        pwr1 = get_num("uint16", data_b[0:2]) / 10
+        pwr2 = get_num("uint16", data_b[2:4]) / 10
+        pwr3 = get_num("uint16", data_b[4:6]) / 10
+        json_dict = {f"power_consumption": ( pwr1, pwr2, pwr3 )}
 
     # Leak detection and temperature
     elif can_id == 140:
