@@ -273,10 +273,8 @@ class Athena():
     #cv2.FlannBasedMatcher(index_paralgorithm = 1, trees = 5, checks = 50) # index_paralgorithm = FLANN_INDEX_KDTREE = 1
     def check_last_size(self, new_object_list):
         if len(new_object_list) == len(self.old_object_list):
-            ln()
             for a, obj in enumerate(new_object_list): # Checks each object if its within 20% of old size and position
                 if self.old_object_list[a].width*0.8 < obj.width < self.old_object_list[a].width*1.2:
-                    ln()
                     #if self.old_object_list[a].position[0]*0.8 < obj.position[0] < self.old_object_list[a].position[0]*1.2:
                     if obj.dept != 0:
                         obj.dept = self.old_object_list[a].dept*0.8 + obj.dept*0.2
@@ -406,8 +404,8 @@ def draw_on_img(pic, frames):
             cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3) # Red text
             cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 1) # White background
             if item.dept != 0: # Draws dept esitmation if there is one
-                cv2.putText(pic, f'Distance:{item.dept} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
-                cv2.putText(pic, f'Distance:{item.dept} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
+                cv2.putText(pic, f'Distance:{int(item.dept)} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
+                cv2.putText(pic, f'Distance:{int(item.dept)} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
 
 
 ## Got access to one camera, can aquire images from camera, communicates with main process and can send picutres to image prossesing and stream ##
