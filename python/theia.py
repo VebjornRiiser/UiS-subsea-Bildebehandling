@@ -284,6 +284,10 @@ class Athena():
     # 3
     #cv2.FlannBasedMatcher(index_paralgorithm = 1, trees = 5, checks = 50) # index_paralgorithm = FLANN_INDEX_KDTREE = 1
     def check_last_size(self, new_object_list):
+        if self.first:
+            self.first = False
+            self.old_object_list = new_object_list
+            return new_object_list
         if len(new_object_list) == len(self.old_object_list):
             for a, obj in enumerate(new_object_list): # Checks each object if its within 20% of old size and position
                 if self.old_object_list[a].width*0.8 < obj.width < self.old_object_list[a].width*1.2:
@@ -343,8 +347,10 @@ class Athena():
                                     crop1 = cv2.circle(crop1, (int(kp1[a.queryIdx].pt[0]), int(kp1[a.queryIdx].pt[1])), 4, (255,0,0), -1)
                                     crop2 = cv2.circle(crop2, (int(kp2[a.trainIdx].pt[0]), int(kp2[a.trainIdx].pt[1])) , 4, (255,0,0), -1)
                                     dif_list.append(abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0]+offset))
+                                    print(f'Disparity: {kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0]+offset}')
                             if len(dif_list) > 2:
-                                obj1.dept = calc_distance(statistics.median(dif_list)) 
+                                obj1.dept = calc_distance(statistics.median(dif_list))
+                                print(f'Disparity: {obj1.dept}')
                                 #cv2.imshow("TAGE1!!!!", crop1)
                                 #cv2.imshow("TAGE2!!!!", crop2)
                                 #if cv2.waitKey(1) & 0xFF == ord('q'):
