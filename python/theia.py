@@ -385,14 +385,15 @@ def image_aqusition_thread(connection, boli):
         
 
 def draw_on_img(pic, frames):
-    for item in frames: # Draws objects on picture
-        cv2.rectangle(pic, item.rectangle[0], item.rectangle[1], item.colour, item.draw_line_width) # Draws rectablge on picture
-        pos = (item.rectangle[0][0], item.rectangle[0][1]+40) # For readability
-        cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3) # Red text
-        cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 1) # White background
-        if item.dept != 0: # Draws dept esitmation if there is one
-            cv2.putText(pic, f'Distance:{item.dept} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
-            cv2.putText(pic, f'Distance:{item.dept} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
+    if isinstance(frames, list):
+        for item in frames: # Draws objects on picture
+            cv2.rectangle(pic, item.rectangle[0], item.rectangle[1], item.colour, item.draw_line_width) # Draws rectablge on picture
+            pos = (item.rectangle[0][0], item.rectangle[0][1]+40) # For readability
+            cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3) # Red text
+            cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 1) # White background
+            if item.dept != 0: # Draws dept esitmation if there is one
+                cv2.putText(pic, f'Distance:{item.dept} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
+                cv2.putText(pic, f'Distance:{item.dept} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
 
 
 ## Got access to one camera, can aquire images from camera, communicates with main process and can send picutres to image prossesing and stream ##
