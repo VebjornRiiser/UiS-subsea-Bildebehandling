@@ -273,8 +273,10 @@ class Athena():
     #cv2.FlannBasedMatcher(index_paralgorithm = 1, trees = 5, checks = 50) # index_paralgorithm = FLANN_INDEX_KDTREE = 1
     def check_last_size(self, new_object_list):
         if len(new_object_list) == self.old_object_list:
+            ln()
             for a, obj in enumerate(new_object_list): # Checks each object if its within 20% of old size and position
                 if self.old_object_list[a].width*0.8 < obj.width < self.old_object_list[a].width*1.2:
+                    ln()
                     #if self.old_object_list[a].position[0]*0.8 < obj.position[0] < self.old_object_list[a].position[0]*1.2:
                     if obj.dept != 0:
                         obj.dept = self.old_object_list[a].dept*0.8 + obj.dept*0.2
