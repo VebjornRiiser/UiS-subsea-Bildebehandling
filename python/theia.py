@@ -182,7 +182,7 @@ class Camera():
         self.crop_width = int(self.width/2)
 
 
-    def aq_image(self, double:bool=False, store_img:bool=False):
+    def aq_image(self, double:bool=False, t_pic:bool=False):
         #ref, frame = self.feed.read()
         #frame = cv2.rotate(frame, cv2.ROTATE_180)
         #ref, frame = self.feed.read()
@@ -204,9 +204,10 @@ class Camera():
         frame = cv2.rotate(frame, cv2.ROTATE_180)
         crop = frame[:self.height, :self.crop_width]
         crop2 = frame[:self.height,self.crop_width:]
-        if store_img:
-            cv2.imwrite(f'pic_left{1}.jpg',crop)
-            cv2.imwrite(f'pic_right{1}', crop2)
+        if t_pic:
+            t = time.asctime()
+            cv2.imwrite(f'pic_left{t}.png',crop)
+            cv2.imwrite(f'pic_right{t}.png', crop2)
         if double:
             crop2 = frame[:self.height,self.crop_width:]
             return crop, crop2
@@ -333,10 +334,10 @@ class Athena():
                                     dif_list.append(abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0]+offset))
                             if len(dif_list) > 2:
                                 obj1.dept = calc_distance(statistics.median(dif_list)) 
-                                cv2.imshow("TAGE1!!!!", crop1)
-                                cv2.imshow("TAGE2!!!!", crop2)
-                                if cv2.waitKey(1) & 0xFF == ord('q'):
-                                    break
+                                #cv2.imshow("TAGE1!!!!", crop1)
+                                #cv2.imshow("TAGE2!!!!", crop2)
+                                #if cv2.waitKey(1) & 0xFF == ord('q'):
+                                #    break
                                 #pass
                                 #print(f'Mean:{statistics.mean(dif_list)}')
                                 #print(f'Median:{statistics.median(dif_list)}')
@@ -438,7 +439,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
                     print("Video finished")
                     video_write.release()
                 shared_list[1] = 0
-            elif shared_list[2] == "picture":
+            elif shared_list[2] == "tpic":
                 take_pic = True
             else:
                 mode = shared_list[2]
@@ -455,13 +456,13 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
                 mode = int(mode)
                 
         if mode == 0:
-            pic = cam.aq_image()
+            pic = cam.aq_image(False, take_pic)
             if pic is False:
                 cam.feed.release()
                 cv2.destroyAllWindows()
                 cam = Camera(camera_id)
         elif mode == 1:
-            pic, pic2 = cam.aq_image(True)
+            pic, pic2 = cam.aq_image(True, take_pic)
             if pic is False:
                 cam.feed.release()
                 cv2.destroyAllWindows()

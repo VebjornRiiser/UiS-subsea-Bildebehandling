@@ -291,13 +291,16 @@ class Mercury:
                                         #print(f'{item}\n')
                                         if item[1][key] == 6: # Toggles on/off videofile creation
                                             self.thei.host_cam_front.send('video')
+                                        elif item[1][key] == 7: # Takes one pictue
+                                            self.thei.host_cam_front.send('tpic')
                                         elif item[1][key] != 0:
                                             self.thei.camera_function['front'] = True
                                             mld = serial_package_builder(self.thei.set_front_zero, False)
                                             self.serial.write(mld)
                                         else:
                                             self.thei.camera_function['front'] = False
-                                        if self.thei.camera_status['front'] and item[1][key] !=6:
+                                        check = ((item[1][key] !=6) or (item[1][key] !=7))
+                                        if self.thei.camera_status['front'] and check:
                                             print("MerK:278: Change camer function")
                                             self.thei.host_cam_front.send(item[1][key])
                                         elif item[1][key] !=6:
