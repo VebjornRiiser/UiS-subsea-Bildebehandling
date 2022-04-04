@@ -721,7 +721,7 @@ if __name__ == "__main__":
     #s.camera_status['front'][1] = 1
     #s.cam_front_id = 1
     
-    s.toggle_front(lcoal = True)
+    s.toggle_front(local = True)
     #s.toggle_back()
     print(time.asctime())
     
