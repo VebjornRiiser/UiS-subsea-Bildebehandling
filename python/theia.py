@@ -448,14 +448,14 @@ def draw_on_img(pic, frames):
 
 
 ## Got access to one camera, can aquire images from camera, communicates with main process and can send picutres to image prossesing and stream ##
-def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):  
+def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, local = False):  
     print(f'Camera:{camera_id} started')
     cam = Camera(camera_id)
     shared_list = [1, 0, 1, 0]
     threading.Thread(name="Camera_con", target=pipe_com, daemon=True, args=(connection, None, None, shared_list)).start()
     fourcc = cv2.VideoWriter_fourcc(*'MPEG')
     run = True
-    video_feed = True
+    video_feed = not local
     video_capture = False
     take_pic = False
     mode = shared_list[2] # Camera modes: 0: Default no image processing, 1: Find shapes and calculate distance to shapes, 2: ??, 3 ?? 
@@ -652,7 +652,7 @@ class Theia():
                 return l[1]
         return False
 
-    def toggle_front(self, cam_id: int=0):
+    def toggle_front(self, local: bool=False):
         #print(f"{self.camera_status['front'] = }")
         if self.camera_status['front'][0] == 1:
             self.host_cam_front.send('stop')
@@ -662,7 +662,7 @@ class Theia():
                 self.host_cam_front, self.client_cam1 = Pipe()
                 self.send_front_pic, recive_front_pic = Pipe()
                 send_IA_front, recive_IA = Pipe()
-                self.front_camera_prosess = Process(target=camera_thread, daemon=True, args=(self.cam_front_id, self.client_cam1, self.send_front_pic, send_IA_front))
+                self.front_camera_prosess = Process(target=camera_thread, daemon=True, args=(self.cam_front_id, self.client_cam1, self.send_front_pic, send_IA_front, local))
                 self.front_camera_prosess.start()
                 self.front_cam_com_thread = threading.Thread(name="COM_cam_1",target=pipe_com, daemon=True, args=(self.host_cam_front, self.camera_com_callback, self.cam_front_name)).start()
                 self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_front_pic, self.port_camfront_feed)).start()
@@ -673,7 +673,7 @@ class Theia():
             else:
                 return False
 
-    def toggle_back(self, cam_id: int=2):
+    def toggle_back(self, local: bool=False):
         print(self.camera_status['back'])
         if self.camera_status['back'][0] == 1:
             self.host_back.send('stop')
@@ -683,7 +683,7 @@ class Theia():
                 self.host_back, self.client_cam2 = Pipe()
                 send_back_pic, recive_back_pic = Pipe()
                 send_IA2, recive_IA2 = Pipe()
-                self.back_camera_prosess = Process(target=camera_thread, daemon=True, args=(self.cam_back_id, self.client_cam2, send_back_pic, send_IA2)).start()
+                self.back_camera_prosess = Process(target=camera_thread, daemon=True, args=(self.cam_back_id, self.client_cam2, send_back_pic, send_IA2, local)).start()
                 self.front_cam_com_thread = threading.Thread(name="COM_cam_2",target=pipe_com, daemon=True, args=(self.host_back, self.camera_com_callback, self.cam_front_name)).start()
                 self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_back_pic, self.port_camback_feed)).start()
                 self.camera_status['back'][0] = 1
@@ -721,7 +721,7 @@ if __name__ == "__main__":
     #s.camera_status['front'][1] = 1
     #s.cam_front_id = 1
     
-    s.toggle_front()
+    s.toggle_front(lcoal = True)
     #s.toggle_back()
     print(time.asctime())
     

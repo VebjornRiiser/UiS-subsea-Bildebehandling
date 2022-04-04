@@ -318,6 +318,16 @@ class Mercury:
                                             self.thei.host_back.send(item[1][key])
                                         else:
                                             self.network_handler.send(to_json("Back camera is not on"))
+                                elif key.lower() == "take_picture":
+                                    if item[0] == 200:
+                                        self.thei.host_cam_front.send('tpic')
+                                    elif item[0] == 201:
+                                        self.thei.host_back.send('tpic')
+                                elif key.lower() == "video_recording":
+                                    if item[0] == 200:
+                                        self.thei.host_cam_front.send('video')
+                                    elif item[0] == 201:
+                                        self.thei.host_back.send('video')
                         else:
                             self.network_handler.send(to_json("This ID is not handled"))
             except Exception as e:
