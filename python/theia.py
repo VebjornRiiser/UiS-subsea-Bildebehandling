@@ -305,6 +305,7 @@ class Athena():
     def compare_pixles(self, object_list1, object_list2, pic):
         gray = [cv2.cvtColor(pic[0], cv2.COLOR_BGR2GRAY), cv2.cvtColor(pic[1], cv2.COLOR_BGR2GRAY)]
         new_object_list = []
+        print(len(new_object_list))
         for obj1 in object_list1:
             for obj2 in object_list2:
                 if obj1.position[1]-100 <= obj2.position[1] <= obj1.position[1]+100:
@@ -427,7 +428,6 @@ def image_aqusition_thread(connection, boli):
                         #mached_list = find_same_objects(res1, res2, mess)
                         mached_list = ath.compare_pixles(res1, res2, mess)
                 time_list.append(time.time()-start)
-                print(len(mached_list))
                 connection.send(mached_list)
             elif mode == 2:
                 pass
