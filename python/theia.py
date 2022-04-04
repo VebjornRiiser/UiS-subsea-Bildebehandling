@@ -422,7 +422,6 @@ def image_aqusition_thread(connection, boli):
                 if len(mess) == 2:
                     res1 = yal.yolo_image(mess[0]) # Result from left cam
                     res2 = yal.yolo_image(mess[1]) # Result from right cam
-                    print(len(res1))
                     if len(res1) > 0 and len(res2) > 0:
                         #mached_list = find_same_objects(res1, res2, mess)
                         mached_list = ath.compare_pixles(res1, res2, mess)
