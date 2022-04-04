@@ -427,6 +427,7 @@ def image_aqusition_thread(connection, boli):
                         #mached_list = find_same_objects(res1, res2, mess)
                         mached_list = ath.compare_pixles(res1, res2, mess)
                 time_list.append(time.time()-start)
+                print(len(mached_list))
                 connection.send(mached_list)
             elif mode == 2:
                 pass
