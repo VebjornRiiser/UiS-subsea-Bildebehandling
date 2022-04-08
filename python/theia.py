@@ -355,6 +355,8 @@ class Athena():
                             if len(dif_list) > 2:
                                 if statistics.median(dif_list) > 217:
                                     obj1.dept = 0
+                                elif statistics.median(dif_list) < 156:
+                                    obj1.dept = 0
                                 else:    
                                     obj1.dept = calc_distance(statistics.median(dif_list))
                                 
