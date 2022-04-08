@@ -274,9 +274,11 @@ class Athena():
                 if self.old_object_list[a].width*0.8 < obj.width < self.old_object_list[a].width*1.2:
                     #if self.old_object_list[a].position[0]*0.8 < obj.position[0] < self.old_object_list[a].position[0]*1.2:
                     if obj.dept < 0:
-                        obj.dept = 0 
+                        obj.dept = self.old_object_list[a].dept
                     elif obj.dept == 0:
                         obj.dept = self.old_object_list[a].dept
+                    elif self.old_object_list[a] == 0:
+                        pass
                     else:
                         obj.dept = self.old_object_list[a].dept*0.8 + obj.dept*0.2
         elif len(new_object_list) == 0 and len(self.old_object_list) != 0:
@@ -352,13 +354,8 @@ class Athena():
                                     crop1 = cv2.circle(crop1, (int(kp1[a.queryIdx].pt[0]), int(kp1[a.queryIdx].pt[1])), 4, (255,0,0), -1)
                                     crop2 = cv2.circle(crop2, (int(kp2[a.trainIdx].pt[0]), int(kp2[a.trainIdx].pt[1])) , 4, (255,0,0), -1)
                                     dif_list.append(abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0]+offset))
-                            if len(dif_list) > 2:
-                                if statistics.median(dif_list) > 217:
-                                    obj1.dept = 0
-                                elif statistics.median(dif_list) < 156:
-                                    obj1.dept = 0
-                                else:    
-                                    obj1.dept = calc_distance(statistics.median(dif_list))
+                            if len(dif_list) > 2:   
+                                obj1.dept = calc_distance(statistics.median(dif_list))
                                 
                                 # Print for calibration
                                 #print(f'Disparity: {statistics.median(dif_list)}')
