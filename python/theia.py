@@ -93,27 +93,6 @@ def contour_img(image): # Finds shapes by color and size
     return ny_cont
 
 
-def calc_distance(dist, focal_len=400, camera_space=60): # Calculates distance to object using test data, needs position on object in two pictures
-    """Regner ut distansen til et objekt. for stereo kamera
-
-    Args:
-        centers (_type_): Senterkoortdinat til objektet i begge bildene
-        focal_len (float, optional): Focallength oppgitt i pixler. Defaults to 33.2.
-        camera_space (int, optional): Distansen mellom kameraene i mm. Defaults to 60.
-
-    Returns:
-        int: Avstand i mm
-    """
-    #dist = abs(centers[0][0]-centers[1][0])
-    print(dist)
-    if dist == 0:
-        return 50
-    #y = -1E-05x3 + 0,0092x2 - 2,1799x + 349,94
-    return int((-1e-5)*(dist**3) + 0.0092*(dist**2) - 2.1799*dist + 349.94)
-    #return int((3.631e-6 * (dist**4)) - (0.003035 * (dist**3)) + (0.9672 * (dist**2)) - (139.9 * dist) + 7862)
-    #return int(((focal_len*camera_space)/dist))
-
-
 def calc_size(num_pixels:int, centers, axis:int=0): # Calulates size of objects in picture
     """Calculates size with center points and number of pixelse size of object, axis=0 refers to horisontal measurment"""
     factor = -0.002344
