@@ -273,10 +273,12 @@ class Athena():
             for a, obj in enumerate(new_object_list): # Checks each object if its within 20% of old size and position
                 if self.old_object_list[a].width*0.8 < obj.width < self.old_object_list[a].width*1.2:
                     #if self.old_object_list[a].position[0]*0.8 < obj.position[0] < self.old_object_list[a].position[0]*1.2:
-                    if obj.dept != 0:
-                        obj.dept = self.old_object_list[a].dept*0.8 + obj.dept*0.2
-                    else:
+                    if obj.dept < 0:
+                        obj.dept = 0 
+                    elif obj.dept == 0:
                         obj.dept = self.old_object_list[a].dept
+                    elif self.old_object_list[a].dept*0.8 < obj.dept < self.old_object_list[a].dept*1.2:
+                        obj.dept = self.old_object_list[a].dept*0.8 + obj.dept*0.2
         elif len(new_object_list) == 0 and len(self.old_object_list) != 0:
             return self.old_object_list
         self.old_object_list = new_object_list
