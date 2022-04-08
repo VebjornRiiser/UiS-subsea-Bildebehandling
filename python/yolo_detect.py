@@ -23,7 +23,7 @@ class Yolo(): #
         print(self.device)
         self.weights = 'yolov5/models/rubber_nano.pt' # Used machine learning
         self.data = 'yolov5/data/coco128.yaml' 
-        self.conf_trees = 0.80 # How high confedence we want for a match
+        self.conf_trees = 0.40 # How high confedence we want for a match
         self.iou_tres = 0.45 
         self.color = (255, 0, 0) # Color for frames drawn around object
         self.text = name # Text drawn on picture
