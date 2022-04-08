@@ -108,8 +108,10 @@ def calc_distance(dist, focal_len=400, camera_space=60): # Calculates distance t
     #print(dist)
     if dist == 0:
         return 50
+    #y = -1E-05x3 + 0,0092x2 - 2,1799x + 349,94
+    return -1e-5*(dist**3) + 0.0092(dist**2) - 2.1799*dist + 349.94
     #return int((3.631e-6 * (dist**4)) - (0.003035 * (dist**3)) + (0.9672 * (dist**2)) - (139.9 * dist) + 7862)
-    return int(((focal_len*camera_space)/dist))
+    #return int(((focal_len*camera_space)/dist))
 
 
 def calc_size(num_pixels:int, centers, axis:int=0): # Calulates size of objects in picture
