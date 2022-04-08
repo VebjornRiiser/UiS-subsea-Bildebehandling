@@ -276,7 +276,7 @@ class Athena():
                     if obj.dept <= 0:
                         ln(f"{obj.dept}, {self.old_object_list[a].dept}")
                         obj.dept = self.old_object_list[a].dept
-                    elif self.old_object_list[a] == 0:
+                    elif self.old_object_list[a] <= 50:
                         pass
                     else:
                         ln(f"{obj.dept}, {self.old_object_list[a].dept}")
