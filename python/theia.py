@@ -430,7 +430,7 @@ def image_aqusition_thread(connection, boli):
             elif mode == 2:
                 pass
         if len(time_list) > 20:
-            print(statistics.mean(time_list))
+            #print(statistics.mean(time_list))
             time_list = []
         
 
