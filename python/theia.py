@@ -105,7 +105,7 @@ def calc_distance(dist, focal_len=400, camera_space=60): # Calculates distance t
         int: Avstand i mm
     """
     #dist = abs(centers[0][0]-centers[1][0])
-    #print(dist)
+    print(dist)
     if dist == 0:
         return 50
     #y = -1E-05x3 + 0,0092x2 - 2,1799x + 349,94
