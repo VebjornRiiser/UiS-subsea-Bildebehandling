@@ -355,7 +355,9 @@ class Athena():
                                     crop2 = cv2.circle(crop2, (int(kp2[a.trainIdx].pt[0]), int(kp2[a.trainIdx].pt[1])) , 4, (255,0,0), -1)
                                     dif_list.append(abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0]+offset))
                             if len(dif_list) > 2:   
-                                obj1.dept = calc_distance(statistics.median(dif_list))
+                                med = statistics.median(dif_list)
+                                if 158 < med < 218:
+                                    obj1.dept = calc_distance(med)
                                 
                                 # Print for calibration
                                 #print(f'Disparity: {statistics.median(dif_list)}')
