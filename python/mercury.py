@@ -31,6 +31,8 @@ def get_byte(c_format:str, number):
     return byte_list
 
 def get_num(c_format:str, byt):
+    if isinstance(byt, int):
+        byt = byt.to_bytes(1,"little")
     return struct.unpack(c_types[c_format], byt)[0]
 
 def get_bit(num, bit_nr):
@@ -44,82 +46,87 @@ def set_bit( bits:tuple ):
 
 
 def serial_package_builder(data, can=True):
-    package = []
-    # can_data is a list or a dict
-    can_id, can_data = data
+    try:
+        package = []
+        # can_data is a list or a dict
+        can_id, can_data = data
+        can_id = int(can_id)
 
-    # Start byte
-    package.append(0x02)
+        # Start byte
+        package.append(0x02)
 
-    # CAN eller kamera tilt
-    package.append(0x05) if can else package.append(0x06)
+        # CAN eller kamera tilt
+        package.append(0x05) if can else package.append(0x06)
 
-    # ID
-    package += get_byte("uint8", can_id)
-    
-    # Startup
-    if can_id in [64, 96, 128]:
-        package += bytes("start\n", "latin")
+        # ID
+        package += get_byte("uint8", can_id)
+        
+        # Startup
+        if can_id in [64, 96, 128]:
+            package += bytes("start\n", "latin")
 
-    elif can_id == 70:
-        # X, Y, Z, rotasjon: int8
-        for k in range(4):
-            package += get_byte("int8", can_data[k])
+        elif can_id == 70:
+            # X, Y, Z, rotasjon: int8
+            for k in range(4):
+                package += get_byte("int8", can_data[k])
 
-        # manipulator: uint8
-        package += get_byte("uint8", can_data[4])
+            # manipulator: uint8
+            package += get_byte("uint8", can_data[4])
 
-        # fri, fri, throttling: int8
-        for k in range(3):
-            package += get_byte("int8", can_data[k+5])
+            # fri, fri, throttling: int8
+            for k in range(3):
+                package += get_byte("int8", can_data[k+5])
 
-    # Parameter endring
-    elif can_id == 71:
-        package += get_byte("uint32", can_data[0])
-        package += get_byte("float", can_data[1])
+        # Parameter endring
+        elif can_id == 71:
+            package += get_byte("uint32", can_data[0])
+            package += get_byte("float", can_data[1])
 
-    # Ping
-    elif can_id in [95, 127, 159]:
-        package += bytes("ping!\n", "latin")
+        # Ping
+        elif can_id in [95, 127, 159]:
+            package += bytes("ping!\n", "latin")
 
-    elif can_id == 129:
-        pass
+        elif can_id == 129:
+            pass
 
+        # Sikring og regulator
+        elif can_id == 139:
+            package += get_byte("uint8", set_bit(can_data[0:4]))
 
-    # Sikring og regulator
-    elif can_id == 139:
-        package += get_byte("uint8", set_bit(can_data[0:4]))
+        # Lysstyrke
+        elif can_id == 142:
+            package += get_byte("uint8", can_data[0])
+            package += get_byte("uint8", can_data[1])
+        
+        # Camera tilt
+        elif (can_id == 200) | (can_id == 201):
+            package += get_byte("int8", can_data['tilt'])
 
-    # Lysstyrke
-    elif can_id == 142:
-        package += get_byte("uint8", can_data[0])
-        package += get_byte("uint8", can_data[1])
-    
-    # Camera tilt
-    elif (can_id == 200) | (can_id == 201):
-        package += get_byte("int8", can_data['tilt'])
+        else:
+            return f"Gjenkjente ikkje ID frå toppside: '{can_id}'"
 
-    else:
-        return f"Gjenkjente ikkje ID frå toppside: '{can_id}'"
+        # Info om struct: https://docs.python.org/3/library/struct.html
 
-    # Info om struct: https://docs.python.org/3/library/struct.html
+        # Pad lengde
+        pack_length = len(package)
+        if pack_length < 11:
+            for _ in range(11 - pack_length):
+                package.append(0x00)
 
-    # Pad lengde
-    pack_length = len(package)
-    if pack_length < 11:
-        for _ in range(11 - pack_length):
-            package.append(0x00)
+        # Slutt byte
+        package.append(0x03)
 
-    # Slutt byte
-    package.append(0x03)
+        if len(package) == 12:
+            try:
+                return bytearray(package)
+            except ValueError:
+                return f"feil lengde på tall: '{package}'"
+        else:
+            return f"Feil lengde på liste: '{package}'"
 
-    if len(package) == 12:
-        try:
-            return bytearray(package)
-        except ValueError:
-            return f"feil lengde på tall: '{package}'"
-    else:
-        return f"Feil lengde på liste: '{package}'"
+    # Error håndtering:
+    except TypeError as e:
+        return f"Feil type i '{data=}': '{e}'"
 
 # Reads data from network port
 def network_thread(network_handler, network_callback, flag):
@@ -148,7 +155,7 @@ def USB_thread(h_serial, USB_callback, flag):
             melding = h_serial.readline().decode("utf8").strip("\n")
             USB_callback(melding)
         except Exception as e:
-            print(f'Feilkode i usb thread feilmelding: {e}')
+            print(f'Feilkode i usb thread feilmelding: {str(e.with_traceback())}')
             pass
     print("USB thread stopped")
 
@@ -162,11 +169,11 @@ def create_json(can_id:int, data:str):
     
     # Gyrodata
     if can_id == 80:
-        rull = get_num("int16", data_b[0:2])
-        stamp = get_num("int16", data_b[2:4])
-        hiv = get_num("int16", data_b[4:6])
+        hiv = get_num("int16", data_b[0:2])
+        rull = get_num("int16", data_b[2:4])
+        stamp = get_num("int16", data_b[4:6])
         gir = get_num("int16", data_b[6:])
-        json_dict = {"gyro": (rull/10, stamp/10, hiv/10)}
+        json_dict = {"gyro": (hiv/10, rull/10, stamp/10)}
 
     # Akselerometer
     elif can_id == 81:
@@ -191,7 +198,7 @@ def create_json(can_id:int, data:str):
         temp1 = get_num("int16", data_b[1:3]) / 10 # -100.0°C -> 100.0°C
         temp2 = get_num("int16", data_b[3:5]) / 10
         temp3 = get_num("int16", data_b[5:7]) / 10
-        json_dict = {"lekk_temp": ( (lekk1, lekk2, lekk3), (temp1, temp2, temp3) )}
+        json_dict = {"lekk_temp": ( lekk1, lekk2, lekk3, temp1, temp2, temp3 )}
 
     # Thrusterpådrag
     elif can_id == 170:
@@ -232,11 +239,11 @@ class Mercury:
             self.toggle_USB()
         ln(f'{self.status["USB"]}')
 
+        self.thei = Theia()
         # Network init
         self.connect_ip = ip
         self.connect_port = port
         self.net_init()
-        self.thei = Theia()
 
         #self.network_snd_socket.send_string(f'USB connection started')
 
@@ -264,21 +271,17 @@ class Mercury:
                         #    print(item)
                         if item[0] < 200:
                             if self.status['USB']:
-                                ln()
-                                mld = serial_package_builder(item, False)
+                                mld = serial_package_builder(item, True)
                                 if not isinstance(mld, bytearray):
                                     self.network_handler.send(to_json(f'{mld}'))
                                 else:
-                                    ln()
-                                    self.serial.write(serial_package_builder(item))
+                                    self.serial.write(mld)
                             else:
-                                ln()
                                 self.network_handler.send(to_json("error usb not connected"))
                         elif (item[0] == 200) | (item[0] == 201): #Camera_front and back functions
                             for key in item[1]:
                                 if key.lower() == "tilt":
                                     if self.status['USB']:
-                                        ln()
                                         mld = serial_package_builder(item, False)
                                         if not isinstance(mld, bytearray):
                                             self.network_handler.send(to_json(f'{mld}'))
@@ -313,7 +316,6 @@ class Mercury:
                                             self.thei.host_cam_front.send('tpic')
                                         elif item[1][key] != 0:
                                             self.thei.camera_function['front'] = True
-                                            ln()
                                             mld = serial_package_builder(self.thei.set_front_zero, False)
                                             self.serial.write(mld)
                                         else:
@@ -328,7 +330,6 @@ class Mercury:
                                     elif item[0] == 201:
                                         if item[1][key] != 0:
                                             self.thei.camera_function['back'] = True
-                                            ln()
                                             mld = serial_package_builder(self.thei.set_back_zero, False)
                                             self.serial.write(mld)
                                         else:
@@ -336,7 +337,6 @@ class Mercury:
                                         if self.thei.camera_status['back']:
                                             self.thei.host_back.send(item[1][key])
                                         else:
-                                            ln()
                                             self.network_handler.send(to_json("Back camera is not on"))
                                 elif key.lower() == "take_picture":
                                     if item[0] == 200:
@@ -349,7 +349,6 @@ class Mercury:
                                     elif item[0] == 201:
                                         self.thei.host_back.send('video')
                         else:
-                            ln()
                             self.network_handler.send(to_json("This ID is not handled"))
             except Exception as e:
                 print(f'Feilkode i network_callback, feilmelding: {e}\n\t{message = }')
