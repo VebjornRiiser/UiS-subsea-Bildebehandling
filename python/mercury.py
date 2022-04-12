@@ -10,6 +10,7 @@ import socket
 import json
 from network_handler import Network
 from theia import Theia
+from common import *
 
 c_types = {
     "int8": "<b",
@@ -80,6 +81,10 @@ def serial_package_builder(data, can=True):
     # Ping
     elif can_id in [95, 127, 159]:
         package += bytes("ping!\n", "latin")
+
+    elif can_id == 129:
+        pass
+
 
     # Sikring og regulator
     elif can_id == 139:
@@ -219,16 +224,20 @@ class Mercury:
     def __init__(self, ip:str="0.0.0.0", port:int=6900) -> None:
         # Flag dictionary
         self.status ={'network': False, 'USB': False, 'intern': False}
-        self.connect_ip = ip
-        self.connect_port = port
-        self.net_init()
-        self.thei = Theia()
 
         # USB socket
         self.serial_port = "/dev/ttyACM0"
         self.serial_baud = 9600
         if not self.status['USB']:
             self.toggle_USB()
+        ln(f'{self.status["USB"]}')
+
+        # Network init
+        self.connect_ip = ip
+        self.connect_port = port
+        self.net_init()
+        self.thei = Theia()
+
         #self.network_snd_socket.send_string(f'USB connection started')
 
     def net_init(self):
@@ -255,13 +264,21 @@ class Mercury:
                         #    print(item)
                         if item[0] < 200:
                             if self.status['USB']:
-                                self.serial.write(serial_package_builder(item))
+                                ln()
+                                mld = serial_package_builder(item, False)
+                                if not isinstance(mld, bytearray):
+                                    self.network_handler.send(to_json(f'{mld}'))
+                                else:
+                                    ln()
+                                    self.serial.write(serial_package_builder(item))
                             else:
+                                ln()
                                 self.network_handler.send(to_json("error usb not connected"))
                         elif (item[0] == 200) | (item[0] == 201): #Camera_front and back functions
                             for key in item[1]:
                                 if key.lower() == "tilt":
                                     if self.status['USB']:
+                                        ln()
                                         mld = serial_package_builder(item, False)
                                         if not isinstance(mld, bytearray):
                                             self.network_handler.send(to_json(f'{mld}'))
@@ -296,6 +313,7 @@ class Mercury:
                                             self.thei.host_cam_front.send('tpic')
                                         elif item[1][key] != 0:
                                             self.thei.camera_function['front'] = True
+                                            ln()
                                             mld = serial_package_builder(self.thei.set_front_zero, False)
                                             self.serial.write(mld)
                                         else:
@@ -310,6 +328,7 @@ class Mercury:
                                     elif item[0] == 201:
                                         if item[1][key] != 0:
                                             self.thei.camera_function['back'] = True
+                                            ln()
                                             mld = serial_package_builder(self.thei.set_back_zero, False)
                                             self.serial.write(mld)
                                         else:
@@ -317,6 +336,7 @@ class Mercury:
                                         if self.thei.camera_status['back']:
                                             self.thei.host_back.send(item[1][key])
                                         else:
+                                            ln()
                                             self.network_handler.send(to_json("Back camera is not on"))
                                 elif key.lower() == "take_picture":
                                     if item[0] == 200:
@@ -329,6 +349,7 @@ class Mercury:
                                     elif item[0] == 201:
                                         self.thei.host_back.send('video')
                         else:
+                            ln()
                             self.network_handler.send(to_json("This ID is not handled"))
             except Exception as e:
                 print(f'Feilkode i network_callback, feilmelding: {e}\n\t{message = }')
