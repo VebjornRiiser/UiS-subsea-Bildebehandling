@@ -161,14 +161,14 @@ def create_json(can_id:int, data:str):
         stamp = get_num("int16", data_b[2:4])
         hiv = get_num("int16", data_b[4:6])
         gir = get_num("int16", data_b[6:])
-        json_dict = {"gyro": (rull, stamp, hiv, gir)}
+        json_dict = {"gyro": (rull/10, stamp/10, hiv/10)}
 
     # Akselerometer
     elif can_id == 81:
         accel_x = get_num("int16", data_b[0:2])
         accel_y = get_num("int16", data_b[2:4])
         accel_z = get_num("int16", data_b[4:6])
-        json_dict = {"accel": (accel_x, accel_y, accel_z)}
+        json_dict = {"accel": (accel_x/100, accel_y/100, accel_z/100)}
 
     # Straumforbruk
     elif can_id == 90:
