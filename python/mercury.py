@@ -5,12 +5,15 @@ import struct
 import argparse
 import threading
 import time
+from grpc import composite_call_credentials
 import serial
 import socket
 import json
+import os
 from network_handler import Network
 from theia import Theia
 from common import *
+import glob
 
 c_types = {
     "int8": "<b",
@@ -174,6 +177,7 @@ def create_json(can_id:int, data:str):
         stamp = get_num("int16", data_b[4:6])
         gir = get_num("int16", data_b[6:])
         json_dict = {"gyro": (hiv/10, rull/10, stamp/10)}
+        ln(f"{json_dict}\tdata: {data_b=}")
 
     # Akselerometer
     elif can_id == 81:
@@ -233,7 +237,13 @@ class Mercury:
         self.status ={'network': False, 'USB': False, 'intern': False}
 
         # USB socket
-        self.serial_port = "/dev/ttyACM0"
+        serial_ports = glob.glob('/dev/ttyACM*')
+        if len(serial_ports) > 0:
+            self.serial_port = serial_ports[0]
+            print(f"Fant USB: {self.serial_port}")
+        else:
+            print(f"Finner ikke USB port")
+            os._exit(1)
         self.serial_baud = 9600
         if not self.status['USB']:
             self.toggle_USB()
@@ -417,5 +427,5 @@ if __name__ == "__main__":
     #a = Mercury()
     #a.toggle_network()
     #print("For loop started")
-    for __ in range(200):
+    while True:
         time.sleep(5)
