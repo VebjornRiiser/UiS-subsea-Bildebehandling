@@ -250,7 +250,7 @@ class Mercury:
     def net_init(self):
         self.network_handler = Network(is_server=True, bind_addr=self.connect_ip, port=self.connect_port)
         while self.network_handler.waiting_for_conn:
-            time.sleep(0.3)
+            time.sleep(1)
             print("waiting for connection before continuing")
         self.toggle_network()
 
@@ -371,8 +371,9 @@ class Mercury:
             #print(f"usb callback {melding =}")
             data, can_id = melding.split(";")
             self.network_handler.send(create_json(int(can_id), data))
-        else: 
-            print('No connection on network')
+        else:
+            pass
+            #print('No connection on network')
 
 
     def toggle_USB(self):
