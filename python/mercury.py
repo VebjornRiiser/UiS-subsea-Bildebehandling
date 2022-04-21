@@ -91,12 +91,20 @@ def serial_package_builder(data, can=True):
 
         # Sikring og regulator
         elif can_id == 139:
-            package += get_byte("uint8", set_bit(can_data[0:4]))
+            package += get_byte("uint8", set_bit(can_data[0:6]))
 
         # Lysstyrke
         elif can_id == 142:
             package += get_byte("uint8", can_data[0])
             package += get_byte("uint8", can_data[1])
+            
+        elif can_id == 171:
+            watt_byte = get_num("uint8", data_b[0])
+            sikring240w = get_bit(watt_byte, 0)
+            sikring1300w = get_bit(watt_byte, 1)
+            regulator240w = get_bit(watt_byte, 2)
+            regulator1300w = get_bit(watt_byte, 3)
+            json_dict = {"regulator_strom_status": (sikring240w, sikring1300w, regulator240w, regulator1300w)}
         
         # Camera tilt
         elif (can_id == 200) | (can_id == 201):
