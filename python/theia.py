@@ -274,12 +274,12 @@ class Athena():
                 if self.old_object_list[a].width*0.8 < obj.width < self.old_object_list[a].width*1.2:
                     #if self.old_object_list[a].position[0]*0.8 < obj.position[0] < self.old_object_list[a].position[0]*1.2:
                     if obj.dept <= 0:
-                        ln(f"{obj.dept}, {self.old_object_list[a].dept}")
+#                        ln(f"{obj.dept}, {self.old_object_list[a].dept}")
                         obj.dept = self.old_object_list[a].dept
                     elif self.old_object_list[a].dept <= 50:
                         pass
                     else:
-                        ln(f"{obj.dept}, {self.old_object_list[a].dept}")
+ #                       ln(f"{obj.dept}, {self.old_object_list[a].dept}")
                         obj.dept = self.old_object_list[a].dept*0.8 + obj.dept*0.2
         elif len(new_object_list) == 0 and len(self.old_object_list) != 0:
             return self.old_object_list

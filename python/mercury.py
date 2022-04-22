@@ -94,7 +94,7 @@ def serial_package_builder(data, can=True):
 
         # Sikring og regulator
         elif can_id == 139:
-            package += get_byte("uint8", set_bit(can_data[0:4]))
+            package += get_byte("uint8", set_bit(can_data[0:6]))
 
         # Lysstyrke
         elif can_id == 142:
@@ -177,7 +177,7 @@ def create_json(can_id:int, data:str):
         stamp = get_num("int16", data_b[4:6])
         gir = get_num("int16", data_b[6:])
         json_dict = {"gyro": (hiv/10, rull/10, stamp/10)}
-        ln(f"{json_dict}\tdata: {data_b=}")
+#        ln(f"{json_dict}\tdata: {data_b=}")
 
     # Akselerometer
     elif can_id == 81:
@@ -188,9 +188,9 @@ def create_json(can_id:int, data:str):
 
     # Straumforbruk
     elif can_id == 90:
-        pwr1 = get_num("uint16", data_b[0:2]) / 10
-        pwr2 = get_num("uint16", data_b[2:4]) / 10
-        pwr3 = get_num("uint16", data_b[4:6]) / 10
+        pwr1 = get_num("uint16", data_b[0:2])
+        pwr2 = get_num("uint16", data_b[2:4])
+        pwr3 = get_num("uint16", data_b[4:6])
         json_dict = {f"power_consumption": ( pwr1, pwr2, pwr3 )}
 
     # Leak detection and temperature
@@ -199,9 +199,9 @@ def create_json(can_id:int, data:str):
         lekk1 = get_bit(lekk_byte, 0)
         lekk2 = get_bit(lekk_byte, 1)
         lekk3 = get_bit(lekk_byte, 2)
-        temp1 = get_num("int16", data_b[1:3]) / 10 # -100.0°C -> 100.0°C
-        temp2 = get_num("int16", data_b[3:5]) / 10
-        temp3 = get_num("int16", data_b[5:7]) / 10
+        temp1 = get_num("uint8", data_b[1]) # 0°C -> 255°C
+        temp2 = get_num("uint8", data_b[2])
+        temp3 = get_num("uint8", data_b[3])
         json_dict = {"lekk_temp": ( lekk1, lekk2, lekk3, temp1, temp2, temp3 )}
 
     # Thrusterpådrag
@@ -211,8 +211,19 @@ def create_json(can_id:int, data:str):
             thrust_list.append( get_num("int8", byt) )
         json_dict = {"thrust": thrust_list}
 
+    elif can_id == 171:
+        #json_dict = {"regulator_strom_status": []}
+        watt_byte = get_num("uint8", data_b[0])
+        #for i in range(4):
+            #json_dict["regulator_strom_status"].append((get_bit(watt_byte, i))
+        sikring240w = get_bit(watt_byte, 0)
+        sikring1300w = get_bit(watt_byte, 1)
+        regulator240w = get_bit(watt_byte, 2)
+        regulator1300w = get_bit(watt_byte, 3)
+        json_dict = {"regulator_strom_status": (sikring240w, sikring1300w, regulator240w, regulator1300w)}
+
     else:
-        json_dict = "\n\nERROR, ID UNKNOWN!\n\n"    
+        json_dict = f"\n\nERROR, ID {can_id} UNKNOWN!\n\n"    
 
     return to_json(json_dict)
 
@@ -247,7 +258,6 @@ class Mercury:
         self.serial_baud = 9600
         if not self.status['USB']:
             self.toggle_USB()
-        ln(f'{self.status["USB"]}')
 
         self.thei = Theia()
         # Network init
@@ -260,7 +270,7 @@ class Mercury:
     def net_init(self):
         self.network_handler = Network(is_server=True, bind_addr=self.connect_ip, port=self.connect_port)
         while self.network_handler.waiting_for_conn:
-            time.sleep(0.3)
+            time.sleep(1)
             print("waiting for connection before continuing")
         self.toggle_network()
 
@@ -381,8 +391,9 @@ class Mercury:
             #print(f"usb callback {melding =}")
             data, can_id = melding.split(";")
             self.network_handler.send(create_json(int(can_id), data))
-        else: 
-            print('No connection on network')
+        else:
+            pass
+            #print('No connection on network')
 
 
     def toggle_USB(self):
