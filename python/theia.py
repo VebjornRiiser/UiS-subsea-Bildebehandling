@@ -14,6 +14,7 @@ import matplotlib
 # matplotlib.use('tkAgg') # This broke the code
 from matplotlib import pyplot as plt
 from common import *
+from vision_pipline import picure_stich
 #from distance import contour_img, calc_size, calc_distance
 
 class Object(): # Used in functions to draw on image, find distance to objects etc, refers to objects in pictures
@@ -391,6 +392,9 @@ def image_aqusition_thread(connection, boli):
 
 
     ath = Athena()
+    new_pic = False
+    stitch = False
+    pic_list = []
     while boli:
         mess = connection.recv()
         if isinstance(mess, list):
@@ -402,10 +406,13 @@ def image_aqusition_thread(connection, boli):
             if mess.lower() == 'stop':
                 break
             elif mess.lower() == 'fish':
-                print("Changed mode")
                 mode = 1
             elif mess.lower() == 'mosaikk':
                 mode = 2
+            elif mess.lower() == 'tace_picture':
+                new_pic = True
+            elif mess.lower() == 'stitch':
+                stitch = True
         else:
             if mode == 1:
                 start = time.time()
@@ -414,15 +421,23 @@ def image_aqusition_thread(connection, boli):
                     res1 = yal.yolo_image(mess[0]) # Result from left cam
                     res2 = yal.yolo_image(mess[1]) # Result from right cam
                     if len(res1) > 0 and len(res2) > 0:
-                        #mached_list = find_same_objects(res1, res2, mess)
+                        #mached_list = find_same_objects(res1, res2, mess) # Old funtion
                         mached_list = ath.compare_pixles(res1, res2, mess)
-                time_list.append(time.time()-start)
+                #time_list.append(time.time()-start)
                 connection.send(mached_list)
             elif mode == 2:
-                pass
-        if len(time_list) > 20:
+                if new_pic:
+                    new_pic = False
+                    pic_list.append(mess[0])
+                elif stitch:
+                    stitch = False
+                    img = picure_stich(pic_list)
+                    pic_list = []
+
+        # Part of test code to check time used by image prossesing functions
+        #if len(time_list) > 20:
             #print(statistics.mean(time_list))
-            time_list = []
+            #time_list = []
         
 
 def draw_on_img(pic, frames):

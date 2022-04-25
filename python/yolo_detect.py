@@ -75,6 +75,7 @@ class Yolo(): #
                 c = 0
         return xyxy
 
+
 def camera(camera_id): #Testfunction to get images from camera
     print("Camera Thread started")
     shared_list = [1, 0, 0, 0]
@@ -118,8 +119,6 @@ def camera(camera_id): #Testfunction to get images from camera
             break
     feed.release()
     cv2.destroyAllWindows()
-
-
 
 class Object(): # Used in functions to draw on image, find distance to objects etc, refers to objects in pictures
     def __init__(self, xyxy:list, name:str, colour:tuple, confidence:float) -> None:
