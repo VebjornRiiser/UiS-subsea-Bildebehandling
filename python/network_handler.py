@@ -180,6 +180,9 @@ if __name__ == "__main__":
                     asd = [70]
             elif a == 'pic':
                 asd = [[200, {"bildebehandlingsmodus": int(7)}]]
+            elif a == 'id':
+                a = input("ID\n")
+                asd = [[int(a), []]]
             mess = bytes(json.dumps("*"), "utf-8") + bytes(json.dumps(asd), "utf-8") + bytes(json.dumps("*"), "utf-8")
             client_conn.send(mess)
             #client_conn.send(bytes('*{"can": [(0, 99)]}*', "utf-8"))

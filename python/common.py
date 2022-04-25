@@ -27,8 +27,8 @@ def calc_distance(dist, focal_len=400, camera_space=60): # Calculates distance t
     """
     #dist = abs(centers[0][0]-centers[1][0])
     if dist == 0:
-        return 50
+        return 300
     #y =-0,000326267081189824000000000000x3 + 0,248885323144369000000000000000x2 - 61,946537053035200000000000000000x + 5 155,964477808620000000000000000000
-    return int((-0.000326267081189824)*(dist**3) + 0.248885323144369*(dist**2) - 61.9465370530352*dist + 5155.96447780862)
+    return int((-0.000326267081189824)*(dist**3) + 0.248885323144369*(dist**2) - 61.9465370530352*dist + 5155.96447780862) # cm
     #return int((3.631e-6 * (dist**4)) - (0.003035 * (dist**3)) + (0.9672 * (dist**2)) - (139.9 * dist) + 7862)
     #return int(((focal_len*camera_space)/dist))

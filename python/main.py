@@ -15,8 +15,13 @@ def main_loop():
     m.thei.toggle_back()
 
     while(1):
-        time.sleep(2)
-        print("Still running")
+        for _ in range(4):
+            time.sleep(0.7)
+            print("Still running.  ", end='\r')
+            time.sleep(0.7)
+            print("Still running.. ", end='\r')
+            time.sleep(0.7)
+            print("Still running...", end='\r')
 
 if __name__ == "__main__":
     main_loop()
