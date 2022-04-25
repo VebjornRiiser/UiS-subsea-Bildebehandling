@@ -6,6 +6,8 @@ from theia import Theia
 import time
 import threading
 import json
+import os
+os.chdir(os.path.dirname(os.path.abspath(__file__))) # Bytter working directory til den nåværende slik at programmet kan startes utenfra mappa
 
 # Our main loop for both programs
 def main_loop():
