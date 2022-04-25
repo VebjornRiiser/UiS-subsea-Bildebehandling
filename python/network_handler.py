@@ -156,7 +156,7 @@ if __name__ == "__main__":
         client_conn = Network(is_server=False, bind_addr="0.0.0.0", connect_addr="10.0.0.2")
         while True:
             time.sleep(2)
-            asd = [[296, "bildebehandligsmodus", 1],[500, "teststring"]]
+            asd = [[296, "bildebehandlingsmodus", 1],[500, "teststring"]]
             a = input("Click to send message\n")
             if a == "stop":
                 a = input("What cam do you want to stop?\n")
@@ -168,16 +168,21 @@ if __name__ == "__main__":
                 a = input("What cam do you want to change mode on?\n")
                 if a == "back":
                     a = input("Set mode to what?\n")
-                    asd = [[201, {"bildebehandligsmodus": int(a)}]]
+                    asd = [[201, {"bildebehandlingsmodus": int(a)}]]
                 else:
                     a = input("Set mode to what?\n")
-                    asd = [[200, {"bildebehandligsmodus": int(a)}]]
+                    asd = [[200, {"bildebehandlingsmodus": int(a)}]]
             elif a == 'tilt':
                 a = input("Tilt camera to what angle?\n")
                 asd = [[200, {"tilt": int(a)}]]
             elif a == 'loop':
                 for _ in range(10):
                     asd = [70]
+            elif a == 'pic':
+                asd = [[200, {"bildebehandlingsmodus": int(7)}]]
+            elif a == 'id':
+                a = input("ID\n")
+                asd = [[int(a), []]]
             mess = bytes(json.dumps("*"), "utf-8") + bytes(json.dumps(asd), "utf-8") + bytes(json.dumps("*"), "utf-8")
             client_conn.send(mess)
             #client_conn.send(bytes('*{"can": [(0, 99)]}*', "utf-8"))

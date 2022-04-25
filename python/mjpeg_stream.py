@@ -3,6 +3,7 @@
 	Author: Igor Maculan - n3wtron@gmail.com
 	A Simple mjpg stream http server
 '''
+from doctest import ELLIPSIS_MARKER
 from multiprocessing import Pipe
 import multiprocessing
 import cv2
@@ -12,9 +13,9 @@ import time
 capture=None
 
 class CamHandler(BaseHTTPRequestHandler):
-    #def __init__(self):
-        #pass
-        #selasf.pipe = pipe
+    #def __init__(self, requests, client_address, server):
+    #    BaseHTTPRequestHandler.__init__(self, requests, client_address, server)
+    #    self.blank = cv2.imencode(".jpg", cv2.imread("blank.jpg"))
 
     def do_GET(self):
         if self.path.endswith('.mjpg'):
@@ -24,26 +25,38 @@ class CamHandler(BaseHTTPRequestHandler):
             while True:
                 try:
                     # rc, img = capture.read()
-                    img = self.server.pipe.recv()
-                    if isinstance(img, str):
-                        print("got string")
-                        if img.lower() == "stop": # Closes prosess
-                            print("stopping video stream")
-                            self.server.socket.close()
-                            if self.video_cap:
-                                self.video.release()
-                            break
+                    if self.server.pipe.poll(0.2):
+                        img = self.server.pipe.recv()
+                        if isinstance(img, str):
+                            print("got string")
+                            if img.lower() == "stop": # Closes prosess
+                                print("stopping video stream")
+                                self.server.socket.close()
+                                if self.video_cap:
+                                    self.video.release()
+                                break
+                        else:
+                            # if not rc:
+                            #     continue
+                            # imgRGB=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+                            _, jpg = cv2.imencode(".jpg", img)
+                            self.wfile.write(b"--frame\n")
+                            self.send_header('Content-type','image/jpeg')
+                            self.send_header('Content-length',str(len(jpg)))
+                            self.end_headers()
+                            self.wfile.write(bytes(jpg))
+                            #time.sleep(0.016)
                     else:
-                        # if not rc:
-                        #     continue
-                        # imgRGB=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
-                        _, jpg = cv2.imencode(".jpg", img)
+                        try:
+                            self.blank
+                        except:
+                            self.blank = cv2.imread("blank.jpg")
+                            _, self.blankjpg = cv2.imencode(".jpg", self.blank)
                         self.wfile.write(b"--frame\n")
                         self.send_header('Content-type','image/jpeg')
-                        self.send_header('Content-length',str(len(jpg)))
+                        self.send_header('Content-length',str(len(self.blankjpg)))
                         self.end_headers()
-                        self.wfile.write(bytes(jpg))
-                        time.sleep(0.016)
+                        self.wfile.write(bytes(self.blankjpg))
                 except KeyboardInterrupt:
                     break
             return
@@ -52,7 +65,7 @@ class CamHandler(BaseHTTPRequestHandler):
             self.send_header('Content-type','text/html')
             self.end_headers()
             self.wfile.write(b'<html><head></head><body>')
-            self.wfile.write(b'<img src="http://10.0.0.2:' + bytes(str(self.server.port),'utf-8') + b'/cam.mjpg"/>')
+            self.wfile.write(b'<img height="100%"  src="http://10.0.0.2:' + bytes(str(self.server.port),'utf-8') + b'/cam.mjpg"/>')
             self.wfile.write(b'</body></html>')
             return
 

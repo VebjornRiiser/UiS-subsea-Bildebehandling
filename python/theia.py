@@ -1,8 +1,6 @@
 from ast import While
 from email import message
-from logging import Logger
 import threading, mjpeg_stream, cv2, time, math
-from logging_init import generate_logging
 from socket import AF_INET, SOCK_DGRAM, socket
 import numpy as np
 from multiprocessing import Pipe, Process
@@ -10,7 +8,12 @@ from subprocess import Popen, PIPE
 import time
 from sys import platform
 import pickle as p
-import autonomkjøring
+from yolo_detect import Yolo
+import statistics
+import matplotlib
+# matplotlib.use('tkAgg') # This broke the code
+from matplotlib import pyplot as plt
+from common import *
 #from distance import contour_img, calc_size, calc_distance
 
 class Object(): # Used in functions to draw on image, find distance to objects etc, refers to objects in pictures
@@ -68,6 +71,7 @@ class Object(): # Used in functions to draw on image, find distance to objects e
     def set_true_width(self, newwidth):
         self._true_width = newwidth
 
+
 def contour_img(image): # Finds shapes by color and size
     cvt_pic = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     color_lower = np.array([60,100,50])
@@ -81,33 +85,12 @@ def contour_img(image): # Finds shapes by color and size
     ny_cont = []
     liste_paa_Sizes = list(map(cv2.contourArea , cont))
     for index, areal in enumerate(liste_paa_Sizes):
-        if areal > 5000 and areal < 500000:
+        if 5000 < areal < 500000:
             ny_cont.append(Object(cont[index]))
     if len(ny_cont) > 0:
         for object in ny_cont:
             cv2.drawContours(image, object.box , -1, (0, 0, 0), 2 )
     return ny_cont
-
-def calc_distance(centers, focal_len=2060, camera_space=60, int_float: int=0): # Calculates distance to object using test data, needs position on object in two pictures
-    """Regner ut distansen til et objekt. for stereo kamera
-
-    Args:
-        centers (_type_): Senterkoortdinat til objektet i begge bildene
-        focal_len (float, optional): Focallength oppgitt i pixler. Defaults to 33.2.
-        camera_space (int, optional): Distansen mellom kameraene i mm. Defaults to 60.
-        int_float (int, optional): Bestemmer om funksjonen skal returnere tall i INT->(0) eller FLOAT->(1). Defaults to 0
-    Returns:
-        int|float: Avstand i mm
-    """
-    dist = abs(centers[0][0]-centers[1][0])
-    print(dist)
-    if dist == 0:
-        return 50
-    #return int((3.631e-6 * (dist**4)) - (0.003035 * (dist**3)) + (0.9672 * (dist**2)) - (139.9 * dist) + 7862)
-    if int_float:
-        return float(((focal_len*camera_space)/dist))
-    else:
-        return int(((focal_len*camera_space)/dist)) #TODO trenger det å være INT her??
 
 
 def calc_size(num_pixels:int, centers, axis:int=0): # Calulates size of objects in picture
@@ -164,11 +147,18 @@ class Camera():
             self.feed = cv2.VideoCapture(self.id)
         self.set_picture_size(self.width, self.height)
         #self.feed.set(cv2.CAP_PROP_FPS, framerate)
-        #self.feed.set(cv2.CAP_PROP_AUTOFOCUS, 1)
+        self.feed.set(cv2.CAP_PROP_AUTOFOCUS, 3)
         #self.feed.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0)
-        #self.feed.set(cv2.CAP_PROP_EXPOSURE, 600)
+        self.feed.set(cv2.CAP_PROP_EXPOSURE, 500)
         #self.feed.set(cv2.CAP_PROP_AUTO_WB, 1)
         print(self.feed.get(cv2.CAP_PROP_FPS))
+        with open('cal_cam.npy', 'rb') as f:
+            self.mtx1 = np.load(f)
+            self.dist1 = np.load(f)
+            self.mtx2 = np.load(f)
+            self.dist2 = np.load(f)
+            self.R = np.load(f)
+            self.T = np.load(f)
 
 
     def set_picture_size(self, width:int=2560, height:int=960):
@@ -180,7 +170,8 @@ class Camera():
         print(f'{self.width}:{self.height}')
         self.crop_width = int(self.width/2)
 
-    def aq_image(self, double:bool=False):
+
+    def aq_image(self, double:bool=False, t_pic:bool=False):
         #ref, frame = self.feed.read()
         #frame = cv2.rotate(frame, cv2.ROTATE_180)
         #ref, frame = self.feed.read()
@@ -201,12 +192,18 @@ class Camera():
                 return False
         frame = cv2.rotate(frame, cv2.ROTATE_180)
         crop = frame[:self.height, :self.crop_width]
+        crop = cv2.undistort(crop, self.mtx1, self.dist1)
         crop2 = frame[:self.height,self.crop_width:]
+        crop2 = cv2.undistort(crop2, self.mtx2, self.dist2)
+        if t_pic:
+            t = time.asctime()
+            ln('Took picture')
+            cv2.imwrite(f'/home/subsea/Bilete/rov/pic_left{t}.png',crop)
+            cv2.imwrite(f'/home/subsea/Bilete/rov/pic_right{t}.png', crop2)
         if double:
             crop2 = frame[:self.height,self.crop_width:]
             return crop, crop2
         else:
-            #crop = white_balance(crop)
             return crop
 
 
@@ -233,55 +230,224 @@ def find_calc_shapes(pic1, pic2):
     return mached_list
 
 
-def image_aqusition_thread(connection, boli, logger):
-    mode = 1 # 1: Find fish, 2: mosaikk 3:TBA 
+def find_same_objects(obj_list1:list, obj_list2:list, images): # This code will now brake Christoffer 1/4 -2022, calc distance is changed
+    #plt.imshow(disp, 'gray')
+    #plt.show()
+    checked_object_list = []
+    for obj1 in obj_list1:
+        for obj2 in obj_list2:
+            if obj1.position[1]-100 <= obj2.position[1] <= obj1.position[1]+100:
+                #if obj1.width[1]-100 <= obj2.width[1] <= obj1.width[1]+100:
+                obj1.dept = calc_distance([obj1.position, obj2.position])
+                checked_object_list.append(obj1)
+    return checked_object_list
+
+
+## After objects are found this class can compare pictures and objects to determin if they could be the same object with the use of size and positions ##
+## If objects match, will try to determin the diffrence in position theese objects have in the picture. ##
+class Athena(): 
+    def __init__(self) -> None:
+        self.orb = cv2.ORB_create()
+        self.bf = cv2.BFMatcher.create(cv2.NORM_HAMMING, crossCheck=True )
+        self.first = True
+        self.old_object_list = []
+        
+    # Diffrent methods to compare pixels in multiple pictures
+    #stereo = cv2.StereoBM_create(numDisparities=16, blockSize=9)
+    # 1
+    #sift = cv2.SIFT_create()
+    
+    # 2
+    #orb = cv2.ORB_create()
+    #bf = cv2.BFMatcher()# OLD VERSION, THX OPENCV
+    #bf = cv2.BFMatcher.create(cv2.NORM_HAMMING, crossCheck=True )
+
+    # 3
+    #cv2.FlannBasedMatcher(index_paralgorithm = 1, trees = 5, checks = 50) # index_paralgorithm = FLANN_INDEX_KDTREE = 1
+    def check_last_size(self, new_object_list):
+        if self.first:
+            self.first = False
+            self.old_object_list = new_object_list
+            return new_object_list
+        if len(new_object_list) == len(self.old_object_list):
+            for a, obj in enumerate(new_object_list): # Checks each object if its within 20% of old size and position
+                if self.old_object_list[a].width*0.8 < obj.width < self.old_object_list[a].width*1.2:
+                    #if self.old_object_list[a].position[0]*0.8 < obj.position[0] < self.old_object_list[a].position[0]*1.2:
+                    if obj.dept <= 0:
+#                        ln(f"{obj.dept}, {self.old_object_list[a].dept}")
+                        obj.dept = self.old_object_list[a].dept
+                    elif self.old_object_list[a].dept <= 50:
+                        pass
+                    else:
+ #                       ln(f"{obj.dept}, {self.old_object_list[a].dept}")
+                        obj.dept = self.old_object_list[a].dept*0.8 + obj.dept*0.2
+        elif len(new_object_list) == 0 and len(self.old_object_list) != 0:
+            return self.old_object_list
+        self.old_object_list = new_object_list
+        return self.old_object_list
+
+
+    def compare_pixles(self, object_list1, object_list2, pic):
+        gray = [cv2.cvtColor(pic[0], cv2.COLOR_BGR2GRAY), cv2.cvtColor(pic[1], cv2.COLOR_BGR2GRAY)]
+        new_object_list = []
+        for obj1 in object_list1:
+            for obj2 in object_list2:
+                if obj1.position[1]-100 <= obj2.position[1] <= obj1.position[1]+100:
+                    if obj1.width-50 <= obj2.width <= obj1.width+50:
+                        points = [] # points to crop
+                        points.append(int(obj1.rectangle[0][1]-obj1.height*0.1)) 
+                        points.append(int(obj2.rectangle[0][1]-obj2.height*0.1)) 
+                        points.append(int(obj1.rectangle[0][1]+obj1.height*1.1)) 
+                        points.append(int(obj2.rectangle[0][1]+obj2.height*1.1)) 
+                        points.append(int(obj1.rectangle[0][0]-obj1.width*0.1)) 
+                        points.append(int(obj2.rectangle[0][0]-obj1.width*0.1)) 
+                        points.append(int(obj1.rectangle[0][0]+obj1.width*1.1)) 
+                        points.append(int(obj2.rectangle[0][0]+obj1.width*1.1)) 
+                        for b, a in enumerate(points): # Checks that all points are within picture before crop
+                            if a < 0:
+                                points[b] = 0
+                            if b <= 3:
+                                if a > 720:
+                                    points[b] = 720
+                            else:
+                                if a > 1280:
+                                    points[b] = 1280
+                        crop1 = gray[0][points[0]:points[2], points[4]:points[6]]
+                        crop2 = gray[1][points[1]:points[3], points[5]:points[7]]
+                        offset = obj1.rectangle[0][0]- obj2.rectangle[0][0]
+
+                        # Testprints
+                        #print(f'pos0:{int(obj1.rectangle[0][0])}')
+                        #print(f'pos1:{int(obj1.rectangle[0][1])}')
+                        #a = int(obj1.rectangle[0][0]+obj1.height*0.2)-int(obj2.rectangle[0][0]+obj1.height*0.2)
+                        #b = obj1.rectangle[0][0]- obj2.rectangle[0][0]
+                        #print(f'{(a==b)}')
+                        #print(f'Offset:{offset}')
+                        #print(f'Width1:{obj1.width}, height1:{obj1.height}')
+                        #print(f'Width2:{obj2.width}, height2:{obj2.height}')
+                        #cv2.imshow("TAGE1!!!!", crop1)
+                        #cv2.imshow("TAGE2!!!!", crop2)
+                        #if cv2.waitKey(1) & 0xFF == ord('q'):
+                        #        break
+                        
+                        kp1, des1 = self.orb.detectAndCompute(crop1 ,None)
+                        kp2, des2 = self.orb.detectAndCompute(crop2 ,None)
+                        try:
+                            mached_pixels = self.bf.match(des1, des2)
+                            mached_pixels = sorted(mached_pixels, key = lambda x:x.distance)
+                            print(len(mached_pixels))
+                            new_list = []
+                            for a in mached_pixels:
+                                if a.distance < 100:
+                                    new_list.append(a)
+                        except Exception as i:
+                            print(i)
+                            return
+                        mached_pixels = new_list
+                        #imgDummy = np.zeros((1,1))
+                        #img = cv2.drawMatches(crop1,kp1,crop2,kp2,mached_pixels[:10], imgDummy, flags=2)
+                        #cv2.imshow("TAGE1!!!!", img)
+                        dif_list = []
+                        if len(mached_pixels) > 2:
+                            for a in mached_pixels:
+                                if abs(kp1[a.queryIdx].pt[1] - kp2[a.trainIdx].pt[1]) < 10:
+                                    crop1 = cv2.circle(crop1, (int(kp1[a.queryIdx].pt[0]), int(kp1[a.queryIdx].pt[1])), 4, (255,0,0), -1)
+                                    crop2 = cv2.circle(crop2, (int(kp2[a.trainIdx].pt[0]), int(kp2[a.trainIdx].pt[1])) , 4, (255,0,0), -1)
+                                    dif_list.append(abs(kp1[a.queryIdx].pt[0] - kp2[a.trainIdx].pt[0]+offset))
+                            if len(dif_list) > 2:   
+                                med = statistics.median(dif_list)
+                                if 158 < med < 218:
+                                    obj1.dept = calc_distance(med)
+                                    ln(f"{obj1.dept}")
+                                
+                                # Print for calibration
+                                #print(f'Disparity: {statistics.median(dif_list)}')
+                                
+                                #cv2.imshow("TAGE1!!!!", crop1)
+                                #cv2.imshow("TAGE2!!!!", crop2)
+                                #if cv2.waitKey(1) & 0xFF == ord('q'):
+                                #    break
+                                #pass
+                                #print(f'Mean:{statistics.mean(dif_list)}')
+                                #print(f'Median:{statistics.median(dif_list)}')
+                        #plt.imshow(img),plt.show()
+                        #cv2.imshow("TAGE2!!!!", crop2)
+                        #if cv2.waitKey(1) & 0xFF == ord('q'):
+                        #    break
+            new_object_list.append(obj1)
+        if len(new_object_list) > 1:
+            new_object_list = check_overlap(new_object_list) # Checks for object overlapping
+        new_object_list = self.check_last_size(new_object_list) # Filters distances vales, and sets old if new is not found
+        return new_object_list
+
+## Recives images and processes them according to mode returns objects with information to draw, len to objects and positions related to them ##
+def image_aqusition_thread(connection, boli):
+    time_list = []
+    mode = 1 # 1: Find rubberfish, 2: mosaikk 3:TBA 
     #TODO Her skal autonom kjøring legges inn
     old_list = []
-    autonom_handler = autonomkjøring.Autonom(logger=logger)
-    
-    
+    first = True
+    width = 1280
+
+
+    ath = Athena()
     while boli:
-        mess = connection.recv() # bilde eller melding
+        mess = connection.recv()
+        if isinstance(mess, list):
+            if first:
+                first = False
+                s = mess[0].shape
+                yal = Yolo((s[1], s[0]))
         if isinstance(mess, str):
             if mess.lower() == 'stop':
                 break
             elif mess.lower() == 'fish':
+                print("Changed mode")
                 mode = 1
             elif mess.lower() == 'mosaikk':
                 mode = 2
         else:
             if mode == 1:
+                start = time.time()
+                mached_list = []
                 if len(mess) == 2:
-                    mached_list = find_calc_shapes(mess[0], mess[1])
-                    if old_list != []:
-                        for a in old_list:
-                            for b in mached_list:
-                                if (cv2.matchShapes(a.contour, b.contour, cv2.CONTOURS_MATCH_I1, 0.0)) < 0.3:
-                                    a.dept = 0.9*b.dept+0.1*a.dept
-                    old_list = mached_list
-                    connection.send(mached_list)
+                    res1 = yal.yolo_image(mess[0]) # Result from left cam
+                    res2 = yal.yolo_image(mess[1]) # Result from right cam
+                    if len(res1) > 0 and len(res2) > 0:
+                        #mached_list = find_same_objects(res1, res2, mess)
+                        mached_list = ath.compare_pixles(res1, res2, mess)
+                time_list.append(time.time()-start)
+                connection.send(mached_list)
             elif mode == 2:
                 pass
+        if len(time_list) > 20:
+            #print(statistics.mean(time_list))
+            time_list = []
         
 
 def draw_on_img(pic, frames):
-    for a in frames:
-        cv2.putText(pic, f'Distance:{a.dept} cm',a.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
-        cv2.putText(pic, f'Distance:{a.dept} cm',a.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
-        cv2.putText(pic, f'Width:{a.true_width} cm',(a.position[0], a.position[1]+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
-        cv2.putText(pic, f'Width:{a.true_width} cm',(a.position[0], a.position[1]+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
-        cv2.drawContours(pic, a.box , -1, (0, 0, 0), 2 )
+    if isinstance(frames, list):
+        for item in frames: # Draws objects on picture
+            cv2.rectangle(pic, item.rectangle[0], item.rectangle[1], item.colour, item.draw_line_width) # Draws rectablge on picture
+            pos = (item.rectangle[0][0], item.rectangle[0][1]+40) # For readability
+            cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3) # Red text
+            cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 1) # White background
+            if item.dept != 0: # Draws dept esitmation if there is one
+                cv2.putText(pic, f'Distance:{int(item.dept)} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
+                cv2.putText(pic, f'Distance:{int(item.dept)} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
 
 
-def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
+## Got access to one camera, can aquire images from camera, communicates with main process and can send picutres to image prossesing and stream ##
+def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, local = False):  
     print(f'Camera:{camera_id} started')
     cam = Camera(camera_id)
-    shared_list = [1, 0, 0, 0]
+    shared_list = [1, 0, 1, 0]
     threading.Thread(name="Camera_con", target=pipe_com, daemon=True, args=(connection, None, None, shared_list)).start()
     fourcc = cv2.VideoWriter_fourcc(*'MPEG')
     run = True
-    video_feed = True
+    video_feed = not local
     video_capture = False
+    take_pic = False
     mode = shared_list[2] # Camera modes: 0: Default no image processing, 1: Find shapes and calculate distance to shapes, 2: ??, 3 ?? 
     if not (cam.feed.isOpened()):
         print('Could not open video device')
@@ -301,6 +467,9 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
                     print("Video finished")
                     video_write.release()
                 shared_list[1] = 0
+            elif shared_list[2] == "tpic":
+                take_pic = True
+                shared_list[1] = 0
             else:
                 mode = shared_list[2]
                 shared_list[1] = 0
@@ -316,19 +485,21 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe):
                 mode = int(mode)
                 
         if mode == 0:
-            pic = cam.aq_image()
+            pic = cam.aq_image(False, take_pic)
+            take_pic = False
             if pic is False:
                 cam.feed.release()
                 cv2.destroyAllWindows()
                 cam = Camera(camera_id)
         elif mode == 1:
-            pic, pic2 = cam.aq_image(True)
+            pic, pic2 = cam.aq_image(True, take_pic)
+            take_pic = False
             if pic is False:
                 cam.feed.release()
                 cv2.destroyAllWindows()
                 cam = Camera(camera_id)
             frame_count += 1
-            if frame_count > 2:
+            if frame_count > 9:
                 frame_count = 0
                 if picture_IA_pipe.poll():
                     draw_frames = picture_IA_pipe.recv()
@@ -410,22 +581,32 @@ def pipe_com(connection, callback=None, name=None, list=None):
             list[2] = connection.recv()
             list[1] = 1
 
+## Checks if object positions overlap ##
+# Returns list without overlap #  
+# Function needs to be tested #
+def check_overlap(obj_list): 
+    del_list = []
+    for a, b in enumerate(obj_list):
+        if a != len(obj_list)-1:
+            for obj in obj_list[a+1:]:
+                if obj.rectangle[0][0] < b.position[0] < obj.rectangle[1][0]:
+                    if obj.rectangle[0][1] < b.position[1] < obj.rectangle[1][1]:
+                        del_list.append(b)
+                        break
+    for a in del_list:
+        obj_list.remove(a)
+    return obj_list
 
 #TODO cli_runtime
-#Funksjon som håndterer en commandline interface for prossesser (slik at man kan styre ting når man tester)
+# Funksjon som håndterer en commandline interface for prossesser (slik at man kan styre ting når man tester)
 # Denne skulle kanskje vært en toggle funksjon som man kan enable fra click når man kjører programmet
 
 
 class Theia():
-    def __init__(self,logger: Logger=None) -> None:
-        self.logger = logger.getChild("Theia")
-        self.logger.setLevel(1)
-        
-        # Index 0 = id, index 1 = is running
-        self.camera_status = {'front':[0,0], 'back':[0,0]}
-        #self.camera_status = [0, 0] #Index 0 = Camera front, Index 1 = Camera under/back
+    def __init__(self) -> None:
+        self.camera_status = {'front':[0,0], 'back':[0,0]} # Camera status, index 0 : Availability, index 1: Status
         self.camera_function = {'front': False, 'back':False} # Bool = Pircutre prossesing status
-        self.autonom = False # If true will send feedback on ROV postion related to red line etc. #TODO muligens at denne blir endret litt
+        self.autonom = False # If true will send feedback on ROV postion related to red line etc.
         self.port_camback_feed = 6888
         self.port_camfront_feed = 6889
         self.cam_front_name = 'mats'
@@ -433,26 +614,25 @@ class Theia():
         self.set_front_zero = [200, {"tilt": 0}]
         self.set_back_zero = [201, {"tilt": 0}]
         self.check_hw_id_cam()
-        
-        
 
     def check_hw_id_cam(self):
-        self.cam_front_id = self.find_cam(".7") # Checks if a camera is connected on this port
-        self.cam_back_id = self.find_cam("3-2")
+        self.cam_front_id = self.find_cam("3-2.7") # Checks if a camera is connected on this port
+        self.cam_back_id = self.find_cam(".5")
+        #self.cam_front_id = self.find_cam("004")
+        #self.cam_back_id = self.find_cam("007")
         if not self.cam_front_id:
-            self.logger.warning(f'Did no find front camera')
+            print(f'Did no find front camera')
             self.camera_status['front'][1] = 0
         else:
-            self.logger.info(f'Found front camera')
+            print(f'Found front camera')
             self.camera_status['front'][1] = 1
         if not self.cam_back_id:
-            self.logger.warning(f'Did no find back camera')
+            print(f'Did no find back camera')
             self.camera_status['back'][1] = 0
         else:
-            self.logger.info(f'Found back camera')
+            print(f'Found back camera')
             self.camera_status['back'][1] = 1
 
-        
     def find_cam(self, cam):
         cmd = ["/usr/bin/v4l2-ctl", "--list-devices"]
         out, err = Popen(cmd, stdout=PIPE, stderr=PIPE).communicate()
@@ -462,9 +642,8 @@ class Theia():
                 return l[1]
         return False
 
-    def toggle_front(self, cam_id: int=0):
+    def toggle_front(self, local: bool=False):
         #print(f"{self.camera_status['front'] = }")
-        
         if self.camera_status['front'][0] == 1:
             self.host_cam_front.send('stop')
             self.camera_status['front'][0] = 0
@@ -473,18 +652,18 @@ class Theia():
                 self.host_cam_front, self.client_cam1 = Pipe()
                 self.send_front_pic, recive_front_pic = Pipe()
                 send_IA_front, recive_IA = Pipe()
-                self.front_camera_prosess = Process(target=camera_thread, daemon=True, args=(self.cam_front_id, self.client_cam1, self.send_front_pic, send_IA_front))
+                self.front_camera_prosess = Process(target=camera_thread, daemon=True, args=(self.cam_front_id, self.client_cam1, self.send_front_pic, send_IA_front, local))
                 self.front_camera_prosess.start()
                 self.front_cam_com_thread = threading.Thread(name="COM_cam_1",target=pipe_com, daemon=True, args=(self.host_cam_front, self.camera_com_callback, self.cam_front_name)).start()
                 self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_front_pic, self.port_camfront_feed)).start()
                 self.camera_status['front'][0] = 1
-                self.image_AQ_process = Process(target=image_aqusition_thread, daemon=True, args=(recive_IA, True, self.logger.getChild("Foran"))) #TODO Må også sende logger som argument
+                self.image_AQ_process = Process(target=image_aqusition_thread, daemon=True, args=(recive_IA, True))
                 self.image_AQ_process.start()
                 return True
             else:
                 return False
 
-    def toggle_back(self, cam_id: int=2):
+    def toggle_back(self, local: bool=False):
         print(self.camera_status['back'])
         if self.camera_status['back'][0] == 1:
             self.host_back.send('stop')
@@ -494,11 +673,11 @@ class Theia():
                 self.host_back, self.client_cam2 = Pipe()
                 send_back_pic, recive_back_pic = Pipe()
                 send_IA2, recive_IA2 = Pipe()
-                self.back_camera_prosess = Process(target=camera_thread, daemon=True, args=(self.cam_back_id, self.client_cam2, send_back_pic, send_IA2)).start()
-                self.front_cam_com_thread = threading.Thread(name="COM_cam_2",target=pipe_com, daemon=True, args=(self.host_back, self.camera_com_callback, self.cam_front_name)).start() #WARNING skal denne variabelen hete front?
+                self.back_camera_prosess = Process(target=camera_thread, daemon=True, args=(self.cam_back_id, self.client_cam2, send_back_pic, send_IA2, local)).start()
+                self.front_cam_com_thread = threading.Thread(name="COM_cam_2",target=pipe_com, daemon=True, args=(self.host_back, self.camera_com_callback, self.cam_front_name)).start()
                 self.steam_video_prosess = Process(target=mjpeg_stream.run_mjpeg_stream, daemon=True, args=(recive_back_pic, self.port_camback_feed)).start()
                 self.camera_status['back'][0] = 1
-                self.image_AQ_process2 = Process(target=image_aqusition_thread, daemon=True, args=(recive_IA2, True, self.logger.getChild("Bak|Under"))) #TODO Må også sende logger som argument
+                self.image_AQ_process2 = Process(target=image_aqusition_thread, daemon=True, args=(recive_IA2, True))
                 self.image_AQ_process2.start()
                 return True
             else:
@@ -528,11 +707,11 @@ class Theia():
 
 if __name__ == "__main__":
     print("Main=Theia")
-    s = Theia(generate_logging())
+    s = Theia()
     #s.camera_status['front'][1] = 1
     #s.cam_front_id = 1
     
-    s.toggle_front()
+    s.toggle_front(local = True)
     #s.toggle_back()
     print(time.asctime())
     
@@ -542,3 +721,34 @@ if __name__ == "__main__":
         #s.host_cam_front.send(0)
         #time.sleep(20)
         #s.host_cam_front.send(1)
+
+
+                    # Noen ubrukte bildebehandlingsmetoder
+
+                    #gray = [cv2.cvtColor(mess[0], cv2.COLOR_BGR2GRAY), cv2.cvtColor(mess[1], cv2.COLOR_BGR2GRAY)]
+                    #points = sift.detect(gray[1], None)
+                    #img=cv2.drawKeypoints(gray[1], points ,mess[0])
+                    
+                    
+                    #new_list = []
+                    #kp1, des1 = orb.detectAndCompute(gray[0] ,None)
+                    #kp2, des2 = orb.detectAndCompute(gray[1] ,None)
+                    #mached_pixels = bf.match(des1, des2)
+
+                    #print(len(mached_pixels))
+                    #for a in kp1:
+                    #    print(a.pt)
+                    
+                    ### Some type of id from a list
+                    #for a in mached_pixels:
+                    #    print(kp1[a.trainIdx].pt)
+
+
+                    #disp = stereo.compute(gray[0], gray[1])
+                    #plt.imshow(disp, 'gray')
+                    
+                    # IMSHOWS FOR TEST
+                    #plt.show()
+                    #cv2.imshow('text', img)
+                    #if cv2.waitKey(1) & 0xFF == ord('q'):
+                    #    break

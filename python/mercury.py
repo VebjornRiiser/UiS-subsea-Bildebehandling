@@ -1,15 +1,18 @@
 1#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from doctest import ELLIPSIS_MARKER
-from logging import Logger
 import struct
 import threading
 import time
+from grpc import composite_call_credentials
 import serial
 import socket
 import json
+import os
 from network_handler import Network
 from theia import Theia
+from common import *
+import glob
 
 c_types = {
     "int8": "<b",
@@ -30,78 +33,102 @@ def get_byte(c_format:str, number):
     return byte_list
 
 def get_num(c_format:str, byt):
+    if isinstance(byt, int):
+        byt = byt.to_bytes(1,"little")
     return struct.unpack(c_types[c_format], byt)[0]
+
+def get_bit(num, bit_nr):
+    return True if (num >> bit_nr) & 1 else False
+
+def set_bit( bits:tuple ):
+    out = int(0)
+    for k, bit in enumerate(bits):
+        out += bit << k
+    return out
 
 
 def serial_package_builder(data, can=True):
-    package = []
-    # can_data is a list or a dict
-    can_id, can_data = data
+    try:
+        package = []
+        # can_data is a list or a dict
+        can_id, can_data = data
+        can_id = int(can_id)
 
-    # Start byte
-    package.append(0x02)
+        # Start byte
+        package.append(0x02)
 
-    # CAN eller kamera tilt
-    package.append(0x05) if can else package.append(0x06)
+        # CAN eller kamera tilt
+        package.append(0x05) if can else package.append(0x06)
 
-    # ID
-    package += get_byte("uint8", can_id)
-    
-    # Startup
-    if can_id in [64, 96, 128]:
-        package += bytes("start\n", "latin")
+        # ID
+        package += get_byte("uint8", can_id)
+        
+        # Startup
+        if can_id in [64, 96, 128]:
+            package += bytes("start\n", "latin")
 
-    elif can_id == 70:
-        # X, Y, Z, rotasjon: int8
-        for k in range(4):
-            package += get_byte("int8", can_data[k])
+        elif can_id == 70:
+            # X, Y, Z, rotasjon: int8
+            for k in range(4):
+                package += get_byte("int8", can_data[k])
 
-        # manipulator: uint8
-        package += get_byte("uint8", can_data[4])
+            # manipulator: uint8
+            package += get_byte("uint8", can_data[4])
 
-        # fri, fri, throttling: int8
-        for k in range(3):
-            package += get_byte("int8", can_data[k+5])
+            # fri, fri, throttling: int8
+            for k in range(3):
+                package += get_byte("int8", can_data[k+5])
 
-    # Parameter endring
-    elif can_id == 71:
-        package += get_byte("uint32", can_data[0])
-        package += get_byte("float", can_data[1])
+        # Parameter endring
+        elif can_id == 71:
+            package += get_byte("uint32", can_data[0])
+            package += get_byte("float", can_data[1])
 
-    # Ping
-    elif can_id in [95, 127, 159]:
-        package += bytes("ping!\n", "latin")
+        # Ping
+        elif can_id in [95, 127, 159]:
+            package += bytes("ping!\n", "latin")
 
-    # Lysstyrke
-    elif can_id == 142:
-        package += get_byte("uint8", can_data[0])
-        package += get_byte("uint8", can_data[1])
-    
-    # Camera tilt
-    elif (can_id == 200) | (can_id == 201):
-        package += get_byte("int8", can_data['tilt'])
+        elif can_id == 129:
+            pass
 
-    else:
-        return f"Gjenkjente ikkje ID frå toppside: '{can_id}'"
+        # Sikring og regulator
+        elif can_id == 139:
+            package += get_byte("uint8", set_bit(can_data[0:6]))
 
-    # Info om struct: https://docs.python.org/3/library/struct.html
+        # Lysstyrke
+        elif can_id == 142:
+            package += get_byte("uint8", can_data[0])
+            package += get_byte("uint8", can_data[1])
+        
+        # Camera tilt
+        elif (can_id == 200) | (can_id == 201):
+            package += get_byte("int8", can_data['tilt'])
 
-    # Pad lengde
-    pack_length = len(package)
-    if pack_length < 11:
-        for _ in range(11 - pack_length):
-            package.append(0x00)
+        else:
+            return f"Gjenkjente ikkje ID frå toppside: '{can_id}'"
 
-    # Slutt byte
-    package.append(0x03)
+        # Info om struct: https://docs.python.org/3/library/struct.html
 
-    if len(package) == 12:
-        try:
-            return bytearray(package)
-        except ValueError:
-            return f"feil lengde på tall: '{package}'"
-    else:
-        return f"Feil lengde på liste: '{package}'"
+        # Pad lengde
+        pack_length = len(package)
+        if pack_length < 11:
+            for _ in range(11 - pack_length):
+                package.append(0x00)
+
+        # Slutt byte
+        package.append(0x03)
+
+        if len(package) == 12:
+            try:
+                return bytearray(package)
+            except ValueError:
+                return f"feil lengde på tall: '{package}'"
+        else:
+            return f"Feil lengde på liste: '{package}'"
+
+    # Error håndtering:
+    except TypeError as e:
+        return f"Feil type i '{data=}': '{e}'"
 
 # Reads data from network port
 def network_thread(network_handler, network_callback, flag):
@@ -130,7 +157,7 @@ def USB_thread(h_serial, USB_callback, flag):
             melding = h_serial.readline().decode("utf8").strip("\n")
             USB_callback(melding)
         except Exception as e:
-            print(f'Feilkode i usb thread feilmelding: {e}')
+            print(f'Feilkode i usb thread feilmelding: {str(e.with_traceback())}')
             pass
     print("USB thread stopped")
 
@@ -144,30 +171,37 @@ def create_json(can_id:int, data:str):
     
     # Gyrodata
     if can_id == 80:
-        rull = get_num("int16", data_b[0:2])
-        stamp = get_num("int16", data_b[2:4])
-        hiv = get_num("int16", data_b[4:6])
+        hiv = get_num("int16", data_b[0:2])
+        rull = get_num("int16", data_b[2:4])
+        stamp = get_num("int16", data_b[4:6])
         gir = get_num("int16", data_b[6:])
-        json_dict = {"gyro": [rull, stamp, hiv, gir]}
+        json_dict = {"gyro": (hiv/10, rull/10, stamp/10)}
+#        ln(f"{json_dict}\tdata: {data_b=}")
 
     # Akselerometer
     elif can_id == 81:
         accel_x = get_num("int16", data_b[0:2])
         accel_y = get_num("int16", data_b[2:4])
         accel_z = get_num("int16", data_b[4:6])
-        json_dict = {"accel": [accel_x, accel_y, accel_z]}
+        json_dict = {"accel": (accel_x/100, accel_y/100, accel_z/100)}
 
     # Straumforbruk
-    elif can_id in [90, 91, 92]:
-        json_dict = {f"power_consumption{can_id - 90}": [ get_num("uint16", data_b[0:]) ]}
+    elif can_id == 90:
+        pwr1 = get_num("uint16", data_b[0:2])
+        pwr2 = get_num("uint16", data_b[2:4])
+        pwr3 = get_num("uint16", data_b[4:6])
+        json_dict = {f"power_consumption": ( pwr1, pwr2, pwr3 )}
 
     # Leak detection and temperature
     elif can_id == 140:
-        lekk = data_b[0]
-        temp1 = get_num("int16", data_b[1:3]) / 10 # -100.0°C -> 100.0°C
-        temp2 = get_num("int16", data_b[3:5]) / 10
-        temp3 = get_num("int16", data_b[5:7]) / 10
-        json_dict = {"lekk_temp": [lekk, temp1, temp2, temp3]}
+        lekk_byte = get_num("uint8", data_b[0])
+        lekk1 = get_bit(lekk_byte, 0)
+        lekk2 = get_bit(lekk_byte, 1)
+        lekk3 = get_bit(lekk_byte, 2)
+        temp1 = get_num("uint8", data_b[1]) # 0°C -> 255°C
+        temp2 = get_num("uint8", data_b[2])
+        temp3 = get_num("uint8", data_b[3])
+        json_dict = {"lekk_temp": ( lekk1, lekk2, lekk3, temp1, temp2, temp3 )}
 
     # Thrusterpådrag
     elif can_id == 170:
@@ -176,8 +210,19 @@ def create_json(can_id:int, data:str):
             thrust_list.append( get_num("int8", byt) )
         json_dict = {"thrust": thrust_list}
 
+    elif can_id == 171:
+        #json_dict = {"regulator_strom_status": []}
+        watt_byte = get_num("uint8", data_b[0])
+        #for i in range(4):
+            #json_dict["regulator_strom_status"].append((get_bit(watt_byte, i))
+        sikring240w = get_bit(watt_byte, 0)
+        sikring1300w = get_bit(watt_byte, 1)
+        regulator240w = get_bit(watt_byte, 2)
+        regulator1300w = get_bit(watt_byte, 3)
+        json_dict = {"regulator_strom_status": (sikring240w, sikring1300w, regulator240w, regulator1300w)}
+
     else:
-        json_dict = "\n\nERROR, ID UNKNOWN!\n\n"    
+        json_dict = f"\n\nERROR, ID {can_id} UNKNOWN!\n\n"    
 
     return to_json(json_dict)
 
@@ -197,33 +242,34 @@ def intern_com_thread(intern_com, intern_com_callback, flag):
 
 
 class Mercury:
-    def __init__(self, ip:str="0.0.0.0", port:int=6900, logger: Logger=None) -> None:
-        # Logging
-        self.logger = logger.getChild("Mercury")
-        self.logger.setLevel(1)
-        
+    def __init__(self, ip:str="0.0.0.0", port:int=6900) -> None:
         # Flag dictionary
         self.status ={'network': False, 'USB': False, 'intern': False}
-        self.connect_ip = ip
-        self.connect_port = port
-        self.net_init()
-        self.thei = Theia(logger=logger) #WARNING potensiel breake
 
         # USB socket
-        self.serial_port = "/dev/ttyACM0"
+        serial_ports = glob.glob('/dev/ttyACM*')
+        if len(serial_ports) > 0:
+            self.serial_port = serial_ports[0]
+            print(f"Fant USB: {self.serial_port}")
+        else:
+            print(f"Finner ikke USB port")
+            os._exit(1)
         self.serial_baud = 9600
         if not self.status['USB']:
             self.toggle_USB()
+
+        self.thei = Theia()
+        # Network init
+        self.connect_ip = ip
+        self.connect_port = port
+        self.net_init()
+
         #self.network_snd_socket.send_string(f'USB connection started')
 
-        
-        
-        
     def net_init(self):
         self.network_handler = Network(is_server=True, bind_addr=self.connect_ip, port=self.connect_port)
         while self.network_handler.waiting_for_conn:
-            time.sleep(0.3)
-            #self.logger.info("Venter på kommunikasjon")
+            time.sleep(1)
             print("waiting for connection before continuing")
         self.toggle_network()
 
@@ -240,11 +286,15 @@ class Mercury:
                 else:
                     message = json.loads(message)
                     for item in message:
-                        if item[0] != 70:
-                            print(item)
+                        #if item[0] != 70: # Vær grei å fjern testprints etter test!
+                        #    print(item)
                         if item[0] < 200:
                             if self.status['USB']:
-                                self.serial.write(serial_package_builder(item))
+                                mld = serial_package_builder(item, True)
+                                if not isinstance(mld, bytearray):
+                                    self.network_handler.send(to_json(f'{mld}'))
+                                else:
+                                    self.serial.write(mld)
                             else:
                                 self.network_handler.send(to_json("error usb not connected"))
                         elif (item[0] == 200) | (item[0] == 201): #Camera_front and back functions
@@ -277,17 +327,20 @@ class Mercury:
                                         self.network_handler.send(to_json("Could not find front camera"))
                                 elif key.lower() == "bildebehandlingsmodus":
                                     if item[0] == 200:
-                                        print(f'{item}\n')
+                                        #print(f'{item}\n')
                                         if item[1][key] == 6: # Toggles on/off videofile creation
                                             self.thei.host_cam_front.send('video')
+                                        elif item[1][key] == 7: # Takes one pictue
+                                            print("Sending takepic")
+                                            self.thei.host_cam_front.send('tpic')
                                         elif item[1][key] != 0:
                                             self.thei.camera_function['front'] = True
                                             mld = serial_package_builder(self.thei.set_front_zero, False)
                                             self.serial.write(mld)
                                         else:
                                             self.thei.camera_function['front'] = False
-                                        if self.thei.camera_status['front'] and item[1][key] !=6:
-                                            print("MerK:278: Change camer function")
+                                        check = ((item[1][key] !=6) and (item[1][key] !=7))
+                                        if self.thei.camera_status['front'] and check:
                                             self.thei.host_cam_front.send(item[1][key])
                                         elif item[1][key] !=6:
                                             pass
@@ -304,6 +357,16 @@ class Mercury:
                                             self.thei.host_back.send(item[1][key])
                                         else:
                                             self.network_handler.send(to_json("Back camera is not on"))
+                                elif key.lower() == "take_picture":
+                                    if item[0] == 200:
+                                        self.thei.host_cam_front.send('tpic')
+                                    elif item[0] == 201:
+                                        self.thei.host_back.send('tpic')
+                                elif key.lower() == "video_recording":
+                                    if item[0] == 200:
+                                        self.thei.host_cam_front.send('video')
+                                    elif item[0] == 201:
+                                        self.thei.host_back.send('video')
                         else:
                             self.network_handler.send(to_json("This ID is not handled"))
             except Exception as e:
@@ -327,8 +390,9 @@ class Mercury:
             #print(f"usb callback {melding =}")
             data, can_id = melding.split(";")
             self.network_handler.send(create_json(int(can_id), data))
-        else: 
-            print('No connection on network')
+        else:
+            pass
+            #print('No connection on network')
 
 
     def toggle_USB(self):
@@ -357,5 +421,5 @@ if __name__ == "__main__":
     #a = Mercury()
     #a.toggle_network()
     #print("For loop started")
-    for __ in range(200):
+    while True:
         time.sleep(5)
