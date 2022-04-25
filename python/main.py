@@ -1,7 +1,6 @@
 import multiprocessing
 from multiprocessing.dummy import Array
 from mercury import Mercury
-from mercury import venus
 from theia import Theia
 import time
 import threading
