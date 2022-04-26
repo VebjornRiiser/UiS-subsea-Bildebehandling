@@ -471,18 +471,22 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, loc
                 take_pic = True
                 shared_list[1] = 0
             else:
-                mode = shared_list[2]
-                shared_list[1] = 0
-                print(f'Mode set to {mode}')
-                if isinstance(mode, str):
-                    if mode.lower() == 'stop':
-                        print('Camera thread stopped')
-                        picture_send_pipe.send('stop')
-                        connection.send('stop')
-                        cam.feed.release()
-                        cv2.destroyAllWindows()
-                        break
-                mode = int(mode)
+                if isinstance(shared_list[2], int):
+                    mode = shared_list[2]
+                    shared_list[1] = 0
+                    print(f'Mode set to {mode}')
+                    if isinstance(mode, str):
+                        if mode.lower() == 'stop':
+                            print('Camera thread stopped')
+                            picture_send_pipe.send('stop')
+                            connection.send('stop')
+                            cam.feed.release()
+                            cv2.destroyAllWindows()
+                            break
+                    mode = int(mode)
+                else:
+                    ln(f'Cameramode: {shared_list[2]}, is not supported')
+                    shared_list[1] = 0
                 
         if mode == 0:
             pic = cam.aq_image(False, take_pic)
@@ -647,6 +651,7 @@ class Theia():
         if self.camera_status['front'][0] == 1:
             self.host_cam_front.send('stop')
             self.camera_status['front'][0] = 0
+            return "Camera front stopped"
         else:
             if self.camera_status['front'][1]:
                 self.host_cam_front, self.client_cam1 = Pipe()
@@ -659,15 +664,16 @@ class Theia():
                 self.camera_status['front'][0] = 1
                 self.image_AQ_process = Process(target=image_aqusition_thread, daemon=True, args=(recive_IA, True))
                 self.image_AQ_process.start()
-                return True
+                return "Camera front started"
             else:
-                return False
+                return "Camera front is not connected"
 
     def toggle_back(self, local: bool=False):
         print(self.camera_status['back'])
         if self.camera_status['back'][0] == 1:
             self.host_back.send('stop')
             self.camera_status['back'][0] = 0
+            return "Camera back stopped"
         else:
             if self.camera_status['back'][1]:
                 self.host_back, self.client_cam2 = Pipe()
@@ -679,9 +685,9 @@ class Theia():
                 self.camera_status['back'][0] = 1
                 self.image_AQ_process2 = Process(target=image_aqusition_thread, daemon=True, args=(recive_IA2, True))
                 self.image_AQ_process2.start()
-                return True
+                return "Camera back started"
             else:
-                return False
+                return "Camera back is not connected"
 
     def camera_com_callback(self, msg, name):
         if name == self.cam_front_name:
