@@ -146,8 +146,8 @@ def kontrast_boost(bilde):
 
 
 def picure_stich(images:list): # Input list of images, returns stiched images
-    st = cv2.createStitcher
-    res, pic = st.stich(images)
+    st = cv2.Stitcher_create()
+    res, pic = st.stitch(images)
     if res == 0:
         return pic
     else: 
@@ -212,29 +212,40 @@ def calc_distance(centers, focal_len=2098, camera_space=60, int_float: int=0): #
 
 
 if __name__ == "__main__":
-    main_logger = generate_logging(log_name="VP_main_test",log_file_name="VP_main.log")
-    vid = cv2.VideoCapture(0)
-    vid.set(cv2.CAP_PROP_FRAME_HEIGHT, 960)
-    vid.set(cv2.CAP_PROP_FRAME_WIDTH, 2560)
-    main_logger.info(f"Kamera HW-ACC satt til: --> {vid.get(cv2.CAP_PROP_HW_ACCELERATION)}")
-    main_logger.info(f"Bilde høyde er satt til: --> {vid.get(cv2.CAP_PROP_FRAME_HEIGHT)}")
-    main_logger.info(f"Bilde bredde er satt til: --> {vid.get(cv2.CAP_PROP_FRAME_WIDTH)}")
-    
-    
-    
-    
-    while True:
-        ret, frame = vid.read()
-        split_line = int(2560/2)
-        frame = frame[:,:split_line], frame[:,split_line:]
-     
+    a = 12
+    if a == 1:
+        main_logger = generate_logging(log_name="VP_main_test",log_file_name="VP_main.log")
+        vid = cv2.VideoCapture(0)
+        vid.set(cv2.CAP_PROP_FRAME_HEIGHT, 960)
+        vid.set(cv2.CAP_PROP_FRAME_WIDTH, 2560)
+        main_logger.info(f"Kamera HW-ACC satt til: --> {vid.get(cv2.CAP_PROP_HW_ACCELERATION)}")
+        main_logger.info(f"Bilde høyde er satt til: --> {vid.get(cv2.CAP_PROP_FRAME_HEIGHT)}")
+        main_logger.info(f"Bilde bredde er satt til: --> {vid.get(cv2.CAP_PROP_FRAME_WIDTH)}")
         
         
-        squares = vp_dock_st(frame,logger=main_logger)
-        #cv2.drawContours(frame, squares, -1, (0,255,0), 3, cv2.LINE_AA)
-        for name, i in zip(["Left","Right"],frame):
-            cv2.imshow(name, i)
-        if cv2.waitKey(3) == 27:
-            break
-    cv2.destroyAllWindows() 
-    cv2.VideoCapture(0).release()
+        
+        
+        while True:
+            ret, frame = vid.read()
+            split_line = int(2560/2)
+            frame = frame[:,:split_line], frame[:,split_line:]
+        
+            
+            
+            squares = vp_dock_st(frame,logger=main_logger)
+            #cv2.drawContours(frame, squares, -1, (0,255,0), 3, cv2.LINE_AA)
+            for name, i in zip(["Left","Right"],frame):
+                cv2.imshow(name, i)
+            if cv2.waitKey(3) == 27:
+                break
+        cv2.destroyAllWindows() 
+        cv2.VideoCapture(0).release()
+    else:
+        pic1 = cv2.imread('C:\Skole\BACH\stich test\pic1.png', cv2.IMREAD_COLOR)
+        pic2 = cv2.imread('C:\Skole\BACH\stich test\pic2.png', cv2.IMREAD_COLOR)
+        pic3 = cv2.imread('C:\Skole\BACH\stich test\pic3.png', cv2.IMREAD_COLOR)
+        pic_list = [pic1, pic2, pic3]
+        pic_stiched = picure_stich(pic_list)
+        if pic_stiched is not []:
+            cv2.imshow('String', pic_stiched)
+            cv2.waitKey(0)
