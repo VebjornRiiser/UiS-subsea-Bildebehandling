@@ -246,7 +246,7 @@ class Mercury:
     def __init__(self, ip:str="0.0.0.0", port:int=6900) -> None:
         # Flag dictionary
         self.status ={'network': False, 'USB': False, 'intern': False}
-        self.function_list = [0,1,5]
+        self.function_list = [0,1,2,5] # Supported camera functions, 0: No prossesing, 1: Find fish, 2: Mosaikk, 5: Sleep
 
         # USB socket
         serial_ports = glob.glob('/dev/ttyACM*')
@@ -371,6 +371,11 @@ class Mercury:
                                     elif item[0] == 201:
                                         self.thei.host_back.send('video')
                                         self.network_handler.send(to_json("Started or stopped video recording with back camera"))
+                                elif key.lower() == 'stitch':
+                                    if item[0] == 200:
+                                        self.thei.host_cam_front.send('stitch')
+                                    elif item[0] == 201:
+                                        self.thei.host_back.send('stitch')
                         else:
                             self.network_handler.send(to_json("This ID is not handled"))
             except Exception as e:

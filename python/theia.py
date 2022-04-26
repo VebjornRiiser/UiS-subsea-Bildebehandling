@@ -1,5 +1,6 @@
 from ast import While
 from email import message
+from importlib import import_module
 import threading, mjpeg_stream, cv2, time, math
 from socket import AF_INET, SOCK_DGRAM, socket
 import numpy as np
@@ -14,6 +15,7 @@ import matplotlib
 # matplotlib.use('tkAgg') # This broke the code
 from matplotlib import pyplot as plt
 from common import *
+from vision_pipline import picure_stich
 #from distance import contour_img, calc_size, calc_distance
 
 class Object(): # Used in functions to draw on image, find distance to objects etc, refers to objects in pictures
@@ -389,7 +391,7 @@ def image_aqusition_thread(connection, boli):
     first = True
     width = 1280
 
-
+    st_list = [] # List of images to stitch
     ath = Athena()
     while boli:
         mess = connection.recv()
@@ -399,13 +401,16 @@ def image_aqusition_thread(connection, boli):
                 s = mess[0].shape
                 yal = Yolo((s[1], s[0]))
         if isinstance(mess, str):
-            if mess.lower() == 'stop':
+            if mess.lower() == 'stop': # Stoppes thread
                 break
-            elif mess.lower() == 'fish':
-                print("Changed mode")
+            elif mess.lower() == 'fish': # Sets mode
                 mode = 1
-            elif mess.lower() == 'mosaikk':
+            elif mess.lower() == 'mosaikk': # Sets mode
                 mode = 2
+            elif mess.lower() == 'tpic': # Take new picture and append to image list
+                new_pic = True
+            elif mess.lower() == 'stitch': # Use current image list and stitch images
+                stitch = True
         else:
             if mode == 1:
                 start = time.time()
@@ -419,7 +424,18 @@ def image_aqusition_thread(connection, boli):
                 time_list.append(time.time()-start)
                 connection.send(mached_list)
             elif mode == 2:
-                pass
+                if new_pic:
+                    new_pic = False
+                    st_list.append(mess[0])
+                elif stitch:
+                    if len(st_list) > 1:
+                        pic = picure_stich(st_list)
+                        if pic != []:
+                            cv2.imwrite(f'/home/subsea/Bilete/rov/Stitch{time.asctime()}.png',pic)
+                        else:
+                            ln('Failed to stich image')
+                    else:
+                        ln('List too short cant stitch image')
         if len(time_list) > 20:
             #print(statistics.mean(time_list))
             time_list = []
@@ -470,6 +486,8 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, loc
             elif shared_list[2] == "tpic":
                 take_pic = True
                 shared_list[1] = 0
+            elif shared_list[2] == 'stitch':
+                picture_IA_pipe.send('shared_list[2]')
             else:
                 if isinstance(shared_list[2], int):
                     mode = shared_list[2]
@@ -510,6 +528,14 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, loc
                 picture_IA_pipe.send([pic, pic2])
             if draw_frames != []:
                 draw_on_img(pic, draw_frames)
+        elif mode == 2:
+            pic, pic2 = cam.aq_image(True, take_pic)
+            take_pic = False
+            if pic is False:
+                cam.feed.release()
+                cv2.destroyAllWindows()
+                cam = Camera(camera_id)
+            picture_IA_pipe.send([pic, pic2])
         if mode == 5:
             time.sleep(3)
         elif video_feed:
