@@ -246,7 +246,7 @@ class Mercury:
     def __init__(self, ip:str="0.0.0.0", port:int=6900) -> None:
         # Flag dictionary
         self.status ={'network': False, 'USB': False, 'intern': False}
-        self.function_list = [0,1,2,5] # Supported camera functions, 0: No prossesing, 1: Find fish, 2: Mosaikk, 5: Sleep
+        self.function_list = [0,1,3,5] # Supported camera functions, 0: No prossesing, 1: Find fish, 3: Mosaikk, 5: Sleep
 
         # USB socket
         serial_ports = glob.glob('/dev/ttyACM*')
@@ -357,7 +357,7 @@ class Mercury:
                                             self.network_handler.send(to_json(f'{item[1][key]} - Is not a valid camera function'))
 
 
-                                elif key.lower() == "take_picture":
+                                elif key.lower() == "take_pic":
                                     if item[0] == 200:
                                         self.thei.host_cam_front.send('tpic')
                                         self.network_handler.send(to_json("Took picture with front camera"))

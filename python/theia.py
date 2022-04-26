@@ -406,7 +406,7 @@ def image_aqusition_thread(connection, boli):
             elif mess.lower() == 'fish': # Sets mode
                 mode = 1
             elif mess.lower() == 'mosaikk': # Sets mode
-                mode = 2
+                mode = 3
             elif mess.lower() == 'tpic': # Take new picture and append to image list
                 new_pic = True
             elif mess.lower() == 'stitch': # Use current image list and stitch images
@@ -423,7 +423,7 @@ def image_aqusition_thread(connection, boli):
                         mached_list = ath.compare_pixles(res1, res2, mess)
                 time_list.append(time.time()-start)
                 connection.send(mached_list)
-            elif mode == 2:
+            elif mode == 3:
                 if new_pic:
                     new_pic = False
                     st_list.append(mess[0])
@@ -528,7 +528,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, loc
                 picture_IA_pipe.send([pic, pic2])
             if draw_frames != []:
                 draw_on_img(pic, draw_frames)
-        elif mode == 2:
+        elif mode == 3:
             pic, pic2 = cam.aq_image(True, take_pic)
             take_pic = False
             if pic is False:
