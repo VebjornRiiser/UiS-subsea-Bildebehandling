@@ -212,7 +212,7 @@ def calc_distance(centers, focal_len=2098, camera_space=60, int_float: int=0): #
 
 
 if __name__ == "__main__":
-    a = 12
+    a = 2
     if a == 1:
         main_logger = generate_logging(log_name="VP_main_test",log_file_name="VP_main.log")
         vid = cv2.VideoCapture(0)
@@ -240,10 +240,10 @@ if __name__ == "__main__":
                 break
         cv2.destroyAllWindows() 
         cv2.VideoCapture(0).release()
-    else:
-        pic1 = cv2.imread('C:\Skole\BACH\stich test\pic1.png', cv2.IMREAD_COLOR)
-        pic2 = cv2.imread('C:\Skole\BACH\stich test\pic2.png', cv2.IMREAD_COLOR)
-        pic3 = cv2.imread('C:\Skole\BACH\stich test\pic3.png', cv2.IMREAD_COLOR)
+    elif a == 2:
+        pic1 = cv2.imread('C:\Skole\BACH\stich test\pic3.png', cv2.IMREAD_COLOR)
+        pic2 = cv2.imread('C:\Skole\BACH\stich test\pic1.png', cv2.IMREAD_COLOR)
+        pic3 = cv2.imread('C:\Skole\BACH\stich test\pic2.png', cv2.IMREAD_COLOR)
         pic_list = [pic1, pic2, pic3]
         pic_stiched = picure_stich(pic_list)
         if pic_stiched is not []:
