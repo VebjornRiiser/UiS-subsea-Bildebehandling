@@ -434,6 +434,7 @@ def image_aqusition_thread(connection, boli):
                     st_list.append(mess[0])
                     ln('New pic appended')
                 elif stitch:
+                    stitch = False
                     if len(st_list) > 1:
                         ln('Trying to stitch images')
                         pic = picure_stich(st_list)

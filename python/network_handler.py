@@ -190,7 +190,7 @@ if __name__ == "__main__":
                 asd = [[int(a), []]]
             elif 'stich':
                 print('stitch')
-                asd = [[201, {"stitch": int(7)}]]
+                asd = [[200, {"stitch": int(7)}]]
                 
             mess = bytes(json.dumps("*"), "utf-8") + bytes(json.dumps(asd), "utf-8") + bytes(json.dumps("*"), "utf-8")
             client_conn.send(mess)
