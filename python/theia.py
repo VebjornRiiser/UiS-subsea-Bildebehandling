@@ -508,7 +508,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, loc
                             cv2.destroyAllWindows()
                             break
                     elif shared_list[2] == 3:
-                        picture_IA_pipe.send(shared_list[2])
+                        picture_IA_pipe.send('mosaikk')
                     mode = int(mode)
                 else:
                     ln(f'Cameramode: {shared_list[2]}, is not supported')
