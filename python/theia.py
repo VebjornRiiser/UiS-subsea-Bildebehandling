@@ -482,6 +482,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, loc
         cv2.namedWindow('FishCam', cv2.WINDOW_NORMAL)
     while run:
         if shared_list[1] == 1:
+            shared_list[1] = 0
             if shared_list[2] == "video":
                 video_capture ^= True
                 if video_capture:
@@ -490,16 +491,13 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, loc
                 else:
                     print("Video finished")
                     video_write.release()
-                shared_list[1] = 0
             elif shared_list[2] == "tpic":
                 take_pic = True
-                shared_list[1] = 0
             elif shared_list[2] == 'stitch':
-                picture_IA_pipe.send('shared_list[2]')
+                picture_IA_pipe.send(shared_list[2])
             else:
                 if isinstance(shared_list[2], int):
                     mode = shared_list[2]
-                    shared_list[1] = 0
                     print(f'Mode set to {mode}')
                     if isinstance(mode, str):
                         if mode.lower() == 'stop':
@@ -509,6 +507,8 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, loc
                             cam.feed.release()
                             cv2.destroyAllWindows()
                             break
+                    elif shared_list[2] == 3:
+                        picture_IA_pipe.send(shared_list[2])
                     mode = int(mode)
                 else:
                     ln(f'Cameramode: {shared_list[2]}, is not supported')
