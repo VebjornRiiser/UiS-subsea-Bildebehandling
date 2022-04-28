@@ -184,7 +184,7 @@ if __name__ == "__main__":
                 for _ in range(10):
                     asd = [70]
             elif a == 'pic':
-                asd = [[201, {"take_pic": int(7)}]]
+                asd = [[200, {"take_pic": int(7)}]]
             elif a == 'id':
                 a = input("ID\n")
                 asd = [[int(a), []]]

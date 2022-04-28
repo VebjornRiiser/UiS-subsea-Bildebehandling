@@ -404,6 +404,7 @@ def image_aqusition_thread(connection, boli):
                 s = mess[0].shape
                 yal = Yolo((s[1], s[0]))
         if isinstance(mess, str):
+            ln('123')
             if mess.lower() == 'stop': # Stoppes thread
                 break
             elif mess.lower() == 'fish': # Sets mode
