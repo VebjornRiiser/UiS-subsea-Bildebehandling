@@ -434,14 +434,14 @@ def image_aqusition_thread(connection, boli):
                     if len(st_list) > 1:
                         pic = picure_stich(st_list)
                         if pic != []:
-                            cv2.imwrite(f'/home/subsea/Bilete/rov/Stitch{time.asctime()}.png',pic)
+                            cv2.imwrite(f'/home/subsea/Bilete/mosaikk/Stitch{time.asctime()}.png',pic)
                         else:
                             ln('Failed to stich image')
                     else:
                         ln('List too short cant stitch image')
         if len(time_list) > 20:
             #print(statistics.mean(time_list))
-            #time_list = []
+            time_list = []
         
 
 def draw_on_img(pic, frames):
