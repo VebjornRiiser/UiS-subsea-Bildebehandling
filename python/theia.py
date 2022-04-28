@@ -437,6 +437,7 @@ def image_aqusition_thread(connection, boli):
                         ln('Trying to stitch images')
                         pic = picure_stich(st_list)
                         if pic != []:
+                            ln('Successfully stiched images')
                             cv2.imwrite(f'/home/subsea/Bilete/mosaikk/Stitch{time.asctime()}.png',pic)
                         else:
                             ln('Failed to stich image')
@@ -463,7 +464,7 @@ def draw_on_img(pic, frames):
 def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, local = False):  
     print(f'Camera:{camera_id} started')
     cam = Camera(camera_id)
-    shared_list = [1, 0, 1, 0]
+    shared_list = [1, 0, 0, 0]
     threading.Thread(name="Camera_con", target=pipe_com, daemon=True, args=(connection, None, None, shared_list)).start()
     fourcc = cv2.VideoWriter_fourcc(*'MPEG')
     run = True
