@@ -409,6 +409,7 @@ def image_aqusition_thread(connection, boli):
             elif mess.lower() == 'fish': # Sets mode
                 mode = 1
             elif mess.lower() == 'mosaikk': # Sets mode
+                ln('Mode in IA set to  3')
                 mode = 3
             elif mess.lower() == 'tpic': # Take new picture and append to image list
                 new_pic = True
@@ -430,8 +431,10 @@ def image_aqusition_thread(connection, boli):
                 if new_pic:
                     new_pic = False
                     st_list.append(mess[0])
+                    ln('New pic appended')
                 elif stitch:
                     if len(st_list) > 1:
+                        ln('Trying to stitch images')
                         pic = picure_stich(st_list)
                         if pic != []:
                             cv2.imwrite(f'/home/subsea/Bilete/mosaikk/Stitch{time.asctime()}.png',pic)

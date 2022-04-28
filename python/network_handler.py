@@ -136,9 +136,8 @@ def send_forever(conn: socket.socket):
 
 def recieve_forever(conn):
     while True:
-        msg = conn.recv()
-        print(msg)
-
+        msg = conn.receive()
+        #print(msg)
 
 
 if __name__ == "__main__":
@@ -158,7 +157,8 @@ if __name__ == "__main__":
         # print(os.system("ssh rov touch test")) # python3 ~/socket_testing/network_handler.py"))
         # exit()
         client_conn = Network(is_server=False, bind_addr="0.0.0.0", connect_addr="10.0.0.2")
-        threading.Thread(name="COM_cam_2",target=recieve_forever, daemon=True, args=(client_conn)).start()
+        nw = threading.Thread(name="Recv_test_tread",target=recieve_forever, daemon=True, args=([client_conn]))
+        nw.start()
         while True:
             time.sleep(2)
             asd = [[296, "bildebehandlingsmodus", 1],[500, "teststring"]]
@@ -184,10 +184,14 @@ if __name__ == "__main__":
                 for _ in range(10):
                     asd = [70]
             elif a == 'pic':
-                asd = [[200, {"bildebehandlingsmodus": int(7)}]]
+                asd = [[201, {"take_pic": int(7)}]]
             elif a == 'id':
                 a = input("ID\n")
                 asd = [[int(a), []]]
+            elif 'stich':
+                print('stitch')
+                asd = [[201, {"stitch": int(7)}]]
+                
             mess = bytes(json.dumps("*"), "utf-8") + bytes(json.dumps(asd), "utf-8") + bytes(json.dumps("*"), "utf-8")
             client_conn.send(mess)
             #client_conn.send(bytes('*{"can": [(0, 99)]}*', "utf-8"))
