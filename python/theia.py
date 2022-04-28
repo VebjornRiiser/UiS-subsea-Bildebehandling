@@ -393,6 +393,9 @@ def image_aqusition_thread(connection, boli):
 
     st_list = [] # List of images to stitch
     ath = Athena()
+    new_pic = False
+    stitch = False
+    pic_list = []
     while boli:
         mess = connection.recv()
         if isinstance(mess, list):
@@ -419,9 +422,9 @@ def image_aqusition_thread(connection, boli):
                     res1 = yal.yolo_image(mess[0]) # Result from left cam
                     res2 = yal.yolo_image(mess[1]) # Result from right cam
                     if len(res1) > 0 and len(res2) > 0:
-                        #mached_list = find_same_objects(res1, res2, mess)
+                        #mached_list = find_same_objects(res1, res2, mess) # Old funtion
                         mached_list = ath.compare_pixles(res1, res2, mess)
-                time_list.append(time.time()-start)
+                #time_list.append(time.time()-start)
                 connection.send(mached_list)
             elif mode == 3:
                 if new_pic:
@@ -438,7 +441,7 @@ def image_aqusition_thread(connection, boli):
                         ln('List too short cant stitch image')
         if len(time_list) > 20:
             #print(statistics.mean(time_list))
-            time_list = []
+            #time_list = []
         
 
 def draw_on_img(pic, frames):
