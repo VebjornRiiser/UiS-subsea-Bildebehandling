@@ -158,7 +158,7 @@ def recieve_forever(conn):
                                 temp += message
                             else:
                                 if message[-1] == b"*":
-
+                                    pass
                                 else:
                                     check = True
                                     temp = message
