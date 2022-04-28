@@ -112,7 +112,7 @@ class Network:
                 self.wait_for_conn()
         try:
             if self.conn is not None:
-                data = self.conn.recv(1024)
+                data = self.conn.recv(4096)
                 if data != None:
                     return data
                 # else:
@@ -134,8 +134,12 @@ def send_forever(conn: socket.socket):
     while True:
         conn.send(data)
 
-def recieve_forever():
-    pass
+def recieve_forever(conn):
+    while True:
+        msg = conn.recv()
+        print(msg)
+
+
 
 if __name__ == "__main__":
     print(sys.platform)
@@ -154,6 +158,7 @@ if __name__ == "__main__":
         # print(os.system("ssh rov touch test")) # python3 ~/socket_testing/network_handler.py"))
         # exit()
         client_conn = Network(is_server=False, bind_addr="0.0.0.0", connect_addr="10.0.0.2")
+        threading.Thread(name="COM_cam_2",target=recieve_forever, daemon=True, args=(client_conn)).start()
         while True:
             time.sleep(2)
             asd = [[296, "bildebehandlingsmodus", 1],[500, "teststring"]]
