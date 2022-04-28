@@ -493,6 +493,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, loc
                     video_write.release()
             elif shared_list[2] == "tpic":
                 take_pic = True
+                picture_IA_pipe.send(shared_list[2])
             elif shared_list[2] == 'stitch':
                 picture_IA_pipe.send(shared_list[2])
             else:
