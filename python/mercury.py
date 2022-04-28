@@ -14,6 +14,7 @@ from network_handler import Network
 from theia import Theia
 from common import *
 import glob
+import sys
 
 c_types = {
     "int8": "<b",
@@ -158,7 +159,8 @@ def USB_thread(h_serial, USB_callback, flag):
             melding = h_serial.readline().decode("utf8").strip("\n")
             USB_callback(melding)
         except Exception as e:
-            print(f'Feilkode i usb thread feilmelding: {str(e.with_traceback())}')
+            tb = sys.exc_info()[2]
+            print(f'Feilkode i usb thread feilmelding: {str(e.with_traceback(tb))}')
             pass
     print("USB thread stopped")
 
@@ -274,11 +276,11 @@ class Mercury:
         dot_string_counter = 0
         while self.network_handler.waiting_for_conn:
             time.sleep(1)
-            print(f"waiting for connection before continuing{dot_string[dot_string_counter]}", end="\r")
-            if dot_string_counter <= 2:
-                dot_string_counter += 1
-            else:
-                dot_string_counter = 0
+            #print(f"waiting for connection before continuing{dot_string[dot_string_counter]}", end="\r")
+            #if dot_string_counter <= 2:
+            #    dot_string_counter += 1
+            #else:
+            #    dot_string_counter = 0
         self.toggle_network()
 
 
