@@ -112,7 +112,7 @@ class Network:
                 self.wait_for_conn()
         try:
             if self.conn is not None:
-                data = self.conn.recv(4096)
+                data = self.conn.recv(999999)
                 if data != None:
                     return data
                 # else:
@@ -136,8 +136,32 @@ def send_forever(conn: socket.socket):
 
 def recieve_forever(conn):
     while True:
-        msg = conn.receive()
-        #print(msg)
+        data = conn.receive()
+        if data is not None:
+                if data is not "heartbeat":
+                    data:str = bytes.decode(data, "utf-8")
+                    temp = b''
+                    check = False
+                    if check:
+                        temp += message
+                    elif data[-1] == b"*" and data[0] == b"*":
+                        for message in data.split( json.dumps("*") ):
+                            try:
+                                json.loads(message)
+                            except Exception as e:
+                                print(message)
+
+                    for message in data.split( json.dumps("*") ):
+                        if message is not '' and message is not "heartbeat":
+                            if check:
+                                check = False
+                                temp += message
+                            else:
+                                if message[-1] == b"*":
+
+                                else:
+                                    check = True
+                                    temp = message
 
 
 if __name__ == "__main__":

@@ -304,10 +304,10 @@ class Mercury:
                                 self.network_handler.send(to_json("error usb not connected"))
                         elif (item[0] == 200) | (item[0] == 201): #Camera_front and back functions
                             if item[0] == 200 and not self.thei.camera_status['front'][0]:
-                                self.network_handler.send(to_json("Camera front prossess is not in operation, check camera connection"))
+                                self.network_handler.send(to_json("ERROR: Camera front prossess is not in operation, check camera connection"))
                                 continue
                             elif item[0] == 201 and not self.thei.camera_status['back'][0]:
-                                self.network_handler.send(to_json("Camera back prossess is not in operation, check camera connection"))
+                                self.network_handler.send(to_json("ERROR: Camera back prossess is not in operation, check camera connection"))
                                 continue
                             for key in item[1]:
                                 if key.lower() == "tilt":
@@ -321,9 +321,9 @@ class Mercury:
                                             elif item[0] == 201 and not self.thei.camera_function['back']:
                                                 self.serial.write(mld)
                                             else:
-                                                self.network_handler.send(to_json("Camera mode does not support tilt"))        
+                                                self.network_handler.send(to_json("ERROR:Camera mode does not support tilt"))        
                                     else:
-                                        self.network_handler.send(to_json("error usb not connected"))
+                                        self.network_handler.send(to_json("ERROR: USB not connected"))
                                 elif key.lower() == "on":
                                     if item[0] == 200:
                                         answ = self.thei.toggle_front() # Returns string
@@ -345,7 +345,7 @@ class Mercury:
                                         if item[1][key] in self.function_list:
                                             self.thei.host_cam_front.send(item[1][key])
                                         else:
-                                            self.network_handler.send(to_json(f'{item[1][key]} - Is not a valid camera function'))
+                                            self.network_handler.send(to_json(f'ERROR:{item[1][key]} - Is not a valid camera function'))
                                             
                                     elif item[0] == 201: # Back camera
                                         if item[1][key] != 0:
@@ -357,30 +357,30 @@ class Mercury:
                                         if item[1][key] in self.function_list:
                                             self.thei.host_cam_front.send(item[1][key])
                                         else:
-                                            self.network_handler.send(to_json(f'{item[1][key]} - Is not a valid camera function'))
+                                            self.network_handler.send(to_json(f'ERROR:{item[1][key]} - Is not a valid camera function'))
 
 
                                 elif key.lower() == "take_pic":
                                     if item[0] == 200:
                                         self.thei.host_cam_front.send('tpic')
-                                        self.network_handler.send(to_json("Took picture with front camera"))
+                                        self.network_handler.send(to_json("info:Took picture with front camera"))
                                     elif item[0] == 201:
                                         self.thei.host_back.send('tpic')
-                                        self.network_handler.send(to_json("Took picture with back camera"))
+                                        self.network_handler.send(to_json("info:Took picture with back camera"))
                                 elif key.lower() == "video_recording":
                                     if item[0] == 200:
                                         self.thei.host_cam_front.send('video')
-                                        self.network_handler.send(to_json("Started or stopped video recording with front camera"))
+                                        self.network_handler.send(to_json("info:Started or stopped video recording with front camera"))
                                     elif item[0] == 201:
                                         self.thei.host_back.send('video')
-                                        self.network_handler.send(to_json("Started or stopped video recording with back camera"))
+                                        self.network_handler.send(to_json("Sinfo:tarted or stopped video recording with back camera"))
                                 elif key.lower() == 'stitch':
                                     if item[0] == 200:
                                         self.thei.host_cam_front.send('stitch')
                                     elif item[0] == 201:
                                         self.thei.host_back.send('stitch')
                         else:
-                            self.network_handler.send(to_json("This ID is not handled"))
+                            self.network_handler.send(to_json("ERROR:This ID is not handled"))
             except Exception as e:
                 print(f'Feilkode i network_callback, feilmelding: {e}\n\t{message = }')
 
