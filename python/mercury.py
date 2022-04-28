@@ -1,5 +1,6 @@
-1#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+#!/usr/bin/python3.10
+# -*- coding: UTF-8 -*-
+
 from doctest import ELLIPSIS_MARKER
 import struct
 import threading
@@ -269,9 +270,15 @@ class Mercury:
 
     def net_init(self):
         self.network_handler = Network(is_server=True, bind_addr=self.connect_ip, port=self.connect_port)
+        dot_string = ["   ", ".  ", ".. ", "..."]
+        dot_string_counter = 0
         while self.network_handler.waiting_for_conn:
             time.sleep(1)
-            print("waiting for connection before continuing")
+            print(f"waiting for connection before continuing{dot_string[dot_string_counter]}", end="\r")
+            if dot_string_counter <= 2:
+                dot_string_counter += 1
+            else:
+                dot_string_counter = 0
         self.toggle_network()
 
 
