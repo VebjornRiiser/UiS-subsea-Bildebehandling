@@ -276,11 +276,6 @@ class Mercury:
         dot_string_counter = 0
         while self.network_handler.waiting_for_conn:
             time.sleep(1)
-            #print(f"waiting for connection before continuing{dot_string[dot_string_counter]}", end="\r")
-            #if dot_string_counter <= 2:
-            #    dot_string_counter += 1
-            #else:
-            #    dot_string_counter = 0
         self.toggle_network()
 
 
