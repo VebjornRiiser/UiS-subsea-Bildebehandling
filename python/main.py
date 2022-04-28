@@ -1,3 +1,6 @@
+#!/usr/bin/python3.10
+# -*- coding: UTF-8 -*-
+
 import multiprocessing
 from multiprocessing.dummy import Array
 from mercury import Mercury
