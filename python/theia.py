@@ -395,7 +395,6 @@ def image_aqusition_thread(connection, boli):
     ath = Athena()
     new_pic = False
     stitch = False
-    pic_list = []
     while boli:
         mess = connection.recv()
         if isinstance(mess, list):
@@ -438,6 +437,7 @@ def image_aqusition_thread(connection, boli):
                     if len(st_list) > 1:
                         ln('Trying to stitch images')
                         pic = picure_stich(st_list)
+                        st_list = []
                         if pic != []:
                             ln('Successfully stiched images')
                             cv2.imwrite(f'/home/subsea/Bilete/mosaikk/Stitch{time.asctime()}.png',pic)
