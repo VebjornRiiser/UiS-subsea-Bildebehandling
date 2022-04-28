@@ -138,7 +138,7 @@ def recieve_forever(conn):
     while True:
         data = conn.receive()
         if data is not None:
-                if data is not "heartbeat":
+                if data != "heartbeat":
                     data:str = bytes.decode(data, "utf-8")
                     temp = b''
                     check = False
@@ -152,7 +152,7 @@ def recieve_forever(conn):
                                 print(message)
 
                     for message in data.split( json.dumps("*") ):
-                        if message is not '' and message is not "heartbeat":
+                        if message != '' and message != "heartbeat":
                             if check:
                                 check = False
                                 temp += message
