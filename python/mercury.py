@@ -310,6 +310,7 @@ class Mercury:
                                 self.network_handler.send(to_json("ERROR: Camera back prossess is not in operation, check camera connection"))
                                 continue
                             elif key.lower() == "on":
+                                ln('Test')
                                 if item[0] == 200:
                                     answ = self.thei.toggle_front() # Returns string
                                     self.network_handler.send(to_json(answ)) # Sends results of toggle
