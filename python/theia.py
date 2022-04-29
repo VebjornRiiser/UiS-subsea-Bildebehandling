@@ -497,7 +497,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, loc
                 picture_IA_pipe.send(shared_list[2])
             elif shared_list[2] == 'stitch':
                 picture_IA_pipe.send(shared_list[2])                     
-            elif mode.lower() == 'stop':
+            elif shared_list[2] == 'stop':
                 print('Camera thread stopped')
                 picture_send_pipe.send('stop')
                 connection.send('stop')
