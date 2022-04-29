@@ -309,6 +309,16 @@ class Mercury:
                             elif item[0] == 201 and not self.thei.camera_status['back'][0]:
                                 self.network_handler.send(to_json("ERROR: Camera back prossess is not in operation, check camera connection"))
                                 continue
+                            elif key.lower() == "on":
+                                if item[0] == 200:
+                                    answ = self.thei.toggle_front() # Returns string
+                                    self.network_handler.send(to_json(answ)) # Sends results of toggle
+                                elif item[0] == 201:
+                                    answ = self.thei.toggle_back() # Returns string
+                                    self.network_handler.send(to_json(answ))  # Sends results of toggle
+                                else:
+                                    self.network_handler.send(to_json("Invalid camera")) # Not possible to send this in theroy
+
                             for key in item[1]:
                                 if key.lower() == "tilt":
                                     if self.status['USB']:
@@ -324,16 +334,6 @@ class Mercury:
                                                 self.network_handler.send(to_json("ERROR:Camera mode does not support tilt"))        
                                     else:
                                         self.network_handler.send(to_json("ERROR: USB not connected"))
-                                elif key.lower() == "on":
-                                    if item[0] == 200:
-                                        answ = self.thei.toggle_front() # Returns string
-                                        self.network_handler.send(to_json(answ)) # Sends results of toggle
-                                    elif item[0] == 201:
-                                        answ = self.thei.toggle_back() # Returns string
-                                        self.network_handler.send(to_json(answ))  # Sends results of toggle
-                                    else:
-                                        self.network_handler.send(to_json("Invalid camera")) # Not possible to send this in theroy
-
                                 elif key.lower() == "bildebehandlingsmodus":
                                     if item[0] == 200: # Front camera
                                         if item[1][key] != 0:
