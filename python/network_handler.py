@@ -137,6 +137,7 @@ def send_forever(conn: socket.socket):
 def recieve_forever(conn):
     while True:
         data = conn.receive()
+        print(data)
         if data is not None:
             data:str = bytes.decode(data, "utf-8")
             if "heartbeat" not in data:
