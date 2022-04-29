@@ -422,6 +422,7 @@ class Mercury:
             a = [95, 127, 159]
             mld = [serial_package_builder([i,0], False) for i in a]
             for k in mld:
+                ln('Ping')
                 self.serial.write(k)
         else:
             if self.status['network']:
