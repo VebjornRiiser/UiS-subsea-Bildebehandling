@@ -496,20 +496,19 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, loc
                 take_pic = True
                 picture_IA_pipe.send(shared_list[2])
             elif shared_list[2] == 'stitch':
-                picture_IA_pipe.send(shared_list[2])
+                picture_IA_pipe.send(shared_list[2])                     
+            elif mode.lower() == 'stop':
+                print('Camera thread stopped')
+                picture_send_pipe.send('stop')
+                connection.send('stop')
+                cam.feed.release()
+                cv2.destroyAllWindows()
+                break
             else:
                 if isinstance(shared_list[2], int):
                     mode = shared_list[2]
                     print(f'Mode set to {mode}')
-                    if isinstance(mode, str):
-                        if mode.lower() == 'stop':
-                            print('Camera thread stopped')
-                            picture_send_pipe.send('stop')
-                            connection.send('stop')
-                            cam.feed.release()
-                            cv2.destroyAllWindows()
-                            break
-                    elif shared_list[2] == 3:
+                    if shared_list[2] == 3:
                         picture_IA_pipe.send('mosaikk')
                     mode = int(mode)
                 else:
