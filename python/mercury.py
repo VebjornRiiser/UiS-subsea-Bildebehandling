@@ -303,13 +303,7 @@ class Mercury:
                             else:
                                 self.network_handler.send(to_json("error usb not connected"))
                         elif (item[0] == 200) | (item[0] == 201): #Camera_front and back functions
-                            if item[0] == 200 and not self.thei.camera_status['front'][0]:
-                                self.network_handler.send(to_json("ERROR: Camera front prossess is not in operation, check camera connection"))
-                                continue
-                            elif item[0] == 201 and not self.thei.camera_status['back'][0]:
-                                self.network_handler.send(to_json("ERROR: Camera back prossess is not in operation, check camera connection"))
-                                continue
-                            elif key.lower() == "on":
+                            if key.lower() == "on":
                                 ln('Test')
                                 if item[0] == 200:
                                     answ = self.thei.toggle_front() # Returns string
@@ -319,7 +313,12 @@ class Mercury:
                                     self.network_handler.send(to_json(answ))  # Sends results of toggle
                                 else:
                                     self.network_handler.send(to_json("Invalid camera")) # Not possible to send this in theroy
-
+                            elif item[0] == 200 and not self.thei.camera_status['front'][0]:
+                                self.network_handler.send(to_json("ERROR: Camera front prossess is not in operation, check camera connection"))
+                                continue
+                            elif item[0] == 201 and not self.thei.camera_status['back'][0]:
+                                self.network_handler.send(to_json("ERROR: Camera back prossess is not in operation, check camera connection"))
+                                continue
                             for key in item[1]:
                                 if key.lower() == "tilt":
                                     if self.status['USB']:

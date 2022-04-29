@@ -138,30 +138,9 @@ def recieve_forever(conn):
     while True:
         data = conn.receive()
         if data is not None:
-                if data != "heartbeat":
-                    data:str = bytes.decode(data, "utf-8")
-                    temp = b''
-                    check = False
-                    if check:
-                        temp += message
-                    elif data[-1] == b"*" and data[0] == b"*":
-                        for message in data.split( json.dumps("*") ):
-                            try:
-                                json.loads(message)
-                            except Exception as e:
-                                print(message)
-
-                    for message in data.split( json.dumps("*") ):
-                        if message != '' and message != "heartbeat":
-                            if check:
-                                check = False
-                                temp += message
-                            else:
-                                if message[-1] == b"*":
-                                    pass
-                                else:
-                                    check = True
-                                    temp = message
+            data:str = bytes.decode(data, "utf-8")
+            if "heartbeat" not in data:
+                print(data)
 
 
 if __name__ == "__main__":
@@ -190,9 +169,9 @@ if __name__ == "__main__":
             if a == "stop":
                 a = input("What cam do you want to stop?\n")
                 if a == "front":
-                    asd = [[201, {"on": True}]]
-                else:
                     asd = [[200, {"on": True}]]
+                else:
+                    asd = [[201, {"on": True}]]
             elif a == "modus":
                 a = input("What cam do you want to change mode on?\n")
                 if a == "back":
