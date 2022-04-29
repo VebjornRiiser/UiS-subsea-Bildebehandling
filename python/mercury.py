@@ -90,7 +90,7 @@ def serial_package_builder(data, can=True):
         elif can_id in [95, 127, 159]:
             package += bytes("ping!\n", "latin")
 
-        elif can_id == 129:
+        elif can_id == 126:
             pass
 
         # Sikring og regulator
