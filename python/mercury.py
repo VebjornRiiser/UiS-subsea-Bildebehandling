@@ -417,7 +417,15 @@ class Mercury:
             self.serial.write(b"t")
             self.serial_thread = threading.Thread(name = "Serial_thread", target=USB_thread, daemon=True, args=(self.serial, self.USB_callback, self.status)).start()
 
-            
+    def ping(self):
+        if self.status['USB']:
+            a = [95, 127, 159]
+            mld = [serial_package_builder([i,0], False) for i in a]
+            for k in mld:
+                self.serial.write(k)
+        else:
+            if self.status['network']:
+                self.network_handler.send(to_json("ERROR: No USB connection"))
 
 if __name__ == "__main__":
     print(f'Mercury')

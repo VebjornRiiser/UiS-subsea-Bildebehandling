@@ -140,7 +140,8 @@ def recieve_forever(conn):
         if data is not None:
             data:str = bytes.decode(data, "utf-8")
             if "heartbeat" not in data:
-                print(data)
+                if "ERROR" in data:
+                    print(data)
 
 
 if __name__ == "__main__":

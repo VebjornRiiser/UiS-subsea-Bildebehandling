@@ -20,6 +20,7 @@ def main_loop():
     while(1):
         for _ in range(4):
             time.sleep(5)
+            m.ping()
             #time.sleep(0.7)
             #print("Still running.  ", end='\r')
             #time.sleep(0.7)
