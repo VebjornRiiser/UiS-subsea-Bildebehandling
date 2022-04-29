@@ -32,8 +32,6 @@ class CamHandler(BaseHTTPRequestHandler):
                             if img.lower() == "stop": # Closes prosess
                                 print("stopping video stream")
                                 self.server.socket.close()
-                                if self.video_cap:
-                                    self.video.release()
                                 break
                         else:
                             # if not rc:
