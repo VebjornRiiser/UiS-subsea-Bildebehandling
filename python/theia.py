@@ -206,7 +206,7 @@ class Camera():
             crop2 = frame[:self.height,self.crop_width:]
             return crop, crop2
         else:
-            return crop
+            return crop2
 
 
 def find_calc_shapes(pic1, pic2):

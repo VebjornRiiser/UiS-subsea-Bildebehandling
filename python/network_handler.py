@@ -192,9 +192,11 @@ if __name__ == "__main__":
             elif a == 'id':
                 a = input("ID\n")
                 asd = [[int(a), []]]
-            elif 'stich':
+            elif a == 'stich':
                 print('stitch')
                 asd = [[200, {"stitch": int(7)}]]
+            elif a == 'gyro':
+                asd = [[96, 50]]
                 
             mess = bytes(json.dumps("*"), "utf-8") + bytes(json.dumps(asd), "utf-8") + bytes(json.dumps("*"), "utf-8")
             client_conn.send(mess)
