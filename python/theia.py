@@ -233,10 +233,10 @@ class Camera():
             self.draw_hud(pic)
     
     def draw_hud(self, pic):
-        off = self.sensor['gyro'][2]
+        off = self.sensor['gyro'][2]*20
         ln(off)
-        cv2.line(pic, (self.left, int(self.middley+self.sensor['gyro'][2])), (int(self.left+self.length), int(self.middley+self.sensor['gyro'][2])), self.color, 2) # 10 deg right
-        cv2.line(pic, (self.right, int(self.middley+self.sensor['gyro'][2])), (int(self.right+self.length), int(self.middley+self.sensor['gyro'][2])), self.color, 2) # 10 deg left
+        cv2.line(pic, (self.left, int(self.middley+off)), (int(self.left+self.length), int(self.middley+off)), self.color, 2) # 10 deg right
+        cv2.line(pic, (self.right, int(self.middley+off)), (int(self.right+self.length), int(self.middley+off)), self.color, 2) # 10 deg left
         cv2.putText(pic, f'Dept:{self.sensor["gyro"][0]}', (100,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
         #cv2.line(pic, self.center, self.center, self.color, 1) # 10
         #cv2.line(pic, self.center, self.center, self.color, 1) # 5
@@ -442,7 +442,6 @@ def image_aqusition_thread(connection, boli):
                 s = mess[0].shape
                 yal = Yolo((s[1], s[0]))
         if isinstance(mess, str):
-            ln('123')
             if mess.lower() == 'stop': # Stoppes thread
                 break
             elif mess.lower() == 'fish': # Sets mode
@@ -479,7 +478,6 @@ def image_aqusition_thread(connection, boli):
                 elif stitch:
                     stitch = False
                     if len(st_list) > 1:
-                        ln('Trying to stitch images')
                         pic = picure_stich(st_list)
                         st_list = []
                         if pic != []:
