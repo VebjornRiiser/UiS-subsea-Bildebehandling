@@ -147,6 +147,7 @@ class Camera():
         self.hud = True
         tru_width = int(width/2)
         self.length = int(width/14)
+        self.length2 = int(width/17)
         self.center = (height/2, width/4)
         self.left = int(width/4-40)
         self.right = int(width/4+40)
@@ -239,7 +240,13 @@ class Camera():
         cv2.line(pic, (self.right, int(self.middley-4*off)), (self.right+self.length, int(self.middley-4*off)), self.color, 2) # 20 deg right
         cv2.putText(pic, f'20', (self.right+self.length+10,int(self.middley-4*off+5)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 20 deg right text
         cv2.line(pic, (self.left-self.length, int(self.middley-4*off)), (self.left, int(self.middley-4*off)), self.color, 2) # 20 deg left
-        cv2.putText(pic, f'20', (self.left-self.length-40,int(self.middley-4*off+5)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 20 deg left text
+        cv2.putText(pic, f'20', (self.left-self.length-45,int(self.middley-4*off+5)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 20 deg left text
+        
+        cv2.line(pic, (self.right, int(self.middley-2*off)), (self.right+self.length2, int(self.middley-2*off)), self.color, 2) # 15 deg right
+        cv2.putText(pic, f'15', (self.right+self.length2+10,int(self.middley-2*off+5)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 15 deg right text
+        cv2.line(pic, (self.left-self.length2, int(self.middley-2*off)), (self.left, int(self.middley-2*off)), self.color, 2) # 15 deg left
+        cv2.putText(pic, f'15', (self.left-self.length2-45,int(self.middley-2*off+5)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 15 deg left text
+      
         
         #cv2.putText(pic, f'Dept:{self.sensor["gyro"][0]}', (100,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
         #cv2.line(pic, self.center, self.center, self.color, 1) # 10
