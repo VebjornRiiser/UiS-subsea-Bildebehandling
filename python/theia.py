@@ -227,8 +227,8 @@ class Camera():
                     if item.dept != 0: # Draws dept esitmation if there is one
                         cv2.putText(pic, f'Distance:{int(item.dept)} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
                         cv2.putText(pic, f'Distance:{int(item.dept)} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
-                    if self.hud:
-                        self.draw_hud(pic)
+        if self.hud:
+            self.draw_hud(pic)
     
     def draw_hud(self, pic):
         cv2.line(pic, self.center, self.center, self.color, 1) # 10
