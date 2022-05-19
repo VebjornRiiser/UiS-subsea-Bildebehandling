@@ -145,6 +145,7 @@ class Camera():
         self.middley = int(height/2)
         self.width = width
         self.hud = True
+        self.length = int(width/8)
         self.center = (height/2, width/4)
         self.left = int(width/3)
         self.right = int(width - width/3)
@@ -232,7 +233,7 @@ class Camera():
             self.draw_hud(pic)
     
     def draw_hud(self, pic):
-        cv2.line(pic, (int(self.left), int(self.middley)), (self.right, self.middley), self.color, 1) # 10
+        cv2.line(pic, (self.left, self.middley), (int(self.left+self.length), self.middley), self.color, 1) # 10
         #cv2.line(pic, self.center, self.center, self.color, 1) # 10
         #cv2.line(pic, self.center, self.center, self.color, 1) # 5
         #cv2.line(pic, self.center, self.center, (255,0,0), 2) # 0
