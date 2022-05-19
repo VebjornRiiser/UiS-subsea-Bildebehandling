@@ -408,7 +408,7 @@ class Mercury:
             self.network_handler.send(to_json(pakke))
             if int(can_id) == 80: # Orientation data
                 print(ln)
-                self.gyro = pakke
+                self.sensor = pakke
         else:
             pass
             #print('No connection on network')
