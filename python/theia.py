@@ -145,6 +145,7 @@ class Camera():
         self.middley = int(height/2)
         self.width = width
         self.hud = True
+        tru_width = int(width/2)
         self.length = int(width/14)
         self.center = (height/2, width/4)
         self.left = int(width/8)
@@ -234,7 +235,7 @@ class Camera():
     
     def draw_hud(self, pic):
         off = self.sensor['gyro'][2]*20
-        print(off)
+        #print(off)
         cv2.line(pic, (self.left, int(self.middley-2*off)), (int(self.left+self.length), int(self.middley-2*off)), self.color, 2) # 10 deg right
         cv2.line(pic, (self.right, int(self.middley-2*off)), (int(self.right+self.length), int(self.middley-2*off)), self.color, 2) # 10 deg left
         cv2.putText(pic, f'Dept:{self.sensor["gyro"][0]}', (100,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
@@ -536,6 +537,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, loc
                 cv2.destroyAllWindows()
                 break
             elif shared_list[2] == 'sensor':
+                ln()
                 cam.update_data(shared_list[3])
                 shared_list[3] = 0
             elif shared_list[2] == 'hud':
