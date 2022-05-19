@@ -14,7 +14,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__))) # Bytter working directory 
 # Our main loop for both programs
 def main_loop():
     m = Mercury()
-    #m.thei.toggle_front()
+    m.thei.toggle_front()
     #m.thei.toggle_back()
 
     while(1):
