@@ -424,7 +424,7 @@ class Mercury:
             self.serial_thread = threading.Thread(name = "Serial_thread", target=USB_thread, daemon=True, args=(self.serial, self.USB_callback, self.status)).start()
 
     def update_hud_data(self):
-        if self.thei.camera_status['front'][2]:
+        if self.thei.camera_status['front'][0]:
             self.thei.client_cam1.send(self.sensor)
             return True
         else: 
