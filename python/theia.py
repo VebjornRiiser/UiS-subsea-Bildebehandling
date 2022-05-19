@@ -142,11 +142,12 @@ class Camera():
     def __init__(self, id:int, width:int=2560, height:int=720, framerate:int=30 ) -> None:
         self.id = id
         self.height = height
+        self.middley = int(height/2)
         self.width = width
         self.hud = True
         self.center = (height/2, width/4)
-        self.left = width/3
-        self.right = width - width/3
+        self.left = int(width/3)
+        self.right = int(width - width/3)
         self.color = (255,255,255)
         self.sensor = {"gyro": (0, 0, 0)}
         if platform == "linux" or platform == "linux2":
@@ -228,11 +229,10 @@ class Camera():
                         cv2.putText(pic, f'Distance:{int(item.dept)} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
                         cv2.putText(pic, f'Distance:{int(item.dept)} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
         if self.hud:
-            ln()
             self.draw_hud(pic)
     
     def draw_hud(self, pic):
-        cv2.line(pic, (int(self.right), int(self.left)), (200, 200), self.color, 1) # 10
+        cv2.line(pic, (int(self.left), int(self.middley)), (self.right, self.middley), self.color, 1) # 10
         #cv2.line(pic, self.center, self.center, self.color, 1) # 10
         #cv2.line(pic, self.center, self.center, self.color, 1) # 5
         #cv2.line(pic, self.center, self.center, (255,0,0), 2) # 0
