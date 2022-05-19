@@ -233,8 +233,8 @@ class Camera():
             self.draw_hud(pic)
     
     def draw_hud(self, pic):
-        cv2.line(pic, (self.left, self.middley), (int(self.left+self.length), self.middley), self.color, 1) # 10
-        cv2.line(pic, (self.right, self.middley), (int(self.right+self.length), self.middley), self.color, 1)
+        cv2.line(pic, (self.left, int(self.middley+self.sensor['gyro'][2])), (int(self.left+self.length), int(self.middley+self.sensor['gyro'][2])), self.color, 2) # 10 deg right
+        cv2.line(pic, (self.right, int(self.middley+self.sensor['gyro'][2])), (int(self.right+self.length), int(self.middley+self.sensor['gyro'][2])), self.color, 2) # 10 deg left
         #cv2.line(pic, self.center, self.center, self.color, 1) # 10
         #cv2.line(pic, self.center, self.center, self.color, 1) # 5
         #cv2.line(pic, self.center, self.center, (255,0,0), 2) # 0
@@ -762,11 +762,11 @@ class Theia():
 
     def camera_com_callback(self, msg, name):
         if name == self.cam_front_name:
-            print("Message revived from front camera: "+ msg)
+            #print("Message revived from front camera: "+ msg)
             self.camera_status[0] = 0
 
         elif name == self.cam_back_name:
-            print("Message revived back camera: "+ msg)
+            #print("Message revived back camera: "+ msg)
             self.camera_status[1] = 0
 
     def send_camera_func(self, camera_id, msg):
