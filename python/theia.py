@@ -232,7 +232,7 @@ class Camera():
             self.draw_hud(pic)
     
     def draw_hud(self, pic):
-        cv2.line(pic, (self.right, self.left), (self.center), self.color, 1) # 10
+        cv2.line(pic, (int(self.right), int(self.left)), (self.center), self.color, 1) # 10
         #cv2.line(pic, self.center, self.center, self.color, 1) # 10
         #cv2.line(pic, self.center, self.center, self.color, 1) # 5
         #cv2.line(pic, self.center, self.center, (255,0,0), 2) # 0
