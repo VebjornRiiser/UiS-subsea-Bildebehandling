@@ -20,7 +20,7 @@ def main_loop():
     while(1):
         for _ in range(4):
             time.sleep(1)
-            m.ping()
+            #m.ping()
             check = m.update_hud_data()
             if not check:
                 print("Did not send data")
