@@ -145,6 +145,9 @@ class Camera():
         self.width = width
         self.hud = False
         self.center = (height/2, width/2)
+        self.left = width/3
+        self.right = width - width/3
+        self.color = (255,255,255)
         self.sensor = {"gyro": (0, 0, 0)}
         if platform == "linux" or platform == "linux2":
             self.feed = cv2.VideoCapture(self.id, cv2.CAP_V4L2)
@@ -215,16 +218,24 @@ class Camera():
     ## Draws on image
     def draw_on_img(self, pic, frames):
         if isinstance(frames, list):
-            for item in frames: # Draws objects on picture
-                cv2.rectangle(pic, item.rectangle[0], item.rectangle[1], item.colour, item.draw_line_width) # Draws rectablge on picture
-                pos = (item.rectangle[0][0], item.rectangle[0][1]+40) # For readability
-                cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3) # Red text
-                cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 1) # White background
-                if item.dept != 0: # Draws dept esitmation if there is one
-                    cv2.putText(pic, f'Distance:{int(item.dept)} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
-                    cv2.putText(pic, f'Distance:{int(item.dept)} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
-            if self.hud:
-                cv2.line(pic, ())
+            if frames != []:
+                for item in frames: # Draws objects on picture
+                    cv2.rectangle(pic, item.rectangle[0], item.rectangle[1], item.colour, item.draw_line_width) # Draws rectablge on picture
+                    pos = (item.rectangle[0][0], item.rectangle[0][1]+40) # For readability
+                    cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3) # Red text
+                    cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 1) # White background
+                    if item.dept != 0: # Draws dept esitmation if there is one
+                        cv2.putText(pic, f'Distance:{int(item.dept)} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
+                        cv2.putText(pic, f'Distance:{int(item.dept)} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
+                    if self.hud:
+                        self.draw_hud(pic)
+    
+    def draw_hud(self, pic):
+        cv2.line(pic, self.center, self.center, self.color, 1) # 10
+        cv2.line(pic, self.center, self.center, self.color, 1) # 5
+        cv2.line(pic, self.center, self.center, (255,0,0), 2) # 0
+        cv2.line(pic, self.center, self.center, self.color, 1) # -5
+        cv2.line(pic, self.center, self.center, self.color, 1) # -10
     
     def update_data(self, sens):
         self.sensor = sens
@@ -554,8 +565,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, loc
                 if picture_IA_pipe.poll():
                     draw_frames = picture_IA_pipe.recv()
                 picture_IA_pipe.send([pic, pic2])
-            if draw_frames != []:
-                cam.draw_on_img(pic, draw_frames)
+            cam.draw_on_img(pic, draw_frames)
         elif mode == 3:
             pic, pic2 = cam.aq_image(True, take_pic)
             take_pic = False
