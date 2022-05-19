@@ -145,7 +145,7 @@ class Camera():
         self.middley = int(height/2)
         self.width = width
         self.hud = True
-        self.length = int(width/8)
+        self.length = int(width/10)
         self.center = (height/2, width/4)
         self.left = int(width/3)
         self.right = int(width - width/3)
