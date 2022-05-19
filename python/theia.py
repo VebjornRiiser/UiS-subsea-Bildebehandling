@@ -653,7 +653,6 @@ def pipe_com(connection, callback=None, name=None, list=None):
     else:
         while list[0]:
             list[2] = connection.recv()
-            print(list)
             if isinstance(list[2], dict):
                 list[3] = list[2] # Dictionary stored in index 3, can be dept, orientation etc
                 list[2] = 'sensor' # Codeword for sensor data
