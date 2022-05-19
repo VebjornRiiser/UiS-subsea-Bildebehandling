@@ -236,8 +236,8 @@ class Camera():
     def draw_hud(self, pic):
         off = self.sensor['gyro'][2]*5
         #print(off)
-        cv2.line(pic, (self.left, int(self.middley-4*off)), (int(self.left+self.length), int(self.middley-4*off)), self.color, 2) # 10 deg right
-        cv2.line(pic, (self.right, int(self.middley-4*off)), (int(self.right+self.length), int(self.middley-4*off)), self.color, 2) # 10 deg left
+        cv2.line(pic, (self.right, int(self.middley-4*off)), (self.right+self.length, int(self.middley-4*off)), self.color, 2) # 10 deg right
+        cv2.line(pic, (self.left-self.length, int(self.middley-4*off)), (self.left, int(self.middley-4*off)), self.color, 2) # 10 deg left
         cv2.putText(pic, f'Dept:{self.sensor["gyro"][0]}', (100,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
         #cv2.line(pic, self.center, self.center, self.color, 1) # 10
         #cv2.line(pic, self.center, self.center, self.color, 1) # 5
