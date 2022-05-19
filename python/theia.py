@@ -148,8 +148,8 @@ class Camera():
         tru_width = int(width/2)
         self.length = int(width/14)
         self.center = (height/2, width/4)
-        self.left = int(width/2-40)
-        self.right = int(width/2+40)
+        self.left = int(width/4-40)
+        self.right = int(width/4+40)
         self.color = (255,255,255)
         self.sensor = {"gyro": (0, 0, 0)}
         if platform == "linux" or platform == "linux2":
