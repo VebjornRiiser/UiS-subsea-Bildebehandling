@@ -407,7 +407,6 @@ class Mercury:
             pakke = create_json(int(can_id), data)
             self.network_handler.send(to_json(pakke))
             if int(can_id) == 80: # Orientation data
-                print(ln)
                 self.sensor = pakke
         else:
             pass
