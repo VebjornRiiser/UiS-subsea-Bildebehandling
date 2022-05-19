@@ -537,7 +537,6 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, loc
                 cv2.destroyAllWindows()
                 break
             elif shared_list[2] == 'sensor':
-                ln()
                 cam.update_data(shared_list[3])
                 shared_list[3] = 0
             elif shared_list[2] == 'hud':
