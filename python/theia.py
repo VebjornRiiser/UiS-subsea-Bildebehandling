@@ -142,16 +142,18 @@ class Camera():
     def __init__(self, id:int, width:int=2560, height:int=720, framerate:int=30 ) -> None:
         self.id = id
         self.height = height
-        self.middley = int(height/2)
+        self.middley = int(height/2) # Center of picture y cord
         self.width = width
         self.hud = True
         tru_width = int(width/2)
-        self.length = int(width/14)
-        self.length2 = int(width/17)
-        self.center = (height/2, width/4)
-        self.left = int(width/4-40)
-        self.right = int(width/4+40)
-        self.color = (0,255,0)
+        self.length = int(width/18) # Long horisontal line for pitch
+        self.length2 = int(width/22) # Short horisontal line for pitch
+        self.length3 = int(width/36) # Cursor length
+        self.length4 = int(self.length3/4) # Cursor spacing and triangle side length
+        self.center = (width/4, height/2) # Senter of picture
+        self.left = int(width/4-self.length3/2)
+        self.right = int(width/4+self.length3/2)
+        self.color = (0, 255, 0)
         self.sensor = {"gyro": (0, 0, 0)}
         if platform == "linux" or platform == "linux2":
             self.feed = cv2.VideoCapture(self.id, cv2.CAP_V4L2)
@@ -249,14 +251,10 @@ class Camera():
         dept = self.sensor['gyro'][0]
         for a in range(0 , 100 , 10):
             pass
-                    
-        
-        #cv2.putText(pic, f'Dept:{self.sensor["gyro"][0]}', (100,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
-        #cv2.line(pic, self.center, self.center, self.color, 1) # 10
-        #cv2.line(pic, self.center, self.center, self.color, 1) # 5
-        #cv2.line(pic, self.center, self.center, (255,0,0), 2) # 0
-        #cv2.line(pic, self.center, self.center, self.color, 1) # -5
-        #cv2.line(pic, self.center, self.center, self.color, 1) # -10
+        angle = math.radians(self.sensor['gyro'][1])
+        cv2.line(pic,(int(self.center[0]-self.length4/2+math.cos(angle)*self.length4/2), self.center[1]+self.length4/2*math.cos(angle)) ,(0,0), self.color, 2)  # Left cursor line
+        #cv2.line(pic,(), (), self.color, 2)  # Right cursor line
+
     
     def update_data(self, sens):
         self.sensor = sens
