@@ -143,7 +143,7 @@ class Camera():
         self.id = id
         self.height = height
         self.width = width
-        self.hud = False
+        self.hud = True
         self.center = (height/2, width/2)
         self.left = width/3
         self.right = width - width/3
