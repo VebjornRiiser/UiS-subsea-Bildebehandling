@@ -150,7 +150,7 @@ class Camera():
         self.center = (height/2, width/4)
         self.left = int(width/4-40)
         self.right = int(width/4+40)
-        self.color = (255,255,255)
+        self.color = (0,255,0)
         self.sensor = {"gyro": (0, 0, 0)}
         if platform == "linux" or platform == "linux2":
             self.feed = cv2.VideoCapture(self.id, cv2.CAP_V4L2)
@@ -236,9 +236,12 @@ class Camera():
     def draw_hud(self, pic):
         off = self.sensor['gyro'][2]*5
         #print(off)
-        cv2.line(pic, (self.right, int(self.middley-4*off)), (self.right+self.length, int(self.middley-4*off)), self.color, 2) # 10 deg right
-        cv2.line(pic, (self.left-self.length, int(self.middley-4*off)), (self.left, int(self.middley-4*off)), self.color, 2) # 10 deg left
-        cv2.putText(pic, f'Dept:{self.sensor["gyro"][0]}', (100,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
+        cv2.line(pic, (self.right, int(self.middley-4*off)), (self.right+self.length, int(self.middley-4*off)), self.color, 2) # 20 deg right
+        cv2.putText(pic, f'20', (self.right+self.length,int(self.middley-4*off)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 20 deg right text
+        cv2.line(pic, (self.left-self.length, int(self.middley-4*off)), (self.left, int(self.middley-4*off)), self.color, 2) # 20 deg left
+        cv2.putText(pic, f'20', (self.left-self.length,int(self.middley-4*off)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 20 deg left text
+        
+        #cv2.putText(pic, f'Dept:{self.sensor["gyro"][0]}', (100,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
         #cv2.line(pic, self.center, self.center, self.color, 1) # 10
         #cv2.line(pic, self.center, self.center, self.color, 1) # 5
         #cv2.line(pic, self.center, self.center, (255,0,0), 2) # 0
