@@ -144,7 +144,7 @@ class Camera():
         self.height = height
         self.width = width
         self.hud = True
-        self.center = (height/2, width/2)
+        self.center = (height/2, width/4)
         self.left = width/3
         self.right = width - width/3
         self.color = (255,255,255)
@@ -232,11 +232,12 @@ class Camera():
             self.draw_hud(pic)
     
     def draw_hud(self, pic):
-        cv2.line(pic, self.center, self.center, self.color, 1) # 10
-        cv2.line(pic, self.center, self.center, self.color, 1) # 5
-        cv2.line(pic, self.center, self.center, (255,0,0), 2) # 0
-        cv2.line(pic, self.center, self.center, self.color, 1) # -5
-        cv2.line(pic, self.center, self.center, self.color, 1) # -10
+        cv2.line(pic, (self.right, self.left), (self.center), self.color, 1) # 10
+        #cv2.line(pic, self.center, self.center, self.color, 1) # 10
+        #cv2.line(pic, self.center, self.center, self.color, 1) # 5
+        #cv2.line(pic, self.center, self.center, (255,0,0), 2) # 0
+        #cv2.line(pic, self.center, self.center, self.color, 1) # -5
+        #cv2.line(pic, self.center, self.center, self.color, 1) # -10
     
     def update_data(self, sens):
         self.sensor = sens
