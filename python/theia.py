@@ -144,6 +144,8 @@ class Camera():
         self.height = height
         self.width = width
         self.hud = False
+        self.center = (height/2, width/2)
+        self.sensor = {"gyro": (0, 0, 0)}
         if platform == "linux" or platform == "linux2":
             self.feed = cv2.VideoCapture(self.id, cv2.CAP_V4L2)
         else:
@@ -222,10 +224,10 @@ class Camera():
                     cv2.putText(pic, f'Distance:{int(item.dept)} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
                     cv2.putText(pic, f'Distance:{int(item.dept)} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
             if self.hud:
-                pass
+                cv2.line(pic, ())
     
-    def update_data(self, items):
-        pass
+    def update_data(self, sens):
+        self.sensor = sens
 
 
 def find_calc_shapes(pic1, pic2):
@@ -520,8 +522,8 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, loc
             elif shared_list[2] == 'sensor':
                 cam.update_data(shared_list[3])
                 shared_list[3] = 0
-            elif shared_list[2] == :
-                pass
+            elif shared_list[2] == 'hud':
+                cam.hud != cam.hud
             else:
                 if isinstance(shared_list[2], int):
                     mode = shared_list[2]

@@ -34,13 +34,16 @@ def get_byte(c_format:str, number):
 
     return byte_list
 
+
 def get_num(c_format:str, byt):
     if isinstance(byt, int):
         byt = byt.to_bytes(1,"little")
     return struct.unpack(c_types[c_format], byt)[0]
 
+
 def get_bit(num, bit_nr):
     return True if (num >> bit_nr) & 1 else False
+
 
 def set_bit( bits:tuple ):
     out = int(0)
@@ -167,7 +170,7 @@ def USB_thread(h_serial, USB_callback, flag):
 # Only handles CAN messages, expecting messages to be tuples with length 2, where index 0 is can ID, and index 1 is the datapackage.
 def create_json(can_id:int, data:str):
     if len(data) != 32:
-        return to_json(False)
+        return False
     
     # Python....
     data_b = data.encode('latin').decode('unicode_escape').encode('latin')
@@ -178,7 +181,7 @@ def create_json(can_id:int, data:str):
         rull = get_num("int16", data_b[2:4])
         stamp = get_num("int16", data_b[4:6])
         gir = get_num("int16", data_b[6:])
-        json_dict = {"gyro": (hiv/10, rull/10, stamp/10)}
+        json_dict = {"gyro": (hiv, rull/10, stamp/10)}
 #        ln(f"{json_dict}\tdata: {data_b=}")
 
     # Akselerometer
@@ -227,7 +230,7 @@ def create_json(can_id:int, data:str):
     else:
         json_dict = f"\n\nERROR, ID {can_id} UNKNOWN!\n\n"    
 
-    return to_json(json_dict)
+    return json_dict
 
 
 def to_json(input):
@@ -249,6 +252,7 @@ class Mercury:
         # Flag dictionary
         self.status ={'network': False, 'USB': False, 'intern': False}
         self.function_list = [0,1,3,5] # Supported camera functions, 0: No prossesing, 1: Find fish, 3: Mosaikk, 5: Sleep
+        self.sensor = {"gyro": (0, 0, 0)}
 
         # USB socket
         serial_ports = glob.glob('/dev/ttyACM*')
@@ -393,18 +397,20 @@ class Mercury:
             self.network_trad.start()
 
 
-    def USB_callback(self, melding):
-        if melding == "":
+    def USB_callback(self, msg):
+        if msg == "":
             return
 
         if self.status['network']:
             #print(f"usb callback {melding =}")
-            data, can_id = melding.split(";")
-            self.network_handler.send(create_json(int(can_id), data))
+            data, can_id = msg.split(";")
+            pakke = create_json(int(can_id), data)
+            self.network_handler.send(to_json(pakke))
+            if int(can_id) == 80: # Orientation data
+                self.gyro = pakke
         else:
             pass
             #print('No connection on network')
-
 
     def toggle_USB(self):
         if self.status['USB']:
@@ -417,6 +423,13 @@ class Mercury:
             self.serial.write(b"t")
             self.serial_thread = threading.Thread(name = "Serial_thread", target=USB_thread, daemon=True, args=(self.serial, self.USB_callback, self.status)).start()
 
+    def update_hud_data(self):
+        if self.thei.camera_status['front']:
+            self.thei.client_cam1.send(self.sensor)
+            return True
+        else: 
+            return False
+
     def ping(self):
         if self.status['USB']:
             a = [95, 127, 159]
@@ -426,6 +439,7 @@ class Mercury:
         else:
             if self.status['network']:
                 self.network_handler.send(to_json("ERROR: No USB connection"))
+
 
 if __name__ == "__main__":
     print(f'Mercury')
