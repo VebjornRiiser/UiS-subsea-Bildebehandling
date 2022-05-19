@@ -235,18 +235,14 @@ class Camera():
             self.draw_hud(pic)
     
     def draw_hud(self, pic):
-        off = self.sensor['gyro'][2]*5
-        #print(off)
-        cv2.line(pic, (self.right, int(self.middley-4*off)), (self.right+self.length, int(self.middley-4*off)), self.color, 2) # 20 deg right
-        cv2.putText(pic, f'20', (self.right+self.length+10,int(self.middley-4*off+5)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 20 deg right text
-        cv2.line(pic, (self.left-self.length, int(self.middley-4*off)), (self.left, int(self.middley-4*off)), self.color, 2) # 20 deg left
-        cv2.putText(pic, f'20', (self.left-self.length-45,int(self.middley-4*off+5)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 20 deg left text
-        
-        cv2.line(pic, (self.right, int(self.middley-2*off)), (self.right+self.length2, int(self.middley-2*off)), self.color, 2) # 15 deg right
-        cv2.putText(pic, f'15', (self.right+self.length2+10,int(self.middley-2*off+5)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 15 deg right text
-        cv2.line(pic, (self.left-self.length2, int(self.middley-2*off)), (self.left, int(self.middley-2*off)), self.color, 2) # 15 deg left
-        cv2.putText(pic, f'15', (self.left-self.length2-45,int(self.middley-2*off+5)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 15 deg left text
-      
+        for a in range(-20,21, 5):
+            off = int(self.sensor['gyro'][2]*20+a*20 + self.middley)
+            if 0 < off < self.height:
+                cv2.line(pic, (self.right, off), (self.right+self.length, off), self.color, 2) # 20 deg right
+                cv2.putText(pic, f'{a}', (self.right+self.length+10, int(off+5)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 20 deg right text
+                cv2.line(pic, (self.left-self.length, off), (self.left, off), self.color, 2) # 20 deg left
+                cv2.putText(pic, f'{a}', (self.left-self.length-45, off+5), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 20 deg left text
+                    
         
         #cv2.putText(pic, f'Dept:{self.sensor["gyro"][0]}', (100,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
         #cv2.line(pic, self.center, self.center, self.color, 1) # 10
