@@ -238,10 +238,17 @@ class Camera():
         for a in range(-20,21, 5):
             off = int(self.sensor['gyro'][2]*20+a*20 + self.middley)
             if 0 < off < self.height:
-                cv2.line(pic, (self.right, off), (self.right+self.length, off), self.color, 2) # 20 deg right
-                cv2.putText(pic, f'{a}', (self.right+self.length+10, int(off+5)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 20 deg right text
-                cv2.line(pic, (self.left-self.length, off), (self.left, off), self.color, 2) # 20 deg left
-                #cv2.putText(pic, f'{a}', (self.left-self.length-45, off+5), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 20 deg left text
+                if(a%2==0):
+                    length = self.length
+                else:
+                    length = self.length2
+                cv2.line(pic, (self.right, off), (self.right+length, off), self.color, 2) # 20 deg right
+                cv2.putText(pic, f'{a}', (self.right+length+10, int(off+5)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 20 deg right text
+                cv2.line(pic, (self.left-length, off), (self.left, off), self.color, 2) # 20 deg left
+                #cv2.putText(pic, f'{a}', (self.left-length-45, off+5), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 20 deg left text
+        dept = self.sensor['gyro'][0]
+        for a in range(0 , 100 , 10):
+            pass
                     
         
         #cv2.putText(pic, f'Dept:{self.sensor["gyro"][0]}', (100,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
