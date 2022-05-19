@@ -21,9 +21,9 @@ def main_loop():
         for _ in range(4):
             time.sleep(1)
             m.ping()
-            if not m.update_hud_data():
-                #print()
-                pass
+            check = m.update_hud_data()
+            if not check:
+                print("Did not send data")
             #time.sleep(0.7)
             #print("Still running.  ", end='\r')
             #time.sleep(0.7)
