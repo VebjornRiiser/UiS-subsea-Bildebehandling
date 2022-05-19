@@ -425,7 +425,6 @@ class Mercury:
 
     def update_hud_data(self):
         if self.thei.camera_status['front'][0]:
-            print('test')
             self.thei.client_cam1.send(self.sensor)
             return True
         else: 
