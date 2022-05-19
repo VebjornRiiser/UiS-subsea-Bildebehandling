@@ -1,0 +1,7 @@
+names:
+- head
+- rubberfish
+- tail
+nc: 3
+train: RubberFIsh-3/train/images
+val: RubberFIsh-3/valid/images

@@ -57,14 +57,9 @@ class Yolo(): #
         detected_list = []
         for i, detected in enumerate(pred):
             for *xyxy, conf, cls in reversed(detected):
-                #print(xyxy)
                 wx = (torch.tensor(xyxy).view(1, 4))
                 wx = self.resize_square(wx[0])
                 detected_list.append(Object(wx,self.text, self.color, conf))
-                #print(len(wx[0]))
-                # print(f'{float(conf)}\n')
-                #xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()
-                #print(xyxy[:,0])
         return detected_list
 
 

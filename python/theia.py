@@ -143,6 +143,7 @@ class Camera():
         self.id = id
         self.height = height
         self.width = width
+        self.hud = False
         if platform == "linux" or platform == "linux2":
             self.feed = cv2.VideoCapture(self.id, cv2.CAP_V4L2)
         else:
@@ -207,6 +208,24 @@ class Camera():
             return crop, crop2
         else:
             return crop
+
+
+    ## Draws on image
+    def draw_on_img(self, pic, frames):
+        if isinstance(frames, list):
+            for item in frames: # Draws objects on picture
+                cv2.rectangle(pic, item.rectangle[0], item.rectangle[1], item.colour, item.draw_line_width) # Draws rectablge on picture
+                pos = (item.rectangle[0][0], item.rectangle[0][1]+40) # For readability
+                cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3) # Red text
+                cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 1) # White background
+                if item.dept != 0: # Draws dept esitmation if there is one
+                    cv2.putText(pic, f'Distance:{int(item.dept)} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
+                    cv2.putText(pic, f'Distance:{int(item.dept)} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
+            if self.hud:
+                pass
+    
+    def update_data(self, items):
+        pass
 
 
 def find_calc_shapes(pic1, pic2):
@@ -408,6 +427,8 @@ def image_aqusition_thread(connection, boli):
                 break
             elif mess.lower() == 'fish': # Sets mode
                 mode = 1
+            elif mess.lower() == 'automerd':
+                mode = 2
             elif mess.lower() == 'mosaikk': # Sets mode
                 ln('Mode in IA set to  3')
                 mode = 3
@@ -427,6 +448,9 @@ def image_aqusition_thread(connection, boli):
                         mached_list = ath.compare_pixles(res1, res2, mess)
                 #time_list.append(time.time()-start)
                 connection.send(mached_list)
+            elif mode == 2:
+                #!! TODO Place function  here
+                pass
             elif mode == 3:
                 if new_pic:
                     new_pic = False
@@ -449,17 +473,6 @@ def image_aqusition_thread(connection, boli):
             #print(statistics.mean(time_list))
             time_list = []
         
-
-def draw_on_img(pic, frames):
-    if isinstance(frames, list):
-        for item in frames: # Draws objects on picture
-            cv2.rectangle(pic, item.rectangle[0], item.rectangle[1], item.colour, item.draw_line_width) # Draws rectablge on picture
-            pos = (item.rectangle[0][0], item.rectangle[0][1]+40) # For readability
-            cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3) # Red text
-            cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 1) # White background
-            if item.dept != 0: # Draws dept esitmation if there is one
-                cv2.putText(pic, f'Distance:{int(item.dept)} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
-                cv2.putText(pic, f'Distance:{int(item.dept)} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
 
 
 ## Got access to one camera, can aquire images from camera, communicates with main process and can send picutres to image prossesing and stream ##
@@ -504,6 +517,11 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, loc
                 cam.feed.release()
                 cv2.destroyAllWindows()
                 break
+            elif shared_list[2] == 'sensor':
+                cam.update_data(shared_list[3])
+                shared_list[3] = 0
+            elif shared_list[2] == :
+                pass
             else:
                 if isinstance(shared_list[2], int):
                     mode = shared_list[2]
@@ -514,7 +532,6 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, loc
                 else:
                     ln(f'Cameramode: {shared_list[2]}, is not supported')
                     shared_list[1] = 0
-                
         if mode == 0:
             pic = cam.aq_image(False, take_pic)
             take_pic = False
@@ -536,7 +553,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, loc
                     draw_frames = picture_IA_pipe.recv()
                 picture_IA_pipe.send([pic, pic2])
             if draw_frames != []:
-                draw_on_img(pic, draw_frames)
+                cam.draw_on_img(pic, draw_frames)
         elif mode == 3:
             pic, pic2 = cam.aq_image(True, take_pic)
             take_pic = False
@@ -618,6 +635,9 @@ def pipe_com(connection, callback=None, name=None, list=None):
     else:
         while list[0]:
             list[2] = connection.recv()
+            if isinstance(dict, list[2]): 
+                list[3] = list[2] # Dictionary stored in index 3, can be dept, orientation etc
+                list[2] = 'sensor' # Codeword for sensor data
             list[1] = 1
 
 ## Checks if object positions overlap ##

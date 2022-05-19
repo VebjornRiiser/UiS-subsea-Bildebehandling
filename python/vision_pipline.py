@@ -241,11 +241,12 @@ if __name__ == "__main__":
         cv2.destroyAllWindows() 
         cv2.VideoCapture(0).release()
     elif a == 2:
-        pic1 = cv2.imread('C:\Skole\BACH\stich test\pic3.png', cv2.IMREAD_COLOR)
-        pic2 = cv2.imread('C:\Skole\BACH\stich test\pic1.png', cv2.IMREAD_COLOR)
-        pic3 = cv2.imread('C:\Skole\BACH\stich test\pic2.png', cv2.IMREAD_COLOR)
+        pic1 = cv2.imread('C:\Skole\BACH\sybilder\\fish1.png')
+        pic2 = cv2.imread('C:\Skole\BACH\sybilder\\fish2.png')
+        pic3 = cv2.imread('C:\Skole\BACH\sybilder\\fish3.png')
         pic_list = [pic1, pic2, pic3]
         pic_stiched = picure_stich(pic_list)
         if pic_stiched is not []:
             cv2.imshow('String', pic_stiched)
+            cv2.imwrite('C:\Skole\BACH\sybilder\\done.png',pic_stiched)
             cv2.waitKey(0)
