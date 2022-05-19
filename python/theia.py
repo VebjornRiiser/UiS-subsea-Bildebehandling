@@ -566,7 +566,6 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, loc
                 if picture_IA_pipe.poll():
                     draw_frames = picture_IA_pipe.recv()
                 picture_IA_pipe.send([pic, pic2])
-            cam.draw_on_img(pic, draw_frames)
         elif mode == 3:
             pic, pic2 = cam.aq_image(True, take_pic)
             take_pic = False
@@ -578,6 +577,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, loc
         if mode == 5:
             time.sleep(3)
         elif video_feed:
+            cam.draw_on_img(pic, draw_frames)
             picture_send_pipe.send(pic)
         else:
             cv2.imshow('FishCam',pic)
