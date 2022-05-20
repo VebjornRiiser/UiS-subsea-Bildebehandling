@@ -152,7 +152,7 @@ class Camera():
         self.length4 = int(self.length3/4) # Cursor spacing and triangle side length
         self.center = (width/4, height/2) # Center of picture
         self.squarestart = [int(self.center[0]-self.length-self.length4-100), int(self.center[1]-self.length)]
-        self.squarestop = [int(self.center[0]-self.length-self.length4-60), int(self.center[1]+self.length)]
+        self.squarestop = [int(self.center[0]-self.length-self.length4-60), int(self.center[1]+self.length+40)]
         self.cursor = Cursor(self.length3, self.length4, self.center)
         self.left = int(width/4-self.length3/2)
         self.right = int(width/4+self.length3/2)
@@ -254,14 +254,14 @@ class Camera():
         space = len(f'{(dept)}')
         cv2.rectangle(pic, self.squarestart, self.squarestop, self.color, 2)
         cv2.putText(pic, f'Dept', (int(self.squarestart[0]-10) ,int(self.squarestart[1]-10)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
-        cv2.putText(pic, f'{dept}', (int(self.squarestart[0]-space*15-30), int(self.center[1])), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2)
+        cv2.putText(pic, f'{dept}', (int(self.squarestart[0]-space*15-30), int(self.center[1]+5)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2)
         offset = int(dept - int(dept/10)*10)
         dep_text = int(int(dept/10)*10)
         for a in range(100 , 0 , -10):
             cv2.line(pic, (int(self.squarestart[0]+4), int(self.squarestart[1]+a*3+offset)), (int(self.squarestop[0]-4), int(self.squarestart[1]+a*3+offset)), self.color, 2)
             if a != 50 and a != 0:
                 space = len(f'{(a-50+dep_text)}')
-                cv2.putText(pic, f'{(a-50+dep_text)}', (int(self.squarestart[0]-space*15-30), int(self.squarestart[1]+a*3+offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
+                cv2.putText(pic, f'{(a-50+dep_text)}', (int(self.squarestart[0]-space*15-30), int(self.squarestart[1]+a*3+offset+5)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
         points = np.array(self.cursor.get_points(self.sensor['gyro'][1]))
         cv2.polylines(pic, [points], False, (0,0,255), 2)
 
