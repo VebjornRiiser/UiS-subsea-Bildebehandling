@@ -151,8 +151,8 @@ class Camera():
         self.length3 = int(width/36) # Cursor length
         self.length4 = int(self.length3/4) # Cursor spacing and triangle side length
         self.center = (width/4, height/2) # Center of picture
-        self.squarestart = [int(self.center[0]-self.length*1.3), self.center[1]-self.length]
-        self.squarestop = [int(self.center[0]-self.length*1.1), self.center[1]+self.length]
+        self.squarestart = [int(self.center[0]-self.length*1.3), int(self.center[1]-self.length)]
+        self.squarestop = [int(self.center[0]-self.length*1.1), int(self.center[1]+self.length)]
         self.cursor = Cursor(self.length3, self.length4, self.center)
         self.left = int(width/4-self.length3/2)
         self.right = int(width/4+self.length3/2)
