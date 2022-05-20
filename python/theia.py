@@ -252,7 +252,7 @@ class Camera():
         dept = self.sensor['gyro'][0]
         cv2.rectangle(pic, self.squarestart, self.squarestop, self.color, 2)
         cv2.putText(pic, f'Dept', (int(self.squarestart[0]-10) ,int(self.squarestart[1]-10)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
-        cv2.putText(pic, f'{dept}', (int(self.squarestart[0]-80), int(self.center[1])), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2)
+        cv2.putText(pic, f'{dept}', (int(self.squarestart[0]-50), int(self.center[1])), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2)
         offset = dept - int(dept/10)
         dep_text = int(int(dept/10)*10)
         for a in range(0 , 100 , 10):
