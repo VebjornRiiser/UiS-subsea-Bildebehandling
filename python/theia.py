@@ -150,7 +150,8 @@ class Camera():
         self.length2 = int(width/22) # Short horisontal line for pitch
         self.length3 = int(width/36) # Cursor length
         self.length4 = int(self.length3/4) # Cursor spacing and triangle side length
-        self.center = (width/4, height/2) # Senter of picture
+        self.center = (width/4, height/2) # Center of picture
+        self.cursor = Cursor(self.length3, self.length4, self.center)
         self.left = int(width/4-self.length3/2)
         self.right = int(width/4+self.length3/2)
         self.color = (0, 255, 0)
@@ -251,9 +252,13 @@ class Camera():
         dept = self.sensor['gyro'][0]
         for a in range(0 , 100 , 10):
             pass
-        angle = math.radians(self.sensor['gyro'][1])
-        cv2.line(pic,(int(self.center[0]-self.length4/2+math.cos(angle)*self.length4/2), self.center[1]+self.length4/2*math.cos(angle)) ,(0,0), self.color, 2)  # Left cursor line
+        points = self.cursor.get_points(self.sensor['gyro'][1])
+        cv2.polylines(pic, points, True, (0,0,255), thickness = 2)
+        #cv2.line(pic,(int(self.center[0]-self.length4/2+math.cos(angle)*self.length4/2), self.center[1]+self.length4/2*math.cos(angle)) ,(0,0), self.color, 2)  # Left cursor line
         #cv2.line(pic,(), (), self.color, 2)  # Right cursor line
+
+    def calc_points(self, angle):
+        pass
 
     
     def update_data(self, sens):
