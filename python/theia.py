@@ -151,6 +151,8 @@ class Camera():
         self.length3 = int(width/36) # Cursor length
         self.length4 = int(self.length3/4) # Cursor spacing and triangle side length
         self.center = (width/4, height/2) # Center of picture
+        self.squarestart = [int(self.center[0]-self.length*1.3), self.center[1]-self.length]
+        self.squarestop = [int(self.center[0]-self.length*1.1), self.center[1]+self.length]
         self.cursor = Cursor(self.length3, self.length4, self.center)
         self.left = int(width/4-self.length3/2)
         self.right = int(width/4+self.length3/2)
@@ -184,7 +186,6 @@ class Camera():
         self.width = int(self.feed.get(cv2.CAP_PROP_FRAME_WIDTH))
         print(f'{self.width}:{self.height}')
         self.crop_width = int(self.width/2)
-
 
     def aq_image(self, double:bool=False, t_pic:bool=False):
         #ref, frame = self.feed.read()
@@ -221,7 +222,6 @@ class Camera():
         else:
             return crop
 
-
     ## Draws on image
     def draw_on_img(self, pic, frames):
         if isinstance(frames, list):
@@ -250,20 +250,13 @@ class Camera():
                 cv2.line(pic, (self.left-length, off), (self.left, off), self.color, 2) # 20 deg left
                 #cv2.putText(pic, f'{a}', (self.left-length-45, off+5), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 20 deg left text
         dept = self.sensor['gyro'][0]
+        cv2.rectangle(pic, self.squarestart, self.squarestop, self.color, 2)
+        cv2.putText(pic, f'{dept}', (self.center[0]-self.length-10, self.center[1]), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
         for a in range(0 , 100 , 10):
-            pass
+            cv2.line(pic, (self.center[0]-self.length, self.center[1]+a-50), (self.center[0]-self.length+20, self.center[1]+a-50))
         points = np.array(self.cursor.get_points(self.sensor['gyro'][1]))
-        #for a in points:
-        #    a[0] = int(a[0])
-        #as    a[1] = int(a[1])
         cv2.polylines(pic, [points], False, (0,0,255), 2)
-        #cv2.line(pic,(int(self.center[0]-self.length4/2+math.cos(angle)*self.length4/2), self.center[1]+self.length4/2*math.cos(angle)) ,(0,0), self.color, 2)  # Left cursor line
-        #cv2.line(pic,(), (), self.color, 2)  # Right cursor line
 
-    def calc_points(self, angle):
-        pass
-
-    
     def update_data(self, sens):
         self.sensor = sens
 
