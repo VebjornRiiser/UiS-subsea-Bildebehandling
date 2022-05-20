@@ -250,11 +250,11 @@ class Camera():
                 cv2.line(pic, (self.left-length, off), (self.left, off), self.color, 2) # 20 deg left
                 #cv2.putText(pic, f'{a}', (self.left-length-45, off+5), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 20 deg left text
         dept = self.sensor['gyro'][0]
-        dept = 500
+        dept = 0
         space = len(f'{(dept)}')
         cv2.rectangle(pic, self.squarestart, self.squarestop, self.color, 2)
         cv2.putText(pic, f'Dept', (int(self.squarestart[0]-10) ,int(self.squarestart[1]-10)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
-        cv2.putText(pic, f'{dept}', (int(self.squarestart[0]-50), int(self.center[1])), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2)
+        cv2.putText(pic, f'{dept}', (int(self.squarestart[0]-space*15-30), int(self.center[1])), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2)
         offset = int(dept - int(dept/10)*10)
         dep_text = int(int(dept/10)*10)
         for a in range(100 , 0 , -10):
