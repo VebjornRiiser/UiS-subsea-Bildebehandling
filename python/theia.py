@@ -253,7 +253,7 @@ class Camera():
         print(self.squarestart)
         print(self.squarestop)
         cv2.rectangle(pic, self.squarestart, self.squarestop, self.color, 2)
-        cv2.putText(pic, f'{dept}', (self.center[0]-self.length-10, self.center[1]), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
+        cv2.putText(pic, f'{dept}', (int(self.center[0]-self.length-10), int(self.center[1])), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
         for a in range(0 , 100 , 10):
             cv2.line(pic, (self.center[0]-self.length, self.center[1]+a-50), (self.center[0]-self.length+20, self.center[1]+a-50))
         points = np.array(self.cursor.get_points(self.sensor['gyro'][1]))
