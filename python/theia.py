@@ -260,8 +260,8 @@ class Camera():
         for a in range(100 , 0 , -10):
             cv2.line(pic, (int(self.squarestart[0]+4), int(self.squarestart[1]+a*3+offset)), (int(self.squarestop[0]-4), int(self.squarestart[1]+a*3+offset)), self.color, 2)
             if a != 50 and a != 0:
-                space = len(f'{(a-60+dep_text)}')
-                cv2.putText(pic, f'{(a-60+dep_text)}', (int(self.squarestart[0]-space*15-30), int(self.squarestart[1]+a*3+offset+5)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
+                space = len(f'{(a-40+dep_text)}')
+                cv2.putText(pic, f'{(a-40+dep_text)}', (int(self.squarestart[0]-space*15-30), int(self.squarestart[1]+a*3+offset+5)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
         space = len(f'{(dept)}')
         
         points = np.array(self.cursor.get_points(self.sensor['gyro'][1]))
