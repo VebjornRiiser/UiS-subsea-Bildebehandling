@@ -250,7 +250,8 @@ class Camera():
                 cv2.line(pic, (self.left-length, off), (self.left, off), self.color, 2) # 20 deg left
                 #cv2.putText(pic, f'{a}', (self.left-length-45, off+5), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 20 deg left text
         dept = self.sensor['gyro'][0]
-        dept = 435
+        dept = 2500
+        space = len(f'{(dept)}')
         cv2.rectangle(pic, self.squarestart, self.squarestop, self.color, 2)
         cv2.putText(pic, f'Dept', (int(self.squarestart[0]-10) ,int(self.squarestart[1]-10)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
         cv2.putText(pic, f'{dept}', (int(self.squarestart[0]-50), int(self.center[1])), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2)
@@ -260,7 +261,7 @@ class Camera():
             cv2.line(pic, (int(self.squarestart[0]+4), int(self.squarestart[1]+a*3+offset)), (int(self.squarestop[0]-4), int(self.squarestart[1]+a*3+offset)), self.color, 2)
             if a != 50 and a != 0:
                 space = len(f'{(dep_text-a+50)}')
-                cv2.putText(pic, f'{(dep_text-a+50)*-1}', (int(self.squarestart[0]-space*20-40), int(self.squarestart[1]+a*3+offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
+                cv2.putText(pic, f'{(dep_text-a+50)}', (int(self.squarestart[0]-space*20-40), int(self.squarestart[1]+a*3+offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
         points = np.array(self.cursor.get_points(self.sensor['gyro'][1]))
         cv2.polylines(pic, [points], False, (0,0,255), 2)
 
