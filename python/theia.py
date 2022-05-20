@@ -252,7 +252,7 @@ class Camera():
         dept = self.sensor['gyro'][0]
         for a in range(0 , 100 , 10):
             pass
-        points = int(self.cursor.get_points(self.sensor['gyro'][1]))
+        points = self.cursor.get_points(self.sensor['gyro'][1])
         for a in points:
             int(a[0])
             int(a[1])
