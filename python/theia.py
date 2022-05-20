@@ -256,9 +256,9 @@ class Camera():
         offset = dept - int(dept/10)
         dep_text = int(int(dept/10)*10)
         for a in range(0 , 100 , 10):
-            cv2.line(pic, (int(self.squarestart[0]+4), int(self.squarestart[1]+a*4+offset)), (int(self.squarestop[0]-4), int(self.squarestart[1]+a*4+offset)), self.color, 2)
+            cv2.line(pic, (int(self.squarestart[0]+4), int(self.squarestart[1]+a*3+offset)), (int(self.squarestop[0]-4), int(self.squarestart[1]+a*3+offset)), self.color, 2)
             if a != 50:
-                cv2.putText(pic, f'{dep_text-a+50}', (int(self.squarestart[0]), int(self.squarestart[1]+a*4+offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
+                cv2.putText(pic, f'{(dep_text-a+50)*-20}', (int(self.squarestart[0]), int(self.squarestart[1]+a*3+offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
         points = np.array(self.cursor.get_points(self.sensor['gyro'][1]))
         cv2.polylines(pic, [points], False, (0,0,255), 2)
 
