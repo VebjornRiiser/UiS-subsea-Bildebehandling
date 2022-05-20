@@ -257,7 +257,7 @@ class Camera():
         cv2.putText(pic, f'{dept}', (int(self.squarestart[0]-50), int(self.center[1])), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2)
         offset = int(dept - int(dept/10)*10)
         dep_text = int(int(dept/10)*10)
-        for a in range(0 , 100 , 10):
+        for a in range(100 , 0 , 10):
             cv2.line(pic, (int(self.squarestart[0]+4), int(self.squarestart[1]+a*3+offset)), (int(self.squarestop[0]-4), int(self.squarestart[1]+a*3+offset)), self.color, 2)
             if a != 50 and a != 0:
                 space = len(f'{(dep_text-a+50)}')
