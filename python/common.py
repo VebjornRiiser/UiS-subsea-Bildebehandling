@@ -61,7 +61,7 @@ class Cursor: #______/\______
         x += self.offset[0]
         y += self.offset[1]
 
-        return [x,y]
+        return [int(y),int(x)]
 
     def get_points(self, angel):
         point_list = []
