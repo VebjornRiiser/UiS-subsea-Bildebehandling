@@ -253,7 +253,8 @@ class Camera():
         for a in range(0 , 100 , 10):
             pass
         points = self.cursor.get_points(self.sensor['gyro'][1])
-        cv2.polylines(pic, points, True, (0,0,255), thickness = 2)
+        #cv2.polylines(pic, points, True, (0,0,255), thickness = 2)
+        print(points)
         #cv2.line(pic,(int(self.center[0]-self.length4/2+math.cos(angle)*self.length4/2), self.center[1]+self.length4/2*math.cos(angle)) ,(0,0), self.color, 2)  # Left cursor line
         #cv2.line(pic,(), (), self.color, 2)  # Right cursor line
 
