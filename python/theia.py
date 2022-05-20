@@ -252,9 +252,9 @@ class Camera():
         dept = self.sensor['gyro'][0]
         cv2.rectangle(pic, self.squarestart, self.squarestop, self.color, 2)
         cv2.putText(pic, f'Dept', (int(self.squarestart[0]-10) ,int(self.squarestart[1]-10)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
-        cv2.putText(pic, f'{dept}', (int(self.center[0]-self.length-self.length4-10), int(self.center[1])), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
+        cv2.putText(pic, f'{dept}', (int(self.squarestart[0]-10), int(self.center[1])), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
         for a in range(0 , 100 , 10):
-            cv2.line(pic, (int(self.squarestart[0]+2), int(self.center[1]+a*2-50)), (int(self.squarestop[0]-2), int(self.center[1]+a*2-50)), self.color, 2)
+            cv2.line(pic, (int(self.squarestart[0]+2), int(self.squarestart[1]+a*2)), (int(self.squarestop[0]-2), int(self.squarestart[1]+a*2)), self.color, 2)
         points = np.array(self.cursor.get_points(self.sensor['gyro'][1]))
         cv2.polylines(pic, [points], False, (0,0,255), 2)
 
