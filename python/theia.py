@@ -151,8 +151,8 @@ class Camera():
         self.length3 = int(width/36) # Cursor length
         self.length4 = int(self.length3/4) # Cursor spacing and triangle side length
         self.center = (width/4, height/2) # Center of picture
-        self.squarestart = [int(self.center[0]-self.length-self.length4-50), int(self.center[1]-self.length)]
-        self.squarestop = [int(self.center[0]-self.length-self.length4-10), int(self.center[1]+self.length)]
+        self.squarestart = [int(self.center[0]-self.length-self.length4-100), int(self.center[1]-self.length)]
+        self.squarestop = [int(self.center[0]-self.length-self.length4-60), int(self.center[1]+self.length)]
         self.cursor = Cursor(self.length3, self.length4, self.center)
         self.left = int(width/4-self.length3/2)
         self.right = int(width/4+self.length3/2)
@@ -254,7 +254,7 @@ class Camera():
         cv2.putText(pic, f'Dept', (int(self.squarestart[0]-10) ,int(self.squarestart[1]-10)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
         cv2.putText(pic, f'{dept}', (int(self.center[0]-self.length-self.length4-10), int(self.center[1])), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
         for a in range(0 , 100 , 10):
-            cv2.line(pic, (int(self.squarestart[0]+2), int(self.center[1]+a*10-50)), (int(self.squarestop[0]-2), int(self.center[1]+a-50)), self.color, 2)
+            cv2.line(pic, (int(self.squarestart[0]+2), int(self.center[1]+a*2-50)), (int(self.squarestop[0]-2), int(self.center[1]+a*2-50)), self.color, 2)
         points = np.array(self.cursor.get_points(self.sensor['gyro'][1]))
         cv2.polylines(pic, [points], False, (0,0,255), 2)
 
