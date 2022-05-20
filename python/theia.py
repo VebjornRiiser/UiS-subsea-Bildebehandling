@@ -267,7 +267,7 @@ class Camera():
         points = np.array(self.cursor.get_points(self.sensor['gyro'][1]))
         cv2.polylines(pic, [points], False, (0,0,255), 2)
         cv2.putText(pic, f'{dept}', (int(self.squarestart[0]-space*15-30), int(self.center[1]+5)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2)
-        cv2.line(pic, (int(self.squarestart[0]+4), int(self.center[1])), (int(self.squarestop[0]-4), int(self.center[1])), (0,0,255)), 2)
+        cv2.line(pic, (int(self.squarestart[0]+4), int(self.center[1])), (int(self.squarestop[0]-4), int(self.center[1])), (0,0,255), 2)
     def update_data(self, sens):
         self.sensor = sens
 
