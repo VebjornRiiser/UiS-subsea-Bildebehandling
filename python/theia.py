@@ -246,14 +246,14 @@ class Camera():
                 else:
                     length = self.length2
                 cv2.line(pic, (self.right, off), (self.right+length, off), self.color, 2) # 20 deg right
-                cv2.putText(pic, f'{a}', (int(self.right+length+10), int(off+5)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 20 deg right text
+                cv2.putText(pic, f'{a}', (int(self.right+length+10, int(off+5)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 20 deg right text
                 cv2.line(pic, (self.left-length, off), (self.left, off), self.color, 2) # 20 deg left
                 #cv2.putText(pic, f'{a}', (self.left-length-45, off+5), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 20 deg left text
         dept = self.sensor['gyro'][0]
         cv2.rectangle(pic, self.squarestart, self.squarestop, self.color, 2)
         cv2.putText(pic, f'{dept}', (int(self.center[0]-self.length-10), int(self.center[1])), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
         for a in range(0 , 100 , 10):
-            cv2.line(pic, (self.center[0]-self.length, self.center[1]+a-50, self.color, 2), (self.center[0]-self.length+20, self.center[1]+a-50))
+            cv2.line(pic, (self.center[0]-self.length, self.center[1]+a-50), (self.center[0]-self.length+20, self.center[1]+a-50), self.color, 2)
         points = np.array(self.cursor.get_points(self.sensor['gyro'][1]))
         cv2.polylines(pic, [points], False, (0,0,255), 2)
 
