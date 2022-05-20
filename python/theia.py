@@ -257,7 +257,7 @@ class Camera():
         
         offset = int(dept - int(dept/10)*10)
         dep_text = int(int(dept/10)*10)
-        for a in range(100 , 0 , -10):
+        for a in range(110 , 10 , -10):
             cv2.line(pic, (int(self.squarestart[0]+4), int(self.squarestart[1]+a*3+offset)), (int(self.squarestop[0]-4), int(self.squarestart[1]+a*3+offset)), self.color, 2)
             if a != 50 and a != 0:
                 space = len(f'{(a-50+dep_text)}')
