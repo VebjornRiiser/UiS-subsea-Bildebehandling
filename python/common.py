@@ -58,8 +58,8 @@ class Cursor: #______/\______
         x = x1*math.cos(angelrad) - y1*math.sin(angelrad)
         y = x1*math.sin(angelrad) + y1*math.cos(angelrad)
 
-        x += int(self.offset[0])
-        y += int(self.offset[1])
+        x += self.offset[0]
+        y += self.offset[1]
 
         return [x,y]
 
