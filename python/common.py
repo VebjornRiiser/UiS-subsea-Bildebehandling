@@ -65,6 +65,7 @@ class Cursor: #______/\______
     def get_points(self, angel):
         point_list = []
         angelrad = math.radians(angel)
+        print(angel)
         for a in self.points:
             point_list.append(self.rotate_point(a[0], a[1], angelrad))
         return point_list
