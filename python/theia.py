@@ -151,8 +151,8 @@ class Camera():
         self.length3 = int(width/36) # Cursor length
         self.length4 = int(self.length3/4) # Cursor spacing and triangle side length
         self.center = (width/4, height/2) # Center of picture
-        self.squarestart = [int(self.center[0]-self.length-self.length4-100), int(self.center[1]-self.length)]
-        self.squarestop = [int(self.center[0]-self.length-self.length4-60), int(self.center[1]+self.length+40)]
+        self.squarestart = [int(self.center[0]-self.length-self.length4-100), int(self.center[1]-self.length-8)]
+        self.squarestop = [int(self.center[0]-self.length-self.length4-60), int(self.center[1]+self.length+10)]
         self.cursor = Cursor(self.length3, self.length4, self.center)
         self.left = int(width/4-self.length3/2)
         self.right = int(width/4+self.length3/2)
@@ -162,6 +162,7 @@ class Camera():
             self.feed = cv2.VideoCapture(self.id, cv2.CAP_V4L2)
         else:
             self.feed = cv2.VideoCapture(self.id)
+        self.dept = 0
         self.set_picture_size(self.width, self.height)
         #self.feed.set(cv2.CAP_PROP_FPS, framerate)
         self.feed.set(cv2.CAP_PROP_AUTOFOCUS, 3)
@@ -249,19 +250,26 @@ class Camera():
                 cv2.putText(pic, f'{a}', (int(self.right+length+10), int(off+5)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 20 deg right text
                 cv2.line(pic, (self.left-length, off), (self.left, off), self.color, 2) # 20 deg left
                 #cv2.putText(pic, f'{a}', (self.left-length-45, off+5), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 20 deg left text
-        dept = self.sensor['gyro'][0]
-        dept = 2400
         
+        # Depth
+        dept = self.sensor['gyro'][0]
+        self.dept += 0.3
+        dept = int(self.dept)
+        if self.dept > 3000:
+            self.dept = 0
+        
+        # Depth bar
         cv2.rectangle(pic, self.squarestart, self.squarestop, self.color, 2)
         cv2.putText(pic, f'Depth', (int(self.squarestart[0]-10) ,int(self.squarestart[1]-10)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
         
-        offset = int(dept+10 - math.floor(dept/10)*10)
-        dep_text = int(int(dept/10)*10)
+        # Depth bar lines
+        offset = int(dept - math.floor(dept/10)*10) * 3
+        dep_text = int(dept/10)*10 - 10 # last digit to 0
         for a in range(100 , 0 , -10):
-            cv2.line(pic, (int(self.squarestart[0]+4), int(self.squarestart[1]+a*3+offset)), (int(self.squarestop[0]-4), int(self.squarestart[1]+a*3+offset)), self.color, 2)
-            if a != 50 and a != 0:
-                space = len(f'{(a-50+dep_text)}')
-                cv2.putText(pic, f'{(a-50+dep_text)}', (int(self.squarestart[0]-space*15-30), int(self.squarestart[1]+a*3+offset+5)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
+            cv2.line(pic, (int(self.squarestart[0]+4), int(self.squarestart[1]+a*3-offset)), (int(self.squarestop[0]-4), int(self.squarestart[1]+a*3-offset)), self.color, 2)
+            if a != 0:
+                space = len(f'{(a-40+dep_text)}')
+                cv2.putText(pic, f'{(a-40+dep_text)}', (int(self.squarestart[0]-space*15-30), int(self.squarestart[1]+a*3-offset+5)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
         space = len(f'{(dept)}')
         
         points = np.array(self.cursor.get_points(self.sensor['gyro'][1]))
