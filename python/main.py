@@ -14,13 +14,16 @@ os.chdir(os.path.dirname(os.path.abspath(__file__))) # Bytter working directory 
 # Our main loop for both programs
 def main_loop():
     m = Mercury()
-    #m.thei.toggle_front()
+    m.thei.toggle_front()
     #m.thei.toggle_back()
 
     while(1):
         for _ in range(4):
-            time.sleep(5)
-            m.ping()
+            time.sleep(0.2)
+            #m.ping()
+            check = m.update_hud_data()
+            if not check:
+                print("Did not send data")
             #time.sleep(0.7)
             #print("Still running.  ", end='\r')
             #time.sleep(0.7)

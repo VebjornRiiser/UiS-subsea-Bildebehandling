@@ -1,5 +1,6 @@
 from inspect import currentframe, getframeinfo
 import subprocess
+import math
 
 # Print info om nåværende linje.
 def ln(melding:str=""):
@@ -32,3 +33,38 @@ def calc_distance(dist, focal_len=400, camera_space=60): # Calculates distance t
     return int((-0.000326267081189824)*(dist**3) + 0.248885323144369*(dist**2) - 61.9465370530352*dist + 5155.96447780862) # cm
     #return int((3.631e-6 * (dist**4)) - (0.003035 * (dist**3)) + (0.9672 * (dist**2)) - (139.9 * dist) + 7862)
     #return int(((focal_len*camera_space)/dist))
+
+class Cursor: #______/\______
+    def __init__(self, line_len:int, spacing:int, offset:tuple) -> None: 
+        self.line_len = line_len
+        self.spacing = spacing
+        self.offset = offset # (xpos, ypos) Normally center in a picture
+        self.points = [
+            (self.offset[0]-self.spacing-self.line_len, self.offset[1]),
+            (self.offset[0]-self.spacing, self.offset[1]),
+            (self.offset[0], self.offset[1]-self.spacing),
+            (self.offset[0]+self.spacing, self.offset[1]),
+            (self.offset[0]+self.spacing+self.line_len, self.offset[1])
+        ]
+
+
+    def rotate_point(self, x, y, angelrad):
+
+        x -= self.offset[0]
+        y -= self.offset[1]
+        x1 = x
+        y1 = y
+
+        x = x1*math.cos(angelrad) - y1*math.sin(angelrad)
+        y = x1*math.sin(angelrad) + y1*math.cos(angelrad)
+
+        x += self.offset[0]
+        y += self.offset[1]
+        return [int(x),int(y)]
+
+    def get_points(self, angel):
+        point_list = []
+        angelrad = math.radians(angel)
+        for a in self.points:
+            point_list.append(self.rotate_point(a[0], a[1], angelrad))
+        return point_list

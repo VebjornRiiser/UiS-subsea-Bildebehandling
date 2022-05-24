@@ -142,11 +142,27 @@ class Camera():
     def __init__(self, id:int, width:int=2560, height:int=720, framerate:int=30 ) -> None:
         self.id = id
         self.height = height
+        self.middley = int(height/2) # Center of picture y cord
         self.width = width
+        self.hud = True
+        tru_width = int(width/2)
+        self.length = int(width/18) # Long horisontal line for pitch
+        self.length2 = int(width/22) # Short horisontal line for pitch
+        self.length3 = int(width/36) # Cursor length
+        self.length4 = int(self.length3/4) # Cursor spacing and triangle side length
+        self.center = (width/4, height/2) # Center of picture
+        self.squarestart = [int(self.center[0]-self.length-self.length4-100), int(self.center[1]-self.length-8)]
+        self.squarestop = [int(self.center[0]-self.length-self.length4-60), int(self.center[1]+self.length+10)]
+        self.cursor = Cursor(self.length3, self.length4, self.center)
+        self.left = int(width/4-self.length3/2)
+        self.right = int(width/4+self.length3/2)
+        self.color = (0, 255, 0)
+        self.sensor = {"gyro": (0, 0, 0)}
         if platform == "linux" or platform == "linux2":
             self.feed = cv2.VideoCapture(self.id, cv2.CAP_V4L2)
         else:
             self.feed = cv2.VideoCapture(self.id)
+        self.dept = 0
         self.set_picture_size(self.width, self.height)
         #self.feed.set(cv2.CAP_PROP_FPS, framerate)
         self.feed.set(cv2.CAP_PROP_AUTOFOCUS, 3)
@@ -171,7 +187,6 @@ class Camera():
         self.width = int(self.feed.get(cv2.CAP_PROP_FRAME_WIDTH))
         print(f'{self.width}:{self.height}')
         self.crop_width = int(self.width/2)
-
 
     def aq_image(self, double:bool=False, t_pic:bool=False):
         #ref, frame = self.feed.read()
@@ -207,6 +222,62 @@ class Camera():
             return crop, crop2
         else:
             return crop
+
+    ## Draws on image
+    def draw_on_img(self, pic, frames):
+        if isinstance(frames, list):
+            if frames != []:
+                for item in frames: # Draws objects on picture
+                    cv2.rectangle(pic, item.rectangle[0], item.rectangle[1], item.colour, item.draw_line_width) # Draws rectablge on picture
+                    pos = (item.rectangle[0][0], item.rectangle[0][1]+40) # For readability
+                    cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3) # Red text
+                    cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 1) # White background
+                    if item.dept != 0: # Draws dept esitmation if there is one
+                        cv2.putText(pic, f'Distance:{int(item.dept)} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
+                        cv2.putText(pic, f'Distance:{int(item.dept)} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
+        if self.hud:
+            self.draw_hud(pic)
+    
+    def draw_hud(self, pic):
+        for a in range(-20,21, 5):
+            off = int(self.sensor['gyro'][2]*20+a*20 + self.middley)
+            if 0 < off < self.height:
+                if(a%2==0):
+                    length = self.length
+                else:
+                    length = self.length2
+                cv2.line(pic, (self.right, off), (self.right+length, off), self.color, 2) # 20 deg right
+                cv2.putText(pic, f'{a}', (int(self.right+length+10), int(off+5)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 20 deg right text
+                cv2.line(pic, (self.left-length, off), (self.left, off), self.color, 2) # 20 deg left
+                #cv2.putText(pic, f'{a}', (self.left-length-45, off+5), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2) # 20 deg left text
+        
+        # Depth
+        dept = self.sensor['gyro'][0]
+        self.dept += 0.3
+        dept = int(self.dept)
+        if self.dept > 3000:
+            self.dept = 0
+        
+        # Depth bar
+        cv2.rectangle(pic, self.squarestart, self.squarestop, self.color, 2)
+        cv2.putText(pic, f'Depth', (int(self.squarestart[0]-10) ,int(self.squarestart[1]-10)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
+        
+        # Depth bar lines
+        offset = int(dept - math.floor(dept/10)*10) * 3
+        dep_text = int(dept/10)*10 - 10 # last digit to 0
+        for a in range(100 , 0 , -10):
+            cv2.line(pic, (int(self.squarestart[0]+4), int(self.squarestart[1]+a*3-offset)), (int(self.squarestop[0]-4), int(self.squarestart[1]+a*3-offset)), self.color, 2)
+            if a != 0:
+                space = len(f'{(a-40+dep_text)}')
+                cv2.putText(pic, f'{(a-40+dep_text)}', (int(self.squarestart[0]-space*15-30), int(self.squarestart[1]+a*3-offset+5)), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)
+        space = len(f'{(dept)}')
+        
+        points = np.array(self.cursor.get_points(self.sensor['gyro'][1]))
+        cv2.polylines(pic, [points], False, (0,0,255), 2)
+        cv2.putText(pic, f'{dept}', (int(self.squarestart[0]-space*15-30), int(self.center[1]+5)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2)
+        cv2.line(pic, (int(self.squarestart[0]+4), int(self.center[1])), (int(self.squarestop[0]-4), int(self.center[1])), (0,0,255), 2)
+    def update_data(self, sens):
+        self.sensor = sens
 
 
 def find_calc_shapes(pic1, pic2):
@@ -403,11 +474,12 @@ def image_aqusition_thread(connection, boli):
                 s = mess[0].shape
                 yal = Yolo((s[1], s[0]))
         if isinstance(mess, str):
-            ln('123')
             if mess.lower() == 'stop': # Stoppes thread
                 break
             elif mess.lower() == 'fish': # Sets mode
                 mode = 1
+            elif mess.lower() == 'automerd':
+                mode = 2
             elif mess.lower() == 'mosaikk': # Sets mode
                 ln('Mode in IA set to  3')
                 mode = 3
@@ -427,6 +499,9 @@ def image_aqusition_thread(connection, boli):
                         mached_list = ath.compare_pixles(res1, res2, mess)
                 #time_list.append(time.time()-start)
                 connection.send(mached_list)
+            elif mode == 2:
+                #!! TODO Place function  here
+                pass
             elif mode == 3:
                 if new_pic:
                     new_pic = False
@@ -435,7 +510,6 @@ def image_aqusition_thread(connection, boli):
                 elif stitch:
                     stitch = False
                     if len(st_list) > 1:
-                        ln('Trying to stitch images')
                         pic = picure_stich(st_list)
                         st_list = []
                         if pic != []:
@@ -449,17 +523,6 @@ def image_aqusition_thread(connection, boli):
             #print(statistics.mean(time_list))
             time_list = []
         
-
-def draw_on_img(pic, frames):
-    if isinstance(frames, list):
-        for item in frames: # Draws objects on picture
-            cv2.rectangle(pic, item.rectangle[0], item.rectangle[1], item.colour, item.draw_line_width) # Draws rectablge on picture
-            pos = (item.rectangle[0][0], item.rectangle[0][1]+40) # For readability
-            cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3) # Red text
-            cv2.putText(pic, item.name, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 1) # White background
-            if item.dept != 0: # Draws dept esitmation if there is one
-                cv2.putText(pic, f'Distance:{int(item.dept)} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3, cv2.LINE_AA)
-                cv2.putText(pic, f'Distance:{int(item.dept)} cm',item.position, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
 
 
 ## Got access to one camera, can aquire images from camera, communicates with main process and can send picutres to image prossesing and stream ##
@@ -504,6 +567,11 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, loc
                 cam.feed.release()
                 cv2.destroyAllWindows()
                 break
+            elif shared_list[2] == 'sensor':
+                cam.update_data(shared_list[3])
+                shared_list[3] = 0
+            elif shared_list[2] == 'hud':
+                cam.hud != cam.hud
             else:
                 if isinstance(shared_list[2], int):
                     mode = shared_list[2]
@@ -514,7 +582,6 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, loc
                 else:
                     ln(f'Cameramode: {shared_list[2]}, is not supported')
                     shared_list[1] = 0
-                
         if mode == 0:
             pic = cam.aq_image(False, take_pic)
             take_pic = False
@@ -535,8 +602,6 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, loc
                 if picture_IA_pipe.poll():
                     draw_frames = picture_IA_pipe.recv()
                 picture_IA_pipe.send([pic, pic2])
-            if draw_frames != []:
-                draw_on_img(pic, draw_frames)
         elif mode == 3:
             pic, pic2 = cam.aq_image(True, take_pic)
             take_pic = False
@@ -548,6 +613,7 @@ def camera_thread(camera_id, connection, picture_send_pipe, picture_IA_pipe, loc
         if mode == 5:
             time.sleep(3)
         elif video_feed:
+            cam.draw_on_img(pic, draw_frames)
             picture_send_pipe.send(pic)
         else:
             cv2.imshow('FishCam',pic)
@@ -618,6 +684,9 @@ def pipe_com(connection, callback=None, name=None, list=None):
     else:
         while list[0]:
             list[2] = connection.recv()
+            if isinstance(list[2], dict):
+                list[3] = list[2] # Dictionary stored in index 3, can be dept, orientation etc
+                list[2] = 'sensor' # Codeword for sensor data
             list[1] = 1
 
 ## Checks if object positions overlap ##
@@ -726,11 +795,11 @@ class Theia():
 
     def camera_com_callback(self, msg, name):
         if name == self.cam_front_name:
-            print("Message revived from front camera: "+ msg)
+            #print("Message revived from front camera: "+ msg)
             self.camera_status[0] = 0
 
         elif name == self.cam_back_name:
-            print("Message revived back camera: "+ msg)
+            #print("Message revived back camera: "+ msg)
             self.camera_status[1] = 0
 
     def send_camera_func(self, camera_id, msg):

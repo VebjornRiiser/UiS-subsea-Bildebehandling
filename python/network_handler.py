@@ -141,7 +141,8 @@ def recieve_forever(conn):
             data:str = bytes.decode(data, "utf-8")
             if "heartbeat" not in data:
                 #if "ERROR" in data:
-                print(data)
+                pass
+                #print(data)
 
 
 if __name__ == "__main__":
@@ -197,6 +198,7 @@ if __name__ == "__main__":
                 asd = [[200, {"stitch": int(7)}]]
             elif a == 'gyro':
                 asd = [[96, 50]]
+                
                 
             mess = bytes(json.dumps("*"), "utf-8") + bytes(json.dumps(asd), "utf-8") + bytes(json.dumps("*"), "utf-8")
             client_conn.send(mess)
